@@ -11,6 +11,7 @@ import org.json.simple.parser.JSONParser;
 import commons.marcandreher.Cache.Action.DatabaseAction;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.GetRequest;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.Helpers.NewCrawler;
 import osu.serverlist.Input.Commands.ExceptionManager;
@@ -28,10 +29,10 @@ public class CheckServer extends DatabaseAction {
         super.executeAction(logger);
         
         String sql = "SELECT * FROM `un_servers`";
-        
+
         try {
             ResultSet serverCache = mysql.Query(sql);
-
+            System.out.println();
             while (serverCache.next()) {
                 
                 Server v = new Server();
@@ -41,7 +42,7 @@ public class CheckServer extends DatabaseAction {
    
                 v.setUrl(serverCache.getString("url"));
 
-                DelayedPrint dp = new DelayedPrint(v.getName());
+                DelayedPrint dp = new DelayedPrint(v.getName(), Prefix.ACTION);
                 NewCrawler nc = new NewCrawler(mysql);
                 UpdateAPIKey.executeAction(serverCache, v, mysql);
                 UpdateVotes.executeAction(mysql, v);
