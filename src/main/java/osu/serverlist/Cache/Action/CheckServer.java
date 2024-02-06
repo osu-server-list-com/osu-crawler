@@ -8,12 +8,9 @@ import java.time.LocalDate;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import commons.marcandreher.Cache.Action.Action;
-import commons.marcandreher.Commons.Database;
+import commons.marcandreher.Cache.Action.DatabaseAction;
 import commons.marcandreher.Commons.Flogger;
-import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
-import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.Helpers.NewCrawler;
 import osu.serverlist.Input.Commands.ExceptionManager;
@@ -23,17 +20,13 @@ import osu.serverlist.Utils.Endpoints.EndpointHandler;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 
-public class CheckServer implements Action {
-    private MySQL mysql;
+public class CheckServer extends DatabaseAction {
+ 
 
     @Override
     public void executeAction(Flogger logger) {
-
-        try {
-            this.mysql = Database.getConnection();
-        } catch (SQLException e) {
-            logger.log(Prefix.ERROR, "Failed to get Connection", 0);
-        }
+        super.executeAction(logger);
+        
         String sql = "SELECT * FROM `un_servers`";
         
         try {
@@ -148,11 +141,11 @@ public class CheckServer implements Action {
               
             }
         } catch (Exception e) {
-            mysql.close();
+            closeDb();
             ExceptionManager.addException(e);
             e.printStackTrace();
         }
-        mysql.close();
+        closeDb();
     }
 
     private void updatePlayerStats(Server v) {
