@@ -21,7 +21,7 @@ public class Crawler {
 
         Database db = new Database();
         db.setDefaultSettings();
-        db.setMaximumPoolSize(20);
+        db.setMaximumPoolSize(5);
         db.setConnectionTimeout(1000);
         db.connectToMySQL(CONFIG.getMySQLIp(), CONFIG.getMySQLUserName(), CONFIG.getMySQLPassword(), CONFIG.getMySQLDatabase(), ServerTimezone.UTC);
         
