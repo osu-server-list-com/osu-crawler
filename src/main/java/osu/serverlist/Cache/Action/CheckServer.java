@@ -1,17 +1,14 @@
 package osu.serverlist.Cache.Action;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import commons.marcandreher.Cache.Action.DatabaseAction;
 import commons.marcandreher.Commons.Flogger;
-import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.Flogger.Prefix;
+import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.Helpers.NewCrawler;
 import osu.serverlist.Input.Commands.ExceptionManager;
@@ -32,7 +29,6 @@ public class CheckServer extends DatabaseAction {
 
         try {
             ResultSet serverCache = mysql.Query(sql);
-            System.out.println();
             while (serverCache.next()) {
                 
                 Server v = new Server();
@@ -138,7 +134,6 @@ public class CheckServer extends DatabaseAction {
 
                 nc.updatePlayerCount(v);
 
-                updatePlayerStats(v);
               
             }
         } catch (Exception e) {
@@ -148,35 +143,6 @@ public class CheckServer extends DatabaseAction {
         }
         closeDb();
     }
-
-    private void updatePlayerStats(Server v) {
-        LocalDate currentDate = LocalDate.now();
-        DayOfWeek dayOfWeek = currentDate.getDayOfWeek();
-        int dayOfMonth = dayOfWeek.getValue();
-        ResultSet checkRs = mysql.Query("SELECT * FROM `un_playerstats` WHERE `server_id` = ? AND `day` = ?",
-                v.getId() + "", dayOfMonth + "");
-        try {
-            int i = 0;
-            while (checkRs.next()) {
-                i++;
-                if (v.getPlayers() > checkRs.getInt("players")) {
-                    mysql.Exec("UPDATE `un_playerstats` SET `players`=? WHERE `server_id` = ? AND `day` = ?",
-                            String.valueOf(v.getPlayers()), String.valueOf(v.getId()), String.valueOf(dayOfMonth));
-                }
-            }
-            if (i == 0) {
-                mysql.Exec("INSERT INTO `un_playerstats`(`day`, `server_id`, `players`) VALUES (?,?,?)",
-                        dayOfMonth + "", v.getId()
-                                + "",
-                        v.getPlayers() + "");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            ExceptionManager.addException(e);
-        }
-
-    }
-
     
     public static JSONObject parseJsonResponse(String jsonResponse) throws Exception {
         JSONParser parser = new JSONParser();

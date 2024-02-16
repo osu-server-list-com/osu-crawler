@@ -3,6 +3,7 @@ package osu.serverlist.Main;
 import commons.marcandreher.Cache.CacheTimer;
 import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
+import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Commons.Database.ServerTimezone;
 import commons.marcandreher.Input.CommandHandler;
 import osu.serverlist.Cache.Action.CheckServer;
@@ -14,7 +15,7 @@ public class Crawler {
     protected static Config CONFIG;
 
     public static void main(String[] args) {
-
+        MySQL.LOGLEVEL = 5;
         CONFIG = Config.initializeNewConfig();
 
         LOG = new Flogger(CONFIG.getLogLevel());
