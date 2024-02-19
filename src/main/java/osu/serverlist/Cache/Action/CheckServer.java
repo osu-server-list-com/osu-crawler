@@ -137,11 +137,11 @@ public class CheckServer extends DatabaseAction {
               
             }
         } catch (Exception e) {
-            closeDb();
+            
             ExceptionManager.addException(e);
             e.printStackTrace();
         }
-        closeDb();
+
     }
     
     public static JSONObject parseJsonResponse(String jsonResponse) throws Exception {
