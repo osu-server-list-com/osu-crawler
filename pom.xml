@@ -31,7 +31,7 @@
     <dependency>
       <groupId>com.github.marcandreher</groupId>
       <artifactId>commonsMH</artifactId>
-      <version>09a88de</version>
+      <version>ecca27c</version>
     </dependency>
   </dependencies>
 
