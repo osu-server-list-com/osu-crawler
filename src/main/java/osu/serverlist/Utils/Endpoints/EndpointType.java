@@ -5,5 +5,6 @@ public enum EndpointType {
     BANCHOPY,
     RIPPLEAPIV1,
     RIPPLEAPIV2,
-    GATARIAPI
+    GATARIAPI,
+    HEIAAPI
 }

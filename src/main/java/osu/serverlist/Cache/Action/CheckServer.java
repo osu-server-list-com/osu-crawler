@@ -10,6 +10,7 @@ import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Utils.DelayedPrint;
+import osu.serverlist.Cache.Action.Helpers.CrawlerType;
 import osu.serverlist.Cache.Action.Helpers.NewCrawler;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Models.Server;
@@ -19,23 +20,22 @@ import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 
 public class CheckServer extends DatabaseAction {
- 
 
     @Override
     public void executeAction(Flogger logger) {
         super.executeAction(logger);
-        
+
         String sql = "SELECT * FROM `un_servers`";
 
         try {
             ResultSet serverCache = mysql.Query(sql);
             while (serverCache.next()) {
-                
+
                 Server v = new Server();
                 v.setId(serverCache.getInt("id"));
                 v.setName(serverCache.getString("name"));
                 v.setVotes(serverCache.getInt("votes"));
-   
+
                 v.setUrl(serverCache.getString("url"));
 
                 DelayedPrint dp = new DelayedPrint(v.getName(), Prefix.ACTION);
@@ -52,7 +52,7 @@ public class CheckServer extends DatabaseAction {
                 JSONObject jsonObject = null;
                 long connectedClients = 0;
                 boolean noerrors = true;
-                
+
                 try {
                     switch (et) {
 
@@ -83,7 +83,6 @@ public class CheckServer extends DatabaseAction {
 
                             nc.updateRegisteredPlayerCount(v, totalPlayers.intValue());
 
-                            
                             break;
                         case RIPPLEAPIV1:
                             jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
@@ -95,7 +94,7 @@ public class CheckServer extends DatabaseAction {
                             dp.FinishPrint(true);
                             break;
                         case RIPPLEAPIV2:
-                        jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
                             jsonObject = parseJsonResponse(jsonResponse);
 
                             connectedClients = (long) jsonObject.get("connected_clients");
@@ -118,10 +117,49 @@ public class CheckServer extends DatabaseAction {
 
                             Long gatBannedPlayers = (long) js.get("banned");
                             nc.updateBannedPlayerCount(v, gatBannedPlayers.intValue());
+                            break;
+                        case HEIAAPI:
+                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                            jsonObject = parseJsonResponse(jsonResponse);
 
-                            
+                            JSONObject heiaData = (JSONObject) jsonObject.get("data");
+
+                            JSONObject heiaDataUsers = (JSONObject) heiaData.get("users");
+
+                            int heiaOnline = Integer.parseInt(heiaDataUsers.get("online").toString());
+                            int heiaRegistered = Integer.parseInt(heiaDataUsers.get("total").toString());
+                            int heiaBanned = Integer.parseInt(heiaDataUsers.get("restricted").toString());
+
+                            v.setPlayers(heiaOnline);
+
+                            nc.updateBannedPlayerCount(v, heiaBanned);
+
+                            nc.updateRegisteredPlayerCount(v, heiaRegistered);
+
+                            JSONObject heiaDataSquads = (JSONObject) heiaData.get("squads");
+
+                            int heiaSquads = Integer.parseInt(heiaDataSquads.get("total").toString());
+
+                            nc.updateAnyCount(CrawlerType.CLANS, v, heiaSquads);
+
+                            JSONObject heiaDataMaps = (JSONObject) heiaData.get("beatmaps");
+
+                            int heiaMaps = Integer.parseInt(heiaDataMaps.get("total").toString());
+
+                            nc.updateAnyCount(CrawlerType.MAPS, v, heiaMaps);
+
+                            JSONObject heiaDataPlays = (JSONObject) heiaData.get("scores");
+
+                            int heiaPlays = Integer.parseInt(heiaDataPlays.get("total").toString());
+
+                            nc.updateAnyCount(CrawlerType.PLAYS, v, heiaPlays);
+
+                            dp.FinishPrint(true);
+                            break;
+
                     }
                 } catch (Exception e) {
+
                     dp.FinishPrint(false);
                     noerrors = false;
                 }
@@ -134,16 +172,15 @@ public class CheckServer extends DatabaseAction {
 
                 nc.updatePlayerCount(v);
 
-              
             }
         } catch (Exception e) {
-            
+
             ExceptionManager.addException(e);
             e.printStackTrace();
         }
 
     }
-    
+
     public static JSONObject parseJsonResponse(String jsonResponse) throws Exception {
         JSONParser parser = new JSONParser();
         return (JSONObject) parser.parse(jsonResponse);
