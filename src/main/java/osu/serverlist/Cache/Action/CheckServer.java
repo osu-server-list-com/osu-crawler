@@ -132,6 +132,8 @@ public class CheckServer extends DatabaseAction {
 
                             v.setPlayers(heiaOnline);
 
+                            dp.FinishPrint(true);
+
                             nc.updateBannedPlayerCount(v, heiaBanned);
 
                             nc.updateRegisteredPlayerCount(v, heiaRegistered);
@@ -154,7 +156,6 @@ public class CheckServer extends DatabaseAction {
 
                             nc.updateAnyCount(CrawlerType.PLAYS, v, heiaPlays);
 
-                            dp.FinishPrint(true);
                             break;
 
                     }
