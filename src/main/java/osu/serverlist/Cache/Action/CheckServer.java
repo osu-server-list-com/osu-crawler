@@ -70,6 +70,7 @@ public class CheckServer extends DatabaseAction {
                             dp.FinishPrint(true);
                             nc.updateRegisteredPlayerCount(v, registeredPlayers.intValue());
                             nc.updateExtraBanchoPyStats(v);
+                            nc.setOnline(v);
                             break;
                         case LISEKAPI:
                             jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
@@ -80,7 +81,7 @@ public class CheckServer extends DatabaseAction {
 
                             v.setPlayers((int) connectedClients);
                             dp.FinishPrint(true);
-
+                            nc.setOnline(v);
                             nc.updateRegisteredPlayerCount(v, totalPlayers.intValue());
 
                             break;
@@ -92,6 +93,7 @@ public class CheckServer extends DatabaseAction {
 
                             v.setPlayers((int) connectedClients);
                             dp.FinishPrint(true);
+                            nc.setOnline(v);
                             break;
                         case RIPPLEAPIV2:
                             jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
@@ -100,6 +102,7 @@ public class CheckServer extends DatabaseAction {
                             connectedClients = (long) jsonObject.get("connected_clients");
                             v.setPlayers((int) connectedClients);
                             dp.FinishPrint(true);
+                            nc.setOnline(v);
                             break;
 
                         case GATARIAPI:
@@ -117,6 +120,7 @@ public class CheckServer extends DatabaseAction {
 
                             Long gatBannedPlayers = (long) js.get("banned");
                             nc.updateBannedPlayerCount(v, gatBannedPlayers.intValue());
+                            nc.setOnline(v);
                             break;
                         case HEIAAPI:
                             jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
@@ -155,15 +159,16 @@ public class CheckServer extends DatabaseAction {
                             int heiaPlays = Integer.parseInt(heiaDataPlays.get("total").toString());
 
                             nc.updateAnyCount(CrawlerType.PLAYS, v, heiaPlays);
-
+                            nc.setOnline(v);
                             break;
 
                     }
                 } catch (Exception e) {
-
+                    nc.setOffline(v);
                     dp.FinishPrint(false);
                     noerrors = false;
                 }
+            
 
                 DelayedPrint.PrintValue("VOTES", String.valueOf(v.getVotes()), noerrors);
                 DelayedPrint.PrintValue("PLAYERS", String.valueOf(v.getPlayers()), noerrors);
@@ -175,7 +180,7 @@ public class CheckServer extends DatabaseAction {
 
             }
         } catch (Exception e) {
-
+     
             ExceptionManager.addException(e);
             e.printStackTrace();
         }

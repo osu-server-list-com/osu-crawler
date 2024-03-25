@@ -14,6 +14,8 @@ import osu.serverlist.Models.Server;
 
 public class NewCrawler {
 
+    private final String ONLINE_STATUS_UPDATE_SQL = "UPDATE `un_servers` SET `online`= ? WHERE `id` = ?";
+
     private MySQL mysql;
 
     public NewCrawler(MySQL mysql) {
@@ -33,6 +35,14 @@ public class NewCrawler {
     public void updateRegisteredPlayerCount(Server v, int registered_players) {
         updateAnyCount(CrawlerType.REGISTERED_PLAYERS, v, registered_players);
         DelayedPrint.PrintValue("REGISTERED", String.valueOf(registered_players), true);
+    }
+
+    public void setOffline(Server v) {
+       mysql.Exec(ONLINE_STATUS_UPDATE_SQL, "0", String.valueOf(v.getId()));
+    }
+
+    public void setOnline(Server v) {
+        mysql.Exec(ONLINE_STATUS_UPDATE_SQL, "1", String.valueOf(v.getId()));
     }
 
     public void updateExtraBanchoPyStats(Server v) {
