@@ -164,6 +164,26 @@ public class CheckServer extends DatabaseAction {
                             nc.setOnline(v);
                             break;
 
+                        case ICEBERG:
+                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                            jsonObject = parseJsonResponse(jsonResponse);
+
+                            int iceScores = Integer.parseInt(jsonObject.get("total_scores").toString());
+                            int iceUsers = Integer.parseInt(jsonObject.get("total_users").toString());
+                            int iceOnline = Integer.parseInt(jsonObject.get("online_users").toString());
+
+                            v.setPlayers(iceOnline);
+
+                            dp.FinishPrint(true);
+
+                            nc.updateRegisteredPlayerCount(v, iceUsers);
+
+                            nc.updateAnyCount(CrawlerType.PLAYS, v, iceScores);
+
+                            nc.setOnline(v);
+                            
+                        break;
+
                     }
                 } catch (Exception e) {
                     nc.setOffline(v);
