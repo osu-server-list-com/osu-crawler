@@ -76,8 +76,10 @@ public class CheckServer extends DatabaseAction {
                             jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
                             jsonObject = parseJsonResponse(jsonResponse);
 
-                            connectedClients = (long) jsonObject.get("online");
-                            Long totalPlayers = (long) jsonObject.get("users");
+                            JSONObject data = (JSONObject) jsonObject.get("data");
+
+                            connectedClients = (long) data.get("online");
+                            Long totalPlayers = (long) data.get("users");
 
                             v.setPlayers((int) connectedClients);
                             dp.FinishPrint(true);
