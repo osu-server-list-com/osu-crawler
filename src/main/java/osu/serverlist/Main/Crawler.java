@@ -1,5 +1,7 @@
 package osu.serverlist.Main;
 
+import java.util.concurrent.TimeUnit;
+
 import commons.marcandreher.Cache.CacheTimer;
 import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
@@ -26,7 +28,7 @@ public class Crawler {
         db.setConnectionTimeout(1000);
         db.connectToMySQL(CONFIG.getMySQLIp(), CONFIG.getMySQLUserName(), CONFIG.getMySQLPassword(), CONFIG.getMySQLDatabase(), ServerTimezone.UTC);
         
-        CacheTimer cacheTimer = new CacheTimer(15, 1, LOG);
+        CacheTimer cacheTimer = new CacheTimer(15, 1, TimeUnit.MINUTES);
         cacheTimer.addAction(new CheckServer());
        
         if(args.length == 1 && !args[0].contains("-nocmd")) {
