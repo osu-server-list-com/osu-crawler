@@ -30,7 +30,6 @@ public class CheckServer extends DatabaseAction {
         try {
             ResultSet serverCache = mysql.Query(sql);
             while (serverCache.next()) {
-
                 Server v = new Server();
                 v.setId(serverCache.getInt("id"));
                 v.setName(serverCache.getString("name"));
@@ -40,6 +39,9 @@ public class CheckServer extends DatabaseAction {
 
                 DelayedPrint dp = new DelayedPrint(v.getName(), Prefix.ACTION);
                 NewCrawler nc = new NewCrawler(mysql);
+                try {
+                  
+               
                 UpdateAPIKey.executeAction(serverCache, v, mysql);
                 UpdateVotes.executeAction(mysql, v);
 
@@ -200,7 +202,14 @@ public class CheckServer extends DatabaseAction {
 
                 nc.updatePlayerCount(v);
 
+            
+                } catch (Exception e) {
+                    dp.FinishPrint(false);
+                   
+                }
             }
+
+                
         } catch (Exception e) {
      
             ExceptionManager.addException(e);
