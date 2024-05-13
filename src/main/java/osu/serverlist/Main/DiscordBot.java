@@ -47,9 +47,7 @@ public class DiscordBot {
 
             jdaInstance.retrieveCommands().queue(commands -> {
                 for (Command command : commands) {
-                    if (command.getName().equals("stats") || command.getName().equals("invite")) {
-                        jdaInstance.deleteCommandById(command.getId()).queue();
-                    }
+                    jdaInstance.deleteCommandById(command.getId()).queue();
                 }
             });
 
