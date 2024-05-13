@@ -2,6 +2,7 @@ package osu.serverlist.Main;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import commons.marcandreher.Cache.CacheTimer;
 import commons.marcandreher.Cache.Action.DatabaseAction;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -22,7 +24,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class DiscordBot {
 
-    public JDA jdaInstance;
+    public static JDA jdaInstance;
 
     public Dotenv dotenv;
 
@@ -32,37 +34,52 @@ public class DiscordBot {
 
         try {
             dotenv = Dotenv.configure().filename("discord.env").load();
-            jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN")).addEventListeners(new DiscordCommandHandler()).setActivity(activity).build().awaitReady();
+            jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN"))
+                    .addEventListeners(new DiscordCommandHandler()).setActivity(activity).build().awaitReady();
         } catch (Exception e) {
             logger.error(e);
             logger.log(Prefix.ERROR, "Failed to start DiscordBot", 0);
             return;
         }
         cacheTimer.addAction(new UpdateStatusChannel());
-        initializeCommand();
+
     }
 
-    public void initializeCommand() {
+    public static void deleteCommandsForAllServers() {
         try {
-
-            jdaInstance.retrieveCommands().queue(commands -> {
-                for (Command command : commands) {
-                    jdaInstance.deleteCommandById(command.getId()).queue();
-                }
-            });
-
-            jdaInstance.upsertCommand("stats", "Get stats of a server")
-                .addOption(OptionType.STRING, "server", "The name of the server", true, true)
-                .queue();
-
-            jdaInstance.upsertCommand("invite", "Invite the bot")
-                
-                .queue();
-        
+            List<Guild> guilds = jdaInstance.getGuilds();
+            for (Guild guild : guilds) {
+                guild.retrieveCommands().queue(commands -> {
+                    for (Command command : commands) {
+                        // Delete commands by their IDs
+                        jdaInstance.deleteCommandById(command.getId()).queue();
+                    }
+                });
+            }
         } catch (Exception e) {
-           Flogger.instance.error(e);
+            Flogger.instance.error(e);
         }
-      
+    }
+
+
+    public static void initializeCommand() {
+        try {
+            // Delete existing commands for all servers
+            deleteCommandsForAllServers();
+    
+            // Add or update commands for all servers
+            List<Guild> guilds = jdaInstance.getGuilds();
+            for (Guild guild : guilds) {
+                guild.upsertCommand("stats", "Get stats of a server")
+                    .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+                    .queue();
+    
+                guild.upsertCommand("invite", "Invite the bot")
+                    .queue();
+            }
+        } catch (Exception e) {
+            Flogger.instance.error(e);
+        }
     }
 
     public class UpdateStatusChannel extends DatabaseAction {
