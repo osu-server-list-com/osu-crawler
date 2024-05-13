@@ -28,12 +28,14 @@ public class Crawler {
         db.setConnectionTimeout(1000);
         db.connectToMySQL(CONFIG.getMySQLIp(), CONFIG.getMySQLUserName(), CONFIG.getMySQLPassword(), CONFIG.getMySQLDatabase(), ServerTimezone.UTC);
         
-        CacheTimer cacheTimer = new CacheTimer(15, 1, TimeUnit.MINUTES);
+        CacheTimer cacheTimer = new CacheTimer(1, 1, TimeUnit.MINUTES);
         cacheTimer.addAction(new CheckServer());
-       
+        new DiscordBot(LOG, cacheTimer);
+        
         if(args.length == 1 && !args[0].contains("-nocmd")) {
             return;
         }
+
         CommandHandler cmd = new CommandHandler(LOG);
         cmd.registerCommand(new ExceptionManager());
         cmd.initialize();

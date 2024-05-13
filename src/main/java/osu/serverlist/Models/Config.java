@@ -19,6 +19,7 @@ public class Config {
     private short cacheLevel = 1;
 
     private short logLevel = 1;
+    
 
 
 
