@@ -77,6 +77,12 @@ public class DiscordBot {
                 guild.upsertCommand("invite", "Invite the bot")
                     .queue();
             }
+
+            jdaInstance.upsertCommand("stats", "Get stats of a server")
+            .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+            .queue();
+            jdaInstance.upsertCommand("invite", "Invite the bot")
+            .queue();
         } catch (Exception e) {
             Flogger.instance.error(e);
         }
