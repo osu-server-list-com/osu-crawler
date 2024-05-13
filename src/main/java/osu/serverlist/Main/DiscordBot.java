@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class DiscordBot {
@@ -43,6 +44,14 @@ public class DiscordBot {
 
     public void initializeCommand() {
         try {
+
+            jdaInstance.retrieveCommands().queue(commands -> {
+                for (Command command : commands) {
+                    if (command.getName().equals("stats") || command.getName().equals("invite")) {
+                        jdaInstance.deleteCommandById(command.getId()).queue();
+                    }
+                }
+            });
 
             jdaInstance.upsertCommand("stats", "Get stats of a server")
                 .addOption(OptionType.STRING, "server", "The name of the server", true, true)
