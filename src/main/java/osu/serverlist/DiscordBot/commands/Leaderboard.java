@@ -145,13 +145,15 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 String name = (String) player.get("name");
                 long playerId = (long) player.get("player_id");
                 String country = (String) player.get("country");
+                String countryFlag = ":flag_" + country + ":";
+                if(country == "XX") countryFlag = ":flag_white:";
                 long pp = (long) player.get("pp");
                 double acc = (double) player.get("acc");
                 long playtime = (long) player.get("playtime");
                 double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
 
-                description += ":flag_" + country + ": [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"
-                        + playerId + ") #" + (rank * infos.offset) + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
+                description += countryFlag + " [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"
+                        + playerId + ") #" + (rank * (1 + infos.offset)) + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
 
         } catch (Exception e) {
