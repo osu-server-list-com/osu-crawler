@@ -104,6 +104,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
         }
         if(infos == null) {
             LeaderboardInformations infosS = new LeaderboardInformations();
+            
             infosS.server = server;
             infosS.mode = mode;
             infosS.sort = sort;
@@ -119,15 +120,16 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
     }
 
     public void requestLeaderboard(LeaderboardInformations infos, Event event) {
-
-
-        String url = endpoints.get(infos.server).getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId + "&limit=25&offset=" + infos.offset;
-        Flogger.instance.log(Prefix.API, "Request: " + url, 0);
-        String response;
+        String response = "";
+        String url = "";
         try {
+            url = endpoints.get(infos.server).getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId + "&limit=25&offset=" + infos.offset;
+            Flogger.instance.log(Prefix.API, "Request: " + url, 0);
+        
             response = new GetRequest(url).send("osu!ListBot");
         } catch (Exception e) {
-
+            e.printStackTrace();
+            System.out.println(response + " | " + url );
             return;
         }
 
