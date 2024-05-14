@@ -43,7 +43,7 @@ public class DiscordBot {
             List<Guild> guilds = jdaInstance.getGuilds();
             for (Guild guild : guilds) {
                 guild.retrieveCommands().complete().forEach(command -> {
-                    jdaInstance.deleteCommandById(command.getId()).queue(
+                    guild.deleteCommandById(command.getId()).queue(
                         success -> System.out.println("Command deleted: " + command.getName()),
                         error -> System.err.println("Failed to delete command: " + command.getName() + ", Error: " + error.getMessage())
                     );
