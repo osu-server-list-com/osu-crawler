@@ -34,12 +34,13 @@ public class Leaderboard implements DiscordCommand {
     public void handleCommand(SlashCommandInteractionEvent event) {
         String server = event.getOption("server").getAsString().toLowerCase();
         String mode = event.getOption("mode").getAsString().toLowerCase();
-        String sort = event.getOption("sort").getAsString().toLowerCase();
+        String sort = event.getOption("sort").getAsString();
         String modeId = ModeHelper.convertMode(mode);
         String sortId = SortHelper.convertSort(sort);
         event.deferReply().queue();
         
         if(modeId == null ||sortId == null) {
+          
             event.getHook().sendMessage("Invalid mode or sort").queue();
             return;
         }
