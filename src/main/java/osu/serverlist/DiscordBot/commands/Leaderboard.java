@@ -52,12 +52,8 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
     public void handleCommand(SlashCommandInteractionEvent event) {
 
         String userId = event.getUser().getId(); // Get user ID
-        LeaderboardInformations infos;
-        try {
-            infos = userOffsets.get(userId);
-        }catch(Exception e) {
-            infos = null;
-        }
+        LeaderboardInformations infos = null;
+     
         
         
         String server = event.getOption("server").getAsString().toLowerCase();
