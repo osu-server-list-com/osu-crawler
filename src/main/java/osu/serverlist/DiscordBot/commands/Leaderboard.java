@@ -148,7 +148,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 long playerId = (long) player.get("player_id");
                 String country = (String) player.get("country");
                 String countryFlag = ":flag_" + country + ":";
-                if(country == "XX") countryFlag = ":flag_white:";
+                if(country.equalsIgnoreCase("XX")) countryFlag = ":flag_white:";
                 long pp = (long) player.get("pp");
                 double acc = (double) player.get("acc");
                 long playtime = (long) player.get("playtime");
