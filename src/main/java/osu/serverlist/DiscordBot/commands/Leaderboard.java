@@ -164,9 +164,16 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
 
         Button nextPageButton;
         if(size == 25) {
-            nextPageButton = Button.secondary("next_page", "Next Page");
+            nextPageButton = Button.success("next_page", "Next Page");
         }else {
-            nextPageButton = null;
+            nextPageButton = Button.success("next_page", "Next Page").asDisabled();
+        }
+
+        Button prevPageButton;
+        if(infos.offset == 0) {
+            prevPageButton = Button.danger("prev_page", "Previous Page").asDisabled();
+        }else {
+            prevPageButton = Button.danger("prev_page", "Previous Page");
         }
         
 
@@ -183,9 +190,9 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
 
         if (event instanceof SlashCommandInteractionEvent) {
             ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
-                    .setActionRow(nextPageButton).queue();
+                    .setActionRow(prevPageButton, nextPageButton).queue();
         } else if (event instanceof ButtonInteractionEvent) {
-            ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(nextPageButton).queue();
+            ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(prevPageButton, nextPageButton).queue();
         }
     }
 
@@ -203,6 +210,21 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             } else {
                 event.reply("Not you're leaderboard or session expired");
             }
+        }else if(event.getComponentId().equals("prev_page")) {
+            LeaderboardInformations infos = userOffsets.get(userId);
+            if (infos != null) {
+                if(infos.offset > 0) {
+                    infos.offset -= 1;
+                    userOffsets.put(userId, infos);
+                    requestLeaderboard(infos, event);
+                    scheduleOffsetRemoval(userId);
+                }else {
+                    event.reply("You're already on the first page");
+                }
+            } else {
+                event.reply("Not you're leaderboard or session expired");
+            }
+        
         }
     }
     private void scheduleOffsetRemoval(String userId) {
