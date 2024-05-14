@@ -103,7 +103,6 @@ public class Profile implements DiscordCommand {
         try {
             response = new GetRequest(url).send("osu!ListBot");
         } catch (Exception e) {
-            Flogger.instance.error(e);
             event.getHook().sendMessage("User not found on " + endpoints.get(server).getName()).queue();
             return;
         }

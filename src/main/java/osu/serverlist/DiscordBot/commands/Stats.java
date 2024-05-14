@@ -75,7 +75,7 @@ public class Stats implements DiscordCommand {
 
                 String logoLoc = serverResult.getString("logo_loc");
                 if (logoLoc != null && !logoLoc.isEmpty() && !logoLoc.startsWith("http://")) {
-                    embed.setThumbnail("https://osu-server-list.com" + logoLoc);
+                    embed.setThumbnail("https://osu-server-list.com" + logoLoc.replaceAll(" ", "%20"));
                 }
                 embed.setColor(0x5755d9);
 
