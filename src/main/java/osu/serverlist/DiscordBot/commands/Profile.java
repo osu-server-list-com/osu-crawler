@@ -13,6 +13,7 @@ import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.MySQL;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -88,6 +89,7 @@ public class Profile implements DiscordCommand{
         }
 
         String url = endpoints.get(server) + "?name=" + name + "&scope=all";
+        Flogger.instance.log(Prefix.API, "Request: " + url, 0);
         String response;
         try {
             response = new GetRequest(url).send("osu!ListBot");
@@ -112,6 +114,12 @@ public class Profile implements DiscordCommand{
 
             // Now you can access individual properties within the modeObject
             Long id = (Long) modeObject.get("id");
+
+            if(id == null) {
+                event.getHook().sendMessage("Player not found").queue();
+                return;
+            }
+
             Long tscore = (Long) modeObject.get("tscore");
             Long rscore = (Long) modeObject.get("rscore");
             Long pp = (Long) modeObject.get("pp");
