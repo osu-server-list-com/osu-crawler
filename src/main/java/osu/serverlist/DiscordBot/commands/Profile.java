@@ -153,7 +153,7 @@ public class Profile implements DiscordCommand {
             Long rank = (Long) modeObject.get("rank");
             Long country_rank = (Long) modeObject.get("country_rank");
 
-            String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> " + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> " + x_count + " <:rankingXH:1239849498948407366> " + xh_count;
+            String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> " + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> " + x_count + " <:rankingXH:1239849494393126922> " + xh_count;
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(realName + " (" + mode + ")", endpoints.get(server).getUrl() + "/u/" + id)
@@ -169,8 +169,7 @@ public class Profile implements DiscordCommand {
                     .addField("Max Combo", max_combo.toString(), true)
                     .addField("Total Hits", total_hits.toString(), true)
                     .addField("Replay Views", replay_views.toString(), true)
-
-                    .addField("", numberCount, true)
+                    .addField("Rankings", numberCount, false)
                     .addField("Rank", "#" + rank.toString(), true)
                     .addField("Country Rank",  "#" + country_rank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
