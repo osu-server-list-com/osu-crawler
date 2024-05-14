@@ -129,6 +129,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         }
 
         String description = "";
+        int size = 0;
         try {
             // Parse the JSON string
             JSONParser parser = new JSONParser();
@@ -138,6 +139,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             JSONArray leaderboard = (JSONArray) jsonObject.get("leaderboard");
 
             int rank = infos.offset * 25;
+
             for (Object obj : leaderboard) {
                 JSONObject player = (JSONObject) obj;
                 rank++;
@@ -151,16 +153,24 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 double acc = (double) player.get("acc");
                 long playtime = (long) player.get("playtime");
                 double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
-
+                
                 description += countryFlag + " [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"
                         + playerId + ") #" + rank  + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
-
+            size = leaderboard.size();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Button nextPageButton = Button.secondary("next_page", "Next Page");
+        Button nextPageButton;
+        if(size == 25) {
+            nextPageButton = Button.secondary("next_page", "Next Page");
+        }else {
+            nextPageButton = null;
+        }
+        
+
+    
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Leaderboard for " + infos.server + " - " + infos.mode + " - " + infos.sort + " (Page "
