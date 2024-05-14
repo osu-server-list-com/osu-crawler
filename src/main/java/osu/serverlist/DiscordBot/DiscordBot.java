@@ -65,6 +65,12 @@ public class DiscordBot {
                 guild.upsertCommand("stats", "Get stats of a server")
                     .addOption(OptionType.STRING, "server", "The name of the server", true, true)
                     .queue();
+
+                guild.upsertCommand("profile", "Show the profile of the user")
+                    .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+                    .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
+                    .addOption(OptionType.STRING, "name", "Name on the server", true, false)
+                    .queue();
     
                 guild.upsertCommand("invite", "Invite the bot")
                     .queue();
@@ -73,7 +79,14 @@ public class DiscordBot {
             jdaInstance.upsertCommand("stats", "Get stats of a server")
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
             .queue();
+
             jdaInstance.upsertCommand("invite", "Invite the bot")
+            .queue();
+
+            jdaInstance.upsertCommand("profile", "Show the profile of the user")
+            .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+            .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
+            .addOption(OptionType.STRING, "name", "Name on the server", true, false)
             .queue();
         } catch (Exception e) {
             Flogger.instance.error(e);

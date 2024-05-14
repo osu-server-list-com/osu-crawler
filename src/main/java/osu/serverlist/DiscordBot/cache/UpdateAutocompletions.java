@@ -5,9 +5,12 @@ import java.util.ArrayList;
 
 import commons.marcandreher.Cache.Action.DatabaseAction;
 import commons.marcandreher.Commons.Flogger;
+import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Stats;
 
 public class UpdateAutocompletions extends DatabaseAction {
+
+    private final String BPY_PROFILE_SQL = "SELECT `name` FROM `un_servers` LEFT JOIN `un_endpoints` ON `un_servers`.`id` = `un_endpoints`.`srv_id` WHERE `visible` = 1 AND `type` = 'VOTE' AND `apitype` = 'BANCHOPY' ORDER BY `votes` DESC;";
 
     @Override
     public void executeAction(Flogger logger) {
@@ -27,6 +30,22 @@ public class UpdateAutocompletions extends DatabaseAction {
         } catch (Exception e) {
             Flogger.instance.error(e);
         }
+
+        ArrayList<String> serverProfile = new ArrayList<>();
+        try {
+            ResultSet serverRs = mysql.Query(BPY_PROFILE_SQL);
+            while (serverRs.next()) {
+                serverProfile.add(serverRs.getString("name"));
+                if (serverProfile.size() >= 25)
+                    break;
+            }
+
+            Profile.servers = serverProfile.toArray(new String[0]);
+
+        } catch (Exception e) {
+            Flogger.instance.error(e);
+        }
+
 
     }
 
