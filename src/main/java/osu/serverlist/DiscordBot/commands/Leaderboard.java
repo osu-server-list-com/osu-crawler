@@ -117,6 +117,8 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
             userOffsets.put(userId, infosS);
         }
 
+        requestLeaderboard(infos, event);
+
         
     }
 
