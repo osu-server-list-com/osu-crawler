@@ -201,7 +201,6 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(prevPageButton, nextPageButton).queue();
         }
     }
-
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String userId = event.getUser().getId();
@@ -214,23 +213,22 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 requestLeaderboard(infos, event);
                 scheduleOffsetRemoval(userId);
             } else {
-                event.reply("Not you're leaderboard or session expired");
+                return; 
             }
-        }else if(event.getComponentId().equals("prev_page")) {
+        } else if (event.getComponentId().equals("prev_page")) {
             LeaderboardInformations infos = userOffsets.get(userId);
             if (infos != null) {
-                if(infos.offset > 0) {
+                if (infos.offset > 0) {
                     infos.offset -= 1;
                     userOffsets.put(userId, infos);
                     requestLeaderboard(infos, event);
                     scheduleOffsetRemoval(userId);
-                }else {
-                    event.reply("You're already on the first page");
+                } else {
+                    return;
                 }
             } else {
-                event.reply("Not you're leaderboard or session expired");
+                return;
             }
-        
         }
     }
     private void scheduleOffsetRemoval(String userId) {
