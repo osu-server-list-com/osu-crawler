@@ -34,7 +34,7 @@ public class Profile implements DiscordCommand {
         String name = event.getOption("name").getAsString().toLowerCase();
         String mode = event.getOption("mode").getAsString().toLowerCase();
         event.deferReply().queue();
-
+        String modeSafe = mode;
         switch (mode) {
             case "osu":
                 mode = "0";
@@ -156,10 +156,9 @@ public class Profile implements DiscordCommand {
             String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> " + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> " + x_count + " <:rankingXH:1239849494393126922> " + xh_count;
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            embedBuilder.setTitle(realName + " (" + mode + ")", endpoints.get(server).getUrl() + "/u/" + id)
+            embedBuilder.setTitle(realName + " (" + modeSafe + ")", endpoints.get(server).getUrl() + "/u/" + id)
                     .setDescription(realName + " from :flag_" + country.toLowerCase() + ":")
                     .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + id)
-                    .addField("ID", id.toString(), true)
                     .addField("Total Score", tscore.toString(), true)
                     .addField("Ranked Score", rscore.toString() +"pp", true)
                     .addField("Performance Points", pp.toString(), true)
@@ -173,7 +172,7 @@ public class Profile implements DiscordCommand {
                     .addField("Rank", "#" + rank.toString(), true)
                     .addField("Country Rank",  "#" + country_rank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
-                    .setColor(0x00ff00);
+                    .setColor(0x5755d9);
 
             MessageEmbed embed = embedBuilder.build();
             event.getHook().sendMessageEmbeds(embed).queue();
