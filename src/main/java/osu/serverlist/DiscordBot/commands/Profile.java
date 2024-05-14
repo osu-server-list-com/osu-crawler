@@ -143,15 +143,25 @@ public class Profile implements DiscordCommand {
             Long playtime = (Long) modeObject.get("playtime");
             Double acc = (Double) modeObject.get("acc");
             Long max_combo = (Long) modeObject.get("max_combo");
-            Long total_hits = (Long) modeObject.get("total_hits");
-            Long replay_views = (Long) modeObject.get("replay_views");
+         
             Long xh_count = (Long) modeObject.get("xh_count");
             Long x_count = (Long) modeObject.get("x_count");
             Long sh_count = (Long) modeObject.get("sh_count");
             Long s_count = (Long) modeObject.get("s_count");
             Long a_count = (Long) modeObject.get("a_count");
-            Long rank = (Long) modeObject.get("rank");
-            Long country_rank = (Long) modeObject.get("country_rank");
+            Long rank= null;
+            Long country_rank = null;
+            Long total_hits = null;
+            Long replay_views = null;
+          
+            try {
+                 rank = (Long) modeObject.get("rank");
+                 country_rank = (Long) modeObject.get("country_rank");
+                 total_hits = (Long) modeObject.get("total_hits");
+                 replay_views = (Long) modeObject.get("replay_views");
+            } catch (Exception e) {
+                
+            }
 
             String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> " + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> " + x_count + " <:rankingXH:1239849494393126922> " + xh_count;
 
@@ -164,13 +174,17 @@ public class Profile implements DiscordCommand {
                     .addField("Performance Points", pp.toString() + "pp", true)
                     .addField("Plays", plays.toString(), true)
                     .addField("Playtime", playtime.toString(), true)
-                    .addField("Accuracy", acc.toString(), true)
-                    .addField("Max Combo", max_combo.toString(), true)
-                    .addField("Total Hits", total_hits.toString(), true)
-                    .addField("Replay Views", replay_views.toString(), true)
-                    .addField("Rankings", numberCount, false)
-                    .addField("Rank", "#" + rank.toString(), true)
-                    .addField("Country Rank",  "#" + country_rank.toString(), true)
+                    .addField("Accuracy", acc.toString() + "%", true)
+                    .addField("Max Combo", max_combo.toString(), true);
+                    
+            if(total_hits != null && replay_views != null)
+            embedBuilder = embedBuilder.addField("Total Hits", total_hits.toString(), true)
+                    .addField("Replay Views", replay_views.toString(), true);
+
+            embedBuilder = embedBuilder.addField("Rankings", numberCount, false);
+                
+            if(rank != null && country_rank != null)
+            embedBuilder = embedBuilder .addField("Rank", "#" + rank.toString(), true).addField("Country Rank",  "#" + country_rank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
                     .setColor(0x5755d9);
 
