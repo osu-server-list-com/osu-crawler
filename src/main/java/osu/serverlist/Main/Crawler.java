@@ -9,6 +9,7 @@ import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Commons.Database.ServerTimezone;
 import commons.marcandreher.Input.CommandHandler;
 import osu.serverlist.Cache.Action.CheckServer;
+import osu.serverlist.DiscordBot.DiscordBot;
 import osu.serverlist.Input.Commands.DelCmds;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Input.Commands.InitCmds;

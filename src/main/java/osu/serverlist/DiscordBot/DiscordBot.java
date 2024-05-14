@@ -1,0 +1,85 @@
+package osu.serverlist.DiscordBot;
+
+import java.util.List;
+
+import commons.marcandreher.Cache.CacheTimer;
+import commons.marcandreher.Commons.Flogger;
+import commons.marcandreher.Commons.Flogger.Prefix;
+import io.github.cdimascio.dotenv.Dotenv;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import osu.serverlist.DiscordBot.cache.UpdateAutocompletions;
+import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
+
+public class DiscordBot {
+
+    public static JDA jdaInstance;
+
+    public Dotenv dotenv;
+
+    public DiscordBot(Flogger logger, CacheTimer cacheTimer) {
+
+        Activity activity = Activity.playing("osu-server-list.com");
+
+        try {
+            dotenv = Dotenv.configure().filename("discord.env").load();
+            jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN"))
+                    .addEventListeners(new DiscordCommandHandler()).setActivity(activity).build().awaitReady();
+        } catch (Exception e) {
+            logger.error(e);
+            logger.log(Prefix.ERROR, "Failed to start DiscordBot", 0);
+            return;
+        }
+        cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
+        cacheTimer.addAction(new UpdateAutocompletions());
+
+    }
+
+    public static void deleteCommandsForAllServers() {
+        try {
+            List<Guild> guilds = jdaInstance.getGuilds();
+            for (Guild guild : guilds) {
+                guild.retrieveCommands().queue(commands -> {
+                    for (Command command : commands) {
+                        // Delete commands by their IDs
+                        jdaInstance.deleteCommandById(command.getId()).queue();
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Flogger.instance.error(e);
+        }
+    }
+
+
+    public static void initializeCommand() {
+        try {
+            deleteCommandsForAllServers();
+    
+            List<Guild> guilds = jdaInstance.getGuilds();
+            for (Guild guild : guilds) {
+                guild.upsertCommand("stats", "Get stats of a server")
+                    .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+                    .queue();
+    
+                guild.upsertCommand("invite", "Invite the bot")
+                    .queue();
+            }
+
+            jdaInstance.upsertCommand("stats", "Get stats of a server")
+            .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+            .queue();
+            jdaInstance.upsertCommand("invite", "Invite the bot")
+            .queue();
+        } catch (Exception e) {
+            Flogger.instance.error(e);
+        }
+    }
+
+   
+
+}

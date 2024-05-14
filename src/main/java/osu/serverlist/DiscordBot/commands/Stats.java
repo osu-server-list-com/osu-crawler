@@ -1,54 +1,24 @@
-package osu.serverlist.Main;
+package osu.serverlist.DiscordBot.commands;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import commons.marcandreher.Commons.Database;
-import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
-import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import osu.serverlist.DiscordBot.DiscordCommand;
 
-public class DiscordCommandHandler extends ListenerAdapter {
-    private static String[] servers = { "Loading..." };
+public class Stats implements DiscordCommand {
 
-    public static void updateServers(MySQL mysql) {
-        ArrayList<String> serverList = new ArrayList<>();
-        try {
-            ResultSet serverRs = mysql.Query("SELECT `name` FROM `un_servers` WHERE `visible` = 1 ORDER BY votes DESC");
-            while (serverRs.next()) {
-                serverList.add(serverRs.getString("name"));
-                if (serverList.size() >= 25)
-                    break;
-            }
-
-            servers = serverList.toArray(new String[0]);
-
-        } catch (Exception e) {
-            Flogger.instance.error(e);
-        }
-    }
+    public static String[] servers = { "Loading..." };
 
     @Override
-    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
-        if (event.getName().equals("stats") && event.getFocusedOption().getName().equals("server")) {
-            List<Command.Choice> options = Stream.of(servers)
-                    .filter(server -> server.toLowerCase()
-                            .startsWith(event.getFocusedOption().getValue().toLowerCase()))
-                    .map(server -> new Command.Choice(server, server))
-                    .collect(Collectors.toList());
-            event.replyChoices(options).queue();
-        }
-    }
-
-    private void handleStatsCommand(SlashCommandInteractionEvent event) {
+    public void handleCommand(SlashCommandInteractionEvent event) {
         String server = event.getOption("server").getAsString().toLowerCase();
         event.deferReply().queue();
 
@@ -123,14 +93,18 @@ public class DiscordCommandHandler extends ListenerAdapter {
     }
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        Flogger.instance.log(Prefix.API, "Slash Command: " + event.getName(), 0);
-        if (event.getName().equals("stats")) {
-            handleStatsCommand(event);
-        } else {
-            String inviteUrl = event.getJDA().getInviteUrl();
-            event.reply("Here's the invite link: " + inviteUrl).queue();
-        }
+    public void handleAutoComplete(CommandAutoCompleteInteractionEvent event) {
+        List<Command.Choice> options = Stream.of(servers)
+                .filter(server -> server.toLowerCase()
+                        .startsWith(event.getFocusedOption().getValue().toLowerCase()))
+                .map(server -> new Command.Choice(server, server))
+                .collect(Collectors.toList());
+        event.replyChoices(options).queue();
+    }
+
+    @Override
+    public String getName() {
+        return "stats";
     }
 
 }

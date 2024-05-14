@@ -2,7 +2,7 @@ package osu.serverlist.Input.Commands;
 
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Input.Command;
-import osu.serverlist.Main.DiscordBot;
+import osu.serverlist.DiscordBot.DiscordBot;
 
 public class InitCmds implements Command{
 
