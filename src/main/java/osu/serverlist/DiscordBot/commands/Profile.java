@@ -88,7 +88,7 @@ public class Profile implements DiscordCommand{
             return;
         }
 
-        String url = endpoints.get(server) + "?name=" + name + "&scope=all";
+        String url = endpoints.get(server) + "?name=" + name.replaceAll(" ", "%20") + "&scope=all";
         Flogger.instance.log(Prefix.API, "Request: " + url, 0);
         String response;
         try {
@@ -102,24 +102,29 @@ public class Profile implements DiscordCommand{
         JSONParser parser = new JSONParser();
         try {
             JSONObject json = (JSONObject) parser.parse(response);
-
+        
             // Get the "player" object
             JSONObject player = (JSONObject) json.get("player");
-
-            // Get the "stats" object within the "player" object
-            JSONObject stats = (JSONObject) player.get("stats");
-
-            // Get the mode object based on the mode selected
-            JSONObject modeObject = (JSONObject) stats.get(mode);
-
-            // Now you can access individual properties within the modeObject
-            Long id = (Long) modeObject.get("id");
-
-            if(id == null) {
+        
+            // Get the "info" object within the "player" object
+            JSONObject info = (JSONObject) player.get("info");
+        
+            // Get the "id" from the "info" object
+            Long id = (Long) info.get("id");
+        
+            // Check if id is null, indicating player not found
+            if (id == null) {
                 event.getHook().sendMessage("Player not found").queue();
                 return;
             }
-
+        
+            // Get the "stats" object within the "player" object
+            JSONObject stats = (JSONObject) player.get("stats");
+        
+            // Get the mode object based on the mode selected
+            JSONObject modeObject = (JSONObject) stats.get(mode);
+        
+            // Now you can access individual properties within the modeObject
             Long tscore = (Long) modeObject.get("tscore");
             Long rscore = (Long) modeObject.get("rscore");
             Long pp = (Long) modeObject.get("pp");
@@ -136,7 +141,7 @@ public class Profile implements DiscordCommand{
             Long a_count = (Long) modeObject.get("a_count");
             Long rank = (Long) modeObject.get("rank");
             Long country_rank = (Long) modeObject.get("country_rank");
-
+        
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle("Player Stats")
                     .setDescription("Stats for the selected mode")
@@ -158,14 +163,15 @@ public class Profile implements DiscordCommand{
                     .addField("Rank", rank.toString(), true)
                     .addField("Country Rank", country_rank.toString(), true)
                     .setColor(0x00ff00);
-
+        
             MessageEmbed embed = embedBuilder.build();
             event.getHook().sendMessageEmbeds(embed).queue();
-                    } catch (Exception e) {
+        } catch (Exception e) {
             Flogger.instance.error(e);
             event.getHook().sendMessage("Internal error").queue();
             return;
         }
+        
 
 
 
