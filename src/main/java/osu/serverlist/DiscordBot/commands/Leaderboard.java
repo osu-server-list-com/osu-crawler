@@ -45,6 +45,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         public String modeId;
         public String sortId;
         public String description;
+        private String messageId;
         public int offset;
     }
 
@@ -106,6 +107,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         infosS.modeId = modeId;
         infosS.sortId = sortId;
         infosS.offset = 0;
+    
 
         userOffsets.put(userId, infosS);
 
@@ -180,17 +182,21 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Leaderboard for " + infos.server + " - " + infos.mode + " - " + infos.sort + " (Page "
+        embed.setTitle("Leaderboard for " + infos.server + " - " + infos.mode.toUpperCase() + " - " + infos.sort + " (Page "
                 + (infos.offset + 1) + ")");
         embed.setDescription(description);
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
-        System.out.println("Reached end");
 
         if (event instanceof SlashCommandInteractionEvent) {
             ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
-                    .setActionRow(prevPageButton, nextPageButton).queue();
+            .setActionRow(prevPageButton, nextPageButton)
+            .queue(message -> {
+                SlashCommandInteractionEvent event2 = (SlashCommandInteractionEvent) event;
+                String messageId = message.getId();
+               userOffsets.get(event2.getUser().getId()).messageId = messageId;
+            });
         } else if (event instanceof ButtonInteractionEvent) {
             ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(prevPageButton, nextPageButton).queue();
         }
@@ -202,7 +208,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     
         if (event.getComponentId().equals("next_page")) {
             LeaderboardInformations infos = userOffsets.get(userId);
-            if (infos != null) {
+            if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
                 requestLeaderboard(infos, event);
