@@ -137,7 +137,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             // Get the "leaderboard" array
             JSONArray leaderboard = (JSONArray) jsonObject.get("leaderboard");
 
-            int rank = 0;
+            int rank = infos.offset * 25;
             for (Object obj : leaderboard) {
                 JSONObject player = (JSONObject) obj;
                 rank++;
@@ -153,7 +153,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
 
                 description += countryFlag + " [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"
-                        + playerId + ") #" + (rank * (1 + infos.offset)) + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
+                        + playerId + ") #" + rank  + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
 
         } catch (Exception e) {
