@@ -107,7 +107,7 @@ public class Leaderboard implements DiscordCommand {
                 long playtime = (long) player.get("playtime");
                 double playtimeHr =  Math.floor(playtime / 3600 * 100) / 100;
 
-                description += ":flag_" + country + ": [" + name + "](" + endpoints.get(server).getUrl() + "/u/"+playerId+ ") #"+rank + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)";
+                description += ":flag_" + country + ": [" + name + "](" + endpoints.get(server).getUrl() + "/u/"+playerId+ ") #"+rank + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
 
             EmbedBuilder embed = new EmbedBuilder();
