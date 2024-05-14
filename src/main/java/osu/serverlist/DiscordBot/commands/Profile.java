@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import osu.serverlist.DiscordBot.DiscordCommand;
+import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.Models.ServerInformations;
 
 public class Profile implements DiscordCommand {
@@ -35,47 +36,23 @@ public class Profile implements DiscordCommand {
         String mode = event.getOption("mode").getAsString().toLowerCase();
         event.deferReply().queue();
         String modeSafe = mode;
-        switch (mode) {
-            case "osu":
-                mode = "0";
-                break;
-            case "osurx":
-                mode = "4";
-                break;
-            case "osuap":
-                mode = "8";
-                break;
-            case "taiko":
-                mode = "1";
-                break;
-            case "catch":
-                mode = "2";
-                break;
-            case "mania":
-                mode = "3";
-                break;
-            case "taikorx":
-                mode = "5";
-                break;
-            case "catchrx":
-                mode = "6";
-                break;
-            default:
-                event.getHook().sendMessage("Invalid mode").queue();
-                return;
+
+        mode = ModeHelper.convertMode(mode);
+        if (mode == null) {
+            event.getHook().sendMessage("Invalid mode").queue();
+            return;
         }
 
         MySQL mysql = null;
         try {
             mysql = Database.getConnection();
-            // Get endpoint from db
             if (!endpoints.containsKey(server)) {
-
                 ResultSet endpointResult = mysql.Query(
-                        "SELECT `endpoint`, `devserver`, `url`, `name` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = 'VOTE' AND `apitype` = 'BANCHOPY' AND LOWER(`name`) = ?",
+                        "SELECT `endpoint`, `devserver`, `url`, `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = 'VOTE' AND `apitype` = 'BANCHOPY' AND LOWER(`name`) = ?",
                         server);
                 while (endpointResult.next()) {
-
+                    if (!endpointResult.getBoolean("dcbot"))
+                        continue;
                     ServerInformations s = new ServerInformations();
                     s.setEndpoint(endpointResult.getString("endpoint"));
                     s.setAvatarServer("https://a." + endpointResult.getString("devserver"));
@@ -135,16 +112,15 @@ public class Profile implements DiscordCommand {
             Long plays = (Long) modeObject.get("plays");
             Long playtime = (Long) modeObject.get("playtime");
 
-
             Double acc = (Double) modeObject.get("acc");
             Long max_combo = (Long) modeObject.get("max_combo");
-         
+
             Long xh_count = (Long) modeObject.get("xh_count");
             Long x_count = (Long) modeObject.get("x_count");
             Long sh_count = (Long) modeObject.get("sh_count");
             Long s_count = (Long) modeObject.get("s_count");
             Long a_count = (Long) modeObject.get("a_count");
-            
+
             Long rank = (Long) modeObject.get("rank");
             Long country_rank = (Long) modeObject.get("country_rank");
             Long total_hits = (Long) modeObject.get("total_hits");
@@ -152,7 +128,9 @@ public class Profile implements DiscordCommand {
 
             double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
 
-            String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> " + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> " + x_count + " <:rankingXH:1239849494393126922> " + xh_count;
+            String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> "
+                    + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> "
+                    + x_count + " <:rankingXH:1239849494393126922> " + xh_count;
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(realName + " (" + modeSafe + ")", endpoints.get(server).getUrl() + "/u/" + id)
@@ -164,8 +142,11 @@ public class Profile implements DiscordCommand {
                     .addField("Plays", plays.toString(), true)
                     .addField("Playtime", playtimeHr + "hours", true)
                     .addField("Accuracy", acc.toString() + "%", true)
-                    .addField("Max Combo", max_combo.toString(), true).addField("Total Hits", total_hits.toString(), true)
-                    .addField("Replay Views", replay_views.toString(), true).addField("Rankings", numberCount, false).addField("Rank", "#" + rank.toString(), true).addField("Country Rank",  "#" + country_rank.toString(), true)
+                    .addField("Max Combo", max_combo.toString(), true)
+                    .addField("Total Hits", total_hits.toString(), true)
+                    .addField("Replay Views", replay_views.toString(), true).addField("Rankings", numberCount, false)
+                    .addField("Rank", "#" + rank.toString(), true)
+                    .addField("Country Rank", "#" + country_rank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
                     .setColor(0x5755d9);
 
@@ -189,8 +170,9 @@ public class Profile implements DiscordCommand {
                     .collect(Collectors.toList());
             event.replyChoices(options).queue();
         } else if (event.getFocusedOption().getName().equals("mode")) {
+        
             List<Command.Choice> options = Stream
-                    .of("osu", "osurx", "osuap", "taiko", "catch", "mania", "taikorx", "catchrx")
+                    .of(ModeHelper.modeArray)
                     .filter(mode -> mode.toLowerCase()
                             .startsWith(event.getFocusedOption().getValue().toLowerCase()))
                     .map(mode -> new Command.Choice(mode, mode))

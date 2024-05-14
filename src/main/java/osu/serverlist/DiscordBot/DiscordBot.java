@@ -86,6 +86,12 @@ public class DiscordBot {
             .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
             .addOption(OptionType.STRING, "name", "Name on the server", true, false)
             .queue();
+
+            jdaInstance.upsertCommand("leaderboard", "Show the leaderboard")
+            .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+            .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
+            .addOption(OptionType.STRING, "sort", "How you want to sort the leaderboard", true, true)
+            .queue();
         } catch (Exception e) {
             Flogger.instance.error(e);
         }

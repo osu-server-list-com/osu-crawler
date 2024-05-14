@@ -5,6 +5,7 @@ import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Stats;
 
@@ -22,6 +23,11 @@ public class DiscordCommandHandler extends ListenerAdapter {
             return;
         }
 
+        if (event.getName().equals("leaderboard")) {
+            new Leaderboard().handleAutoComplete(event);
+            return;
+        }
+
 
     }
 
@@ -32,6 +38,8 @@ public class DiscordCommandHandler extends ListenerAdapter {
             new Stats().handleCommand(event);
         } else if(event.getName().equals("profile")) { 
             new Profile().handleCommand(event);
+        }else if(event.getName().equals("leaderboard")) { 
+            new Leaderboard().handleCommand(event);
         }else {
             String inviteUrl = event.getJDA().getInviteUrl();
             event.reply("Here's the invite link: " + inviteUrl).queue();
