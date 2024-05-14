@@ -3,6 +3,9 @@ package osu.serverlist.DiscordBot.commands;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,20 +21,27 @@ import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper.SortHelper;
 import osu.serverlist.Models.ServerInformations;
 
-public class Leaderboard implements DiscordCommand {
+public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
 
     public static String[] servers = { "Loading..." };
     
     public static HashMap<String, ServerInformations> endpoints = new HashMap<>();
-
+    public static Map<String, Integer> userOffsets = new HashMap<>();
     @Override
     public void handleCommand(SlashCommandInteractionEvent event) {
+
+        String userId = event.getUser().getId(); // Get user ID
+        int offset = userOffsets.getOrDefault(userId, 0);
+        userOffsets.put(userId, offset + 1);
+
         String server = event.getOption("server").getAsString().toLowerCase();
         String mode = event.getOption("mode").getAsString().toLowerCase();
         String sort = event.getOption("sort").getAsString();
@@ -76,16 +86,16 @@ public class Leaderboard implements DiscordCommand {
             return;
         }
 
-        String url = endpoints.get(server).getEndpoint() + "?sort=" + sortId + "&mode=" + modeId + "&limit=25&offset=0";
+        String url = endpoints.get(server).getEndpoint() + "?sort=" + sortId + "&mode=" + modeId + "&limit=25&offset=" + offset;
         Flogger.instance.log(Prefix.API, "Request: " + url, 0);
         String response;
         try {
             response = new GetRequest(url).send("osu!ListBot");
         } catch (Exception e) {
-            event.getHook().sendMessage("User not found on " + endpoints.get(server).getName()).queue();
+
             return;
         }
-
+        String description = "";
          try {
             // Parse the JSON string
             JSONParser parser = new JSONParser();
@@ -93,7 +103,7 @@ public class Leaderboard implements DiscordCommand {
 
             // Get the "leaderboard" array
             JSONArray leaderboard = (JSONArray) jsonObject.get("leaderboard");
-            String description = "";
+           
             int rank = 0;
             for (Object obj : leaderboard) {
                 JSONObject player = (JSONObject) obj;
@@ -110,16 +120,42 @@ public class Leaderboard implements DiscordCommand {
                 description += ":flag_" + country + ": [" + name + "](" + endpoints.get(server).getUrl() + "/u/"+playerId+ ") #"+rank + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
 
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("Leaderboard for " + server + " - " + mode.toUpperCase() + " - " + sort);
-            embed.setDescription(description);
-            embed.setColor(0x5755d9);
-            embed.setFooter("Data from " + endpoints.get(server).getName());
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
+          
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Button nextPageButton = Button.secondary("next_page", "Next Page");
+        EmbedBuilder embed = buildLeaderboardEmbed(server, mode.toUpperCase(), sort, description);
+        
+        event.getHook().sendMessageEmbeds(embed.build()).setActionRow(nextPageButton).queue();
+        scheduleOffsetRemoval(userId);
     }
+
+    
+
+    private EmbedBuilder buildLeaderboardEmbed(String server, String mode, String sort, String description) {
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Leaderboard for " + server + " - " + mode + " - " + sort);
+        embed.setDescription(description);
+        embed.setColor(0x5755d9);
+        embed.setFooter("Data from " + endpoints.get(server).getName());
+        return embed;
+    }
+    
+    private void scheduleOffsetRemoval(String userId) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                userOffsets.remove(userId);
+                timer.cancel();
+            }
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    }
+
+  
+
 
     @Override
     public void handleAutoComplete(CommandAutoCompleteInteractionEvent event) {

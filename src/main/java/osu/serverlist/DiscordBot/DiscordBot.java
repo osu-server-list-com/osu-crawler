@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import osu.serverlist.DiscordBot.cache.UpdateAutocompletions;
 import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
+import osu.serverlist.DiscordBot.commands.Leaderboard;
 
 public class DiscordBot {
 
@@ -27,7 +28,7 @@ public class DiscordBot {
         try {
             dotenv = Dotenv.configure().filename("discord.env").load();
             jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN"))
-                    .addEventListeners(new DiscordCommandHandler()).setActivity(activity).build().awaitReady();
+                    .addEventListeners(new DiscordCommandHandler(), new Leaderboard()).setActivity(activity).build().awaitReady();
         } catch (Exception e) {
             logger.error(e);
             logger.log(Prefix.ERROR, "Failed to start DiscordBot", 0);
