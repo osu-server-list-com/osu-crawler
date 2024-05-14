@@ -153,13 +153,15 @@ public class Profile implements DiscordCommand {
             Long rank = (Long) modeObject.get("rank");
             Long country_rank = (Long) modeObject.get("country_rank");
 
+            String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> " + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> " + x_count + " <:rankingXH:1239849498948407366> " + xh_count;
+
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(realName + " (" + mode + ")", endpoints.get(server).getUrl() + "/u/" + id)
                     .setDescription(realName + " from :flag_" + country.toLowerCase() + ":")
                     .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + id)
                     .addField("ID", id.toString(), true)
                     .addField("Total Score", tscore.toString(), true)
-                    .addField("Ranked Score", rscore.toString(), true)
+                    .addField("Ranked Score", rscore.toString() +"pp", true)
                     .addField("Performance Points", pp.toString(), true)
                     .addField("Plays", plays.toString(), true)
                     .addField("Playtime", playtime.toString(), true)
@@ -167,13 +169,10 @@ public class Profile implements DiscordCommand {
                     .addField("Max Combo", max_combo.toString(), true)
                     .addField("Total Hits", total_hits.toString(), true)
                     .addField("Replay Views", replay_views.toString(), true)
-                    .addField("XH Count", xh_count.toString(), true)
-                    .addField("X Count", x_count.toString(), true)
-                    .addField("SH Count", sh_count.toString(), true)
-                    .addField("S Count", s_count.toString(), true)
-                    .addField("A Count", a_count.toString(), true)
-                    .addField("Rank", rank.toString(), true)
-                    .addField("Country Rank", country_rank.toString(), true)
+
+                    .addField("", numberCount, true)
+                    .addField("Rank", "#" + rank.toString(), true)
+                    .addField("Country Rank",  "#" + country_rank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
                     .setColor(0x00ff00);
 
