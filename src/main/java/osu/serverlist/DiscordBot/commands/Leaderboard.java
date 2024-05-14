@@ -151,7 +151,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
 
                 description += ":flag_" + country + ": [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"
-                        + playerId + ") #" + (rank * offset) + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
+                        + playerId + ") #" + (rank * infos.offset) + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
 
         } catch (Exception e) {
@@ -183,15 +183,12 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     
         if (event.getComponentId().equals("next_page")) {
             LeaderboardInformations infos = userOffsets.get(userId);
-            
-            // Check if user information is found
             if (infos != null) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
                 requestLeaderboard(infos, event);
                 scheduleOffsetRemoval(userId);
             } else {
-                // Cancel the button event if user information is not found
                 event.reply("Not you're leaderboard or session expired");
             }
         }
