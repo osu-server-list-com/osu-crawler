@@ -76,7 +76,7 @@ public class Leaderboard implements DiscordCommand {
             return;
         }
 
-        String url = endpoints.get(server).getEndpoint() + "?sort=" + sortId + "&mode=" + modeId + "&limit=50&offset=0";
+        String url = endpoints.get(server).getEndpoint() + "?sort=" + sortId + "&mode=" + modeId + "&limit=25&offset=0";
         Flogger.instance.log(Prefix.API, "Request: " + url, 0);
         String response;
         try {
@@ -111,7 +111,7 @@ public class Leaderboard implements DiscordCommand {
             }
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("Leaderboard for " + server + " - " + mode + " - " + sort);
+            embed.setTitle("Leaderboard for " + server + " - " + mode.toUpperCase() + " - " + sort);
             embed.setDescription(description);
             embed.setColor(0x5755d9);
             embed.setFooter("Data from " + endpoints.get(server).getName());

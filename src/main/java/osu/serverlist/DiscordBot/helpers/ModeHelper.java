@@ -30,7 +30,7 @@ public class ModeHelper {
 
     public class SortHelper {
         //Available values : tscore, rscore, pp, acc, plays, playtime
-        public static String[] sortArray = { "Total Score", "Rated Score", "PP", "ACC", "Plays", "Playtime" };
+        public static String[] sortArray = { "PP", "ACC", "Total Score", "Rated Score", "Plays", "Playtime" };
 
         public static String convertSort(String sort) {
             switch (sort) {
