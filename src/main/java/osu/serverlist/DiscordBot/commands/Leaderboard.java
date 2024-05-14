@@ -19,8 +19,10 @@ import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -34,21 +36,40 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
     public static String[] servers = { "Loading..." };
     
     public static HashMap<String, ServerInformations> endpoints = new HashMap<>();
-    public static Map<String, Integer> userOffsets = new HashMap<>();
+    public static Map<String, LeaderboardInformations> userOffsets = new HashMap<>();
+
+    public class LeaderboardInformations {
+        public String server;
+        public String mode;
+        public String sort;
+        public String modeId;
+        public String sortId;
+        public String description;
+        public int offset;
+    }
+
     @Override
     public void handleCommand(SlashCommandInteractionEvent event) {
 
         String userId = event.getUser().getId(); // Get user ID
-        int offset = userOffsets.getOrDefault(userId, 0);
-        userOffsets.put(userId, offset + 1);
-
+        LeaderboardInformations infos;
+        try {
+            infos = userOffsets.get(userId);
+        }catch(Exception e) {
+            infos = null;
+        }
+        
+        
         String server = event.getOption("server").getAsString().toLowerCase();
         String mode = event.getOption("mode").getAsString().toLowerCase();
         String sort = event.getOption("sort").getAsString();
         String modeId = ModeHelper.convertMode(mode);
         String sortId = SortHelper.convertSort(sort);
+
+        
         event.deferReply().queue();
         
+
         if(modeId == null ||sortId == null) {
           
             event.getHook().sendMessage("Invalid mode or sort").queue();
@@ -85,8 +106,24 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
             event.getHook().sendMessage("Server not found").queue();
             return;
         }
+        if(infos == null) {
+            LeaderboardInformations infosS = new LeaderboardInformations();
+            infosS.server = server;
+            infosS.mode = mode;
+            infosS.sort = sort;
+            infosS.modeId = modeId;
+            infosS.offset = 0;
+   
+            userOffsets.put(userId, infosS);
+        }
 
-        String url = endpoints.get(server).getEndpoint() + "?sort=" + sortId + "&mode=" + modeId + "&limit=25&offset=" + offset;
+        
+    }
+
+    public void requestLeaderboard(LeaderboardInformations infos, Event event) {
+
+
+        String url = endpoints.get(infos.server).getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId + "&limit=25&offset=" + infos.offset;
         Flogger.instance.log(Prefix.API, "Request: " + url, 0);
         String response;
         try {
@@ -95,6 +132,8 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
 
             return;
         }
+
+       
         String description = "";
          try {
             // Parse the JSON string
@@ -117,7 +156,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
                 long playtime = (long) player.get("playtime");
                 double playtimeHr =  Math.floor(playtime / 3600 * 100) / 100;
 
-                description += ":flag_" + country + ": [" + name + "](" + endpoints.get(server).getUrl() + "/u/"+playerId+ ") #"+rank + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
+                description += ":flag_" + country + ": [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"+playerId+ ") #"+rank + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
             }
 
           
@@ -125,23 +164,39 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand  {
             e.printStackTrace();
         }
 
+       
         Button nextPageButton = Button.secondary("next_page", "Next Page");
-        EmbedBuilder embed = buildLeaderboardEmbed(server, mode.toUpperCase(), sort, description);
+       
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Leaderboard for " + infos.server + " - " + infos.mode + " - " + infos.sort + " (Page " + (infos.offset + 1) + ")");
+        embed.setDescription(description);
+        embed.setColor(0x5755d9);
+        embed.setFooter("Data from " + endpoints.get(infos.server).getName());
+        embed.build();
+
+        if(event instanceof SlashCommandInteractionEvent) {
+            ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build()).setActionRow(nextPageButton).queue();
+        }else if(event instanceof ButtonInteractionEvent) {
+            ((ButtonInteractionEvent) event).getHook().sendMessageEmbeds(embed.build()).setActionRow(nextPageButton).queue();
+        }
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        String userId = event.getUser().getId(); 
         
-        event.getHook().sendMessageEmbeds(embed.build()).setActionRow(nextPageButton).queue();
-        scheduleOffsetRemoval(userId);
+        if (event.getComponentId().equals("next_page")) {
+            LeaderboardInformations infos = userOffsets.get(userId);
+            infos.offset += 1;
+            userOffsets.put(userId, infos); 
+            requestLeaderboard(infos, event);
+            scheduleOffsetRemoval(userId);
+        }
     }
 
     
 
-    private EmbedBuilder buildLeaderboardEmbed(String server, String mode, String sort, String description) {
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Leaderboard for " + server + " - " + mode + " - " + sort);
-        embed.setDescription(description);
-        embed.setColor(0x5755d9);
-        embed.setFooter("Data from " + endpoints.get(server).getName());
-        return embed;
-    }
+
     
     private void scheduleOffsetRemoval(String userId) {
         Timer timer = new Timer();
