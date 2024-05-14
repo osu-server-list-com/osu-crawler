@@ -104,6 +104,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         infosS.mode = mode;
         infosS.sort = sort;
         infosS.modeId = modeId;
+        infosS.sortId = sortId;
         infosS.offset = 0;
 
         userOffsets.put(userId, infosS);
