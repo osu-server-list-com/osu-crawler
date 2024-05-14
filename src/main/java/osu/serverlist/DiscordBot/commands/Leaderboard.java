@@ -118,7 +118,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         String url = "";
         try {
             url = endpoints.get(infos.server).getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId
-                    + "&limit=25&offset=" + infos.offset;
+                    + "&limit=25&offset=" + (infos.offset) * 25;
             Flogger.instance.log(Prefix.API, "Request: " + url, 0);
 
             response = new GetRequest(url).send("osu!ListBot");
