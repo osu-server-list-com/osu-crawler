@@ -167,13 +167,14 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
+        System.out.println("Reached end");
 
         if (event instanceof SlashCommandInteractionEvent) {
             ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
                     .setActionRow(nextPageButton).queue();
         } else if (event instanceof ButtonInteractionEvent) {
-            ((ButtonInteractionEvent) event).getHook().sendMessageEmbeds(embed.build()).setActionRow(nextPageButton)
-                    .queue();
+            ((ButtonInteractionEvent) event).getHook().editOriginalEmbeds(embed.build()).setActionRow(nextPageButton)
+            .queue();
         }
     }
 
