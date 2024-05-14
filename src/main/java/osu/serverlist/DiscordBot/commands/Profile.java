@@ -88,7 +88,7 @@ public class Profile implements DiscordCommand{
             return;
         }
 
-        String url = endpoints.get(server) + "?name=" + name.replaceAll(" ", "%20") + "&scope=all";
+        String url = endpoints.get(server) + "?name=" + name.replaceAll(" ", "_") + "&scope=all";
         Flogger.instance.log(Prefix.API, "Request: " + url, 0);
         String response;
         try {

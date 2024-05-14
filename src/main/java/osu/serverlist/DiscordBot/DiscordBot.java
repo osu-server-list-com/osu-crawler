@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import osu.serverlist.DiscordBot.cache.UpdateAutocompletions;
 import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
@@ -43,18 +42,17 @@ public class DiscordBot {
         try {
             List<Guild> guilds = jdaInstance.getGuilds();
             for (Guild guild : guilds) {
-                guild.retrieveCommands().queue(commands -> {
-                    for (Command command : commands) {
-                        // Delete commands by their IDs
-                        jdaInstance.deleteCommandById(command.getId()).queue();
-                    }
+                guild.retrieveCommands().complete().forEach(command -> {
+                    jdaInstance.deleteCommandById(command.getId()).queue(
+                        success -> System.out.println("Command deleted: " + command.getName()),
+                        error -> System.err.println("Failed to delete command: " + command.getName() + ", Error: " + error.getMessage())
+                    );
                 });
             }
         } catch (Exception e) {
-            Flogger.instance.error(e);
+            e.printStackTrace();
         }
     }
-
 
     public static void initializeCommand() {
         try {
