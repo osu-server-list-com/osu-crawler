@@ -173,8 +173,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
                     .setActionRow(nextPageButton).queue();
         } else if (event instanceof ButtonInteractionEvent) {
-            ((ButtonInteractionEvent) event).getHook().editOriginalEmbeds(embed.build()).setActionRow(nextPageButton)
-            .queue();
+            ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(nextPageButton).queue();
         }
     }
 
