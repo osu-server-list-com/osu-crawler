@@ -117,7 +117,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + nameW);
         embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
                 + GradeConverter.convertGrade(gotRecent.grade) + " ▪ ["+ (nameW) + "]("
-                + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ") on \n" +
+                + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ") on \n" +
                 "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl()
                 + "/b/" + gotRecent.mapId + ")\n" +
                 "Map by " + gotRecent.creator);
