@@ -40,7 +40,7 @@ public class RecentHelper {
         GotRecent gotRecent = new GotRecent();
         ServerInformations serverInformations = Recent.endpoints.get(infos.server);
 
-        String url = serverInformations.getEndpoint() + "?mode=" + infos.modeId + "&name=" + infos.name + "&limit=55";
+        String url = serverInformations.getEndpoint() + "?scope=recent&mode=" + infos.modeId + "&name=" + infos.name + "&limit=55";
         String response = new GetRequest(url).send("osu!ListBot");
 
         // Parse JSON
