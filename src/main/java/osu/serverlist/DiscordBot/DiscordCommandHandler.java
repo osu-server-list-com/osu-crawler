@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
+import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Stats;
 
 public class DiscordCommandHandler extends ListenerAdapter {
@@ -28,6 +29,11 @@ public class DiscordCommandHandler extends ListenerAdapter {
             return;
         }
 
+        else if(event.getName().equals("recent")) { 
+            new Recent().handleAutoComplete(event);
+        }
+        
+
 
     }
 
@@ -40,7 +46,9 @@ public class DiscordCommandHandler extends ListenerAdapter {
             new Profile().handleCommand(event);
         }else if(event.getName().equals("leaderboard")) { 
             new Leaderboard().handleCommand(event);
-        }else {
+        }else if(event.getName().equals("recent")) { 
+            new Recent().handleCommand(event);
+        } else {
             String inviteUrl = event.getJDA().getInviteUrl();
             event.reply("Here's the invite link: " + inviteUrl).queue();
         }

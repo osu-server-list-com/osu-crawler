@@ -8,6 +8,7 @@ import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
+import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -50,6 +51,8 @@ public class EndpointHelper {
                         break;
                     case VOTE:
                         Profile.endpoints.put(server, s);
+                    case RECENT:
+                        Recent.endpoints.put(server, s);
                     default:
                         break;
                 }

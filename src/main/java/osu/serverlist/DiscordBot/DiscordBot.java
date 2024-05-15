@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import osu.serverlist.DiscordBot.cache.UpdateAutocompletions;
 import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
+import osu.serverlist.DiscordBot.commands.Recent;
 
 public class DiscordBot {
 
@@ -28,7 +29,7 @@ public class DiscordBot {
         try {
             dotenv = Dotenv.configure().filename("discord.env").load();
             jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN"))
-                    .addEventListeners(new DiscordCommandHandler(), new Leaderboard()).setActivity(activity).build().awaitReady();
+                    .addEventListeners(new DiscordCommandHandler(), new Leaderboard(), new Recent()).setActivity(activity).build().awaitReady();
         } catch (Exception e) {
             logger.error(e);
             logger.log(Prefix.ERROR, "Failed to start DiscordBot", 0);
@@ -59,21 +60,6 @@ public class DiscordBot {
         try {
             deleteCommandsForAllServers();
     
-            List<Guild> guilds = jdaInstance.getGuilds();
-            for (Guild guild : guilds) {
-                guild.upsertCommand("stats", "Get stats of a server")
-                    .addOption(OptionType.STRING, "server", "The name of the server", true, true)
-                    .queue();
-
-                guild.upsertCommand("profile", "Show the profile of the user")
-                    .addOption(OptionType.STRING, "server", "The name of the server", true, true)
-                    .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
-                    .addOption(OptionType.STRING, "name", "Name on the server", true, false)
-                    .queue();
-    
-                guild.upsertCommand("invite", "Invite the bot")
-                    .queue();
-            }
 
             jdaInstance.upsertCommand("stats", "Get stats of a server")
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
@@ -92,6 +78,12 @@ public class DiscordBot {
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
             .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
             .addOption(OptionType.STRING, "sort", "How you want to sort the leaderboard", true, true)
+            .queue();
+
+            jdaInstance.upsertCommand("recent", "Show the leaderboard")
+            .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+            .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
+            .addOption(OptionType.STRING, "name", "Name on the server", true, false)
             .queue();
         } catch (Exception e) {
             Flogger.instance.error(e);

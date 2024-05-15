@@ -5,5 +5,6 @@ public enum ServerEndpoints {
     PLAYERCHECK,
     CALLBACK,
     LEADERBOARD,
+    RECENT,
     CUSTOM
 }
