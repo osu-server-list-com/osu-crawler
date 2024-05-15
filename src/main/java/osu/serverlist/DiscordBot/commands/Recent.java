@@ -1,5 +1,6 @@
 package osu.serverlist.DiscordBot.commands;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -110,7 +111,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + infos.name);
         embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ " + GradeConverter.convertGrade(gotRecent.grade) + " ▪ [" + infos.name + "](" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ") on \n" + 
         "[" + gotRecent.mapArtist + " | " +  gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl() + "/b/"+ gotRecent.mapId + ")\n" + 
-        "") ;
+        "Map by " + gotRecent.creator) ;
     
         embed.addField("Score ID", String.valueOf(gotRecent.scoreId), true);
         embed.addField("Score", String.valueOf(gotRecent.score), true);
@@ -118,11 +119,9 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.addField("Accuracy", String.valueOf(gotRecent.acc) + "%", true);
 
         embed.addField("Mods", String.valueOf(gotRecent.mods), true);
-        embed.addField("Play Time", "`"+ gotRecent.playtime + "`", true);
+        embed.addField("Submitted", convertToDiscordTimestamp(gotRecent.playtime), true);
 
-
-        embed.addField("Creator", gotRecent.creator, true);
-        embed.addField("Difficulty", String.valueOf(gotRecent.diff), true);
+        embed.addField("Difficulty", String.valueOf(gotRecent.diff) + "*", true);
 
         embed.addField("Approach Rate (AR)", String.valueOf(gotRecent.ar), true);
         embed.addField("Beats per Minute (BPM)", String.valueOf(gotRecent.bpm), true);
@@ -202,6 +201,12 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
     @Override
     public String getName() {
         return "recent";
+    }
+
+    public String convertToDiscordTimestamp(String timestamp) {
+        Instant instant = Instant.parse(timestamp);
+        long epochSeconds = instant.getEpochSecond();
+        return "<t:" + epochSeconds + ":R>";
     }
 
     private void scheduleOffsetRemoval(String userId) {
