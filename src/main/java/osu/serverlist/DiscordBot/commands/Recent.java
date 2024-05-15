@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import commons.marcandreher.Commons.Flogger;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -95,7 +96,8 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         }
 
         Button nextPageButton;
-        if (gotRecent.size == (infos.offset - 1)) {
+        Flogger.instance.log(Prefix.API, "Paging: " + gotRecent.size + " | " + (infos.offset + 1), 0);
+        if (gotRecent.size == (infos.offset + 1)) {
             nextPageButton = Button.success("next_page_rec", "Next Page").asDisabled();
         } else {
             nextPageButton = Button.success("next_page_rec", "Next Page");
