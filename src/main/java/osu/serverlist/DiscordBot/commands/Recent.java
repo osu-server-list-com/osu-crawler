@@ -1,6 +1,7 @@
 package osu.serverlist.DiscordBot.commands;
 
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -87,16 +88,16 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         } catch (Exception e) {
             Flogger.instance.error(e);
 
-            if(event instanceof SlashCommandInteractionEvent) {
+            if (event instanceof SlashCommandInteractionEvent) {
                 ((SlashCommandInteractionEvent) event).getHook().sendMessage("User not found").queue();
             }
             return;
         }
 
         Button nextPageButton;
-        if(gotRecent.size == (infos.offset - 1)) {
+        if (gotRecent.size == (infos.offset - 1)) {
             nextPageButton = Button.success("next_page_rec", "Next Page").asDisabled();
-        }else {
+        } else {
             nextPageButton = Button.success("next_page_rec", "Next Page");
         }
 
@@ -109,10 +110,13 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + infos.name);
-        embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ " + GradeConverter.convertGrade(gotRecent.grade) + " ▪ [" + infos.name + "](" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ") on \n" + 
-        "[" + gotRecent.mapArtist + " | " +  gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl() + "/b/"+ gotRecent.mapId + ")\n" + 
-        "Map by " + gotRecent.creator) ;
-    
+        embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
+                + GradeConverter.convertGrade(gotRecent.grade) + " ▪ [" + infos.name + "]("
+                + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ") on \n" +
+                "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl()
+                + "/b/" + gotRecent.mapId + ")\n" +
+                "Map by " + gotRecent.creator);
+
         embed.addField("Score ID", String.valueOf(gotRecent.scoreId), true);
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
@@ -126,7 +130,9 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.addField("Approach Rate (AR)", String.valueOf(gotRecent.ar), true);
         embed.addField("Beats per Minute (BPM)", String.valueOf(gotRecent.bpm), true);
         embed.addField("Overall Difficulty (OD)", String.valueOf(gotRecent.od), true);
-        embed.addField("", "[View Score](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score + ") [osu.direct](https://osu.direct/beatmapsets/" + gotRecent.setId + "/" + gotRecent.mapId + ")", true);
+        embed.addField("", "[View Score](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score
+                + ") [osu.direct](https://osu.direct/beatmapsets/" + gotRecent.setId + "/" + gotRecent.mapId + ")",
+                true);
         embed.setImage("https://assets.ppy.sh/beatmaps/" + gotRecent.setId + "/covers/cover.jpg");
 
         embed.setColor(0x5755d9);
@@ -203,16 +209,10 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         return "recent";
     }
 
-    public String convertToDiscordTimestamp(String timestamp) {
-        try {
-            Instant instant = Instant.parse(timestamp);
-            long epochSeconds = instant.getEpochSecond();
-            return "<t:" + epochSeconds + ":R>";
-        } catch (Exception e) {
-            Flogger.instance.error(e);
-            return "error";
-        }
-        
+    public static String convertToDiscordTimestamp(String timestamp) {
+        Instant instant = Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(timestamp));
+        long epochSeconds = instant.getEpochSecond();
+        return "<t:" + epochSeconds + ":R>";
     }
 
     private void scheduleOffsetRemoval(String userId) {
