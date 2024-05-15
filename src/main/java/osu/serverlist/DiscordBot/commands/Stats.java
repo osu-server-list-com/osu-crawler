@@ -37,7 +37,7 @@ public class Stats implements DiscordCommand {
             do {
                 EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(serverResult.getString("name"), "https://osu-server-list.com/server/" + server)
-                        .setDescription("Server ID: " + serverResult.getInt("id"))
+                        .setDescription("Server ID: " + serverResult.getInt("id") + "\n\n")
                         .addField("Players", String.valueOf(serverResult.getInt("players")), true)
                         .addField("Votes", String.valueOf(serverResult.getInt("votes")), true);
 
