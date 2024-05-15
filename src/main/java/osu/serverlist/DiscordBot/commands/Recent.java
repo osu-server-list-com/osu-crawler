@@ -1,6 +1,8 @@
 package osu.serverlist.DiscordBot.commands;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -210,8 +212,21 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
     }
 
     public static String convertToDiscordTimestamp(String timestamp) {
-        Instant instant = Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(timestamp));
-        long epochSeconds = instant.getEpochSecond();
+        // Extract year, month, day, hour, minute, second from the timestamp string
+        int year = Integer.parseInt(timestamp.substring(0, 4));
+        int month = Integer.parseInt(timestamp.substring(5, 7));
+        int day = Integer.parseInt(timestamp.substring(8, 10));
+        int hour = Integer.parseInt(timestamp.substring(11, 13));
+        int minute = Integer.parseInt(timestamp.substring(14, 16));
+        int second = Integer.parseInt(timestamp.substring(17, 19));
+
+        // Create LocalDateTime object
+        LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+
+        // Convert LocalDateTime to epoch seconds
+        long epochSeconds = dateTime.toEpochSecond(ZoneOffset.UTC);
+
+        // Generate Discord timestamp string
         return "<t:" + epochSeconds + ":R>";
     }
 
