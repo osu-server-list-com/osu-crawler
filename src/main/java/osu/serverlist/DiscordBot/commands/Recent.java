@@ -131,7 +131,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         
         embed.addField("Submitted", convertToDiscordTimestamp(gotRecent.playtime), true);
 
-        embed.addField("Difficulty", String.valueOf(Math.round(gotRecent.diff)) + "*", true);
+        embed.addField("Difficulty", String.format("%.2f*", gotRecent.diff), true);
         
         embed.addField("AR", String.valueOf(gotRecent.ar), true);
         embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
