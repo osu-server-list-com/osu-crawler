@@ -1,5 +1,7 @@
 package osu.serverlist.DiscordBot.helpers;
 
+import java.util.ArrayList;
+
 public class GradeConverter {
     public static String convertGrade(String grade) {
         switch (grade) {
@@ -42,6 +44,61 @@ public class GradeConverter {
                 return "<:mapLoved:1240314558929961111>";
             default:
                 return "Unknown";
+        }
+    }
+
+    public class ModConverter {
+        public static String[] convertMods(int mods) {
+            ArrayList<String> modList = new ArrayList<>();
+            if ((mods & 1) > 0) {
+                modList.add("NF");
+            }
+            if ((mods & 2) > 0) {
+                modList.add("EZ");
+            }
+            if ((mods & 4) > 0) {
+                modList.add("TD");
+            }
+            if ((mods & 8) > 0) {
+                modList.add("HD");
+            }
+            if ((mods & 16) > 0) {
+                modList.add("HR");
+            }
+            if ((mods & 32) > 0) {
+                modList.add("SD");
+            }
+            if ((mods & 64) > 0) {
+                modList.add("DT");
+            }
+            if ((mods & 128) > 0) {
+                modList.add("RX");
+            }
+            if ((mods & 256) > 0) {
+                modList.add("HT");
+            }
+            if ((mods & 512) > 0) {
+                modList.add("NC");
+            }
+            if ((mods & 1024) > 0) {
+                modList.add("FL");
+            }
+            if ((mods & 2048) > 0) {
+                modList.add("AT");
+            }
+            if ((mods & 4096) > 0) {
+                modList.add("SO");
+            }
+            if ((mods & 8192) > 0) {
+                modList.add("AP");
+            }
+            if ((mods & 16384) > 0) {
+                modList.add("PF");
+            }
+            if ((mods & 32768) > 0) {
+                modList.add("4K");
+            }
+            return modList.toArray(new String[modList.size()]);
         }
     }
 
