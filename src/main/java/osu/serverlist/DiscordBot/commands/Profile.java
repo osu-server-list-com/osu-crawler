@@ -112,7 +112,7 @@ public class Profile implements DiscordCommand {
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(realName + " (" + modeSafe + ")", endpoints.get(server).getUrl() + "/u/" + id)
-                    .setDescription(realName + " from :flag_" + country.toLowerCase() + ": \n\n")
+                    .setDescription("\n\n"+realName + " from :flag_" + country.toLowerCase() + ":")
                     .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + id)
                     .addField("Total Score", tscore.toString(), true)
                     .addField("Ranked Score", rscore.toString(), true)
