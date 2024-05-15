@@ -9,6 +9,7 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -168,6 +169,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         if (event.getComponentId().equals("next_page_rec")) {
             RecentInformations infos = userOffsets.get(userId);
+            Flogger.instance.log(Prefix.IMPORTANT, event.getMessage().getId() + "|" + infos.messageId, 0);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
