@@ -2,11 +2,12 @@ package osu.serverlist.DiscordBot.helpers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
+import osu.serverlist.DiscordBot.commands.Leaderboard;
+import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -15,8 +16,7 @@ public class EndpointHelper {
 
     private static String ENDPOINT_SQL = "SELECT `endpoint`, `devserver`, `url`, `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = ? ? AND LOWER(`name`) = ?";
 
-    public static void adjustEndpoints(Map<String, ServerInformations> map, String server, ServerEndpoints type,
-    EndpointType... endpoints) {
+    public static void adjustEndpoints(String server, ServerEndpoints type, EndpointType... endpoints) {
         MySQL mysql = null;
         try {
             mysql = Database.getConnection();
@@ -44,7 +44,15 @@ public class EndpointHelper {
                 s.setUrl("https://" + endpointResult.getString("url"));
                 s.setName(endpointResult.getString("name"));
                 s.setType(endpointResult.getString("apitype"));
-                map.put(server, s);
+                switch (type) {
+                    case LEADERBOARD:
+                        Leaderboard.endpoints.put(server, s);
+                        break;
+                    case VOTE:
+                        Profile.endpoints.put(server, s);
+                    default:
+                        break;
+                }
             }
         } catch (SQLException e) {
             Flogger.instance.error(e);

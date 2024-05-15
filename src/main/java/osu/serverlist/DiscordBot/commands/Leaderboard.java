@@ -65,7 +65,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(endpoints, server, ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
         }
 
         if (!endpoints.containsKey(server)) {
