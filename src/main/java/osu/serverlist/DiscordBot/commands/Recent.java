@@ -204,9 +204,15 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
     }
 
     public String convertToDiscordTimestamp(String timestamp) {
-        Instant instant = Instant.parse(timestamp);
-        long epochSeconds = instant.getEpochSecond();
-        return "<t:" + epochSeconds + ":R>";
+        try {
+            Instant instant = Instant.parse(timestamp);
+            long epochSeconds = instant.getEpochSecond();
+            return "<t:" + epochSeconds + ":R>";
+        } catch (Exception e) {
+            Flogger.instance.error(e);
+            return "error";
+        }
+        
     }
 
     private void scheduleOffsetRemoval(String userId) {
