@@ -14,7 +14,7 @@ import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 
 public class EndpointHelper {
 
-    private static String ENDPOINT_SQL = "SELECT `endpoint`, `devserver`, `url`, `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = ? ? AND LOWER(`name`) = ?";
+    private static String ENDPOINT_SQL = "SELECT `endpoint`, `devserver`, `url`, `name`, `dcbot`, `apitype` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = ? % AND LOWER(`name`) = ?";
 
     public static void adjustEndpoints(String server, ServerEndpoints type, EndpointType... endpoints) {
         MySQL mysql = null;
@@ -33,7 +33,7 @@ public class EndpointHelper {
         }
         endpointSql += ")";
 
-        ResultSet endpointResult = mysql.Query(ENDPOINT_SQL, type.name(), endpointSql, server);
+        ResultSet endpointResult = mysql.Query(ENDPOINT_SQL.replaceAll("%", endpointSql), type.name(), server);
         try {
             while (endpointResult.next()) {
                 if (!endpointResult.getBoolean("dcbot"))
