@@ -85,6 +85,11 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
             gotRecent = recentHelper.requestRecentBanchoPy(infos);
         } catch (Exception e) {
             Flogger.instance.error(e);
+
+            if(event instanceof SlashCommandInteractionEvent) {
+                ((SlashCommandInteractionEvent) event).getHook().sendMessage("User not found").queue();
+            }
+            return;
         }
 
         Button nextPageButton;
@@ -103,29 +108,30 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + infos.name);
-        embed.setDescription("Mode: " + infos.mode.toUpperCase() + " for [" + infos.name + "](" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ")");
-        embed.setColor(0x5755d9);
-        embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
+        embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ " + GradeConverter.convertGrade(gotRecent.grade) + " ▪ [" + infos.name + "](" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ") on \n" + 
+        "[" + gotRecent.mapArtist + " | " +  gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl() + "/b/"+ gotRecent.mapId + ")\n" + 
+        "") ;
+    
         embed.addField("Score ID", String.valueOf(gotRecent.scoreId), true);
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
-        embed.addField("Accuracy", String.valueOf(gotRecent.acc), true);
-        embed.addField("Grade", GradeConverter.convertGrade(gotRecent.grade), true);
-        embed.addField("Status", String.valueOf(gotRecent.status), true);
-        embed.addField("Mods", String.valueOf(gotRecent.mods), true);
-        embed.addField("Play Time", gotRecent.playtime, true);
+        embed.addField("Accuracy", String.valueOf(gotRecent.acc) + "%", true);
 
-        embed.addField("Map ID", String.valueOf(gotRecent.mapId), true);
-        embed.addField("Map Name", gotRecent.mapName, true);
-        embed.addField("Map Artist", gotRecent.mapArtist, true);
+        embed.addField("Mods", String.valueOf(gotRecent.mods), true);
+        embed.addField("Play Time", "`"+ gotRecent.playtime + "`", true);
+
+
         embed.addField("Creator", gotRecent.creator, true);
         embed.addField("Difficulty", String.valueOf(gotRecent.diff), true);
 
         embed.addField("Approach Rate (AR)", String.valueOf(gotRecent.ar), true);
         embed.addField("Beats per Minute (BPM)", String.valueOf(gotRecent.bpm), true);
         embed.addField("Overall Difficulty (OD)", String.valueOf(gotRecent.od), true);
+        embed.addField("", "[View Score](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score + ") [osu.direct](https://osu.direct/beatmapsets/" + gotRecent.setId + "/" + gotRecent.mapId + ")", true);
+        embed.setImage("https://assets.ppy.sh/beatmaps/" + gotRecent.setId + "/covers/cover.jpg");
 
-        embed.setImage("https://assets.ppy.sh/beatmaps/" + gotRecent.mapId + "/covers/cover.jpg");
+        embed.setColor(0x5755d9);
+        embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
 
         if (event instanceof SlashCommandInteractionEvent) {
             ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())

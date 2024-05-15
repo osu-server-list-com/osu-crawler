@@ -24,6 +24,7 @@ public class RecentHelper {
         public String playtime;
 
         public long mapId;
+        public long setId;
         public String mapName;
         public String mapArtist;
         public String creator;
@@ -68,6 +69,7 @@ public class RecentHelper {
         // Parsing beatmap object
         JSONObject beatmapObj = (JSONObject) scoreObj.get("beatmap");
         gotRecent.mapId = (long) beatmapObj.get("id");
+        gotRecent.setId = (long) beatmapObj.get("set_id");
         gotRecent.mapName = (String) beatmapObj.get("title");
         gotRecent.mapArtist = (String) beatmapObj.get("artist");
         gotRecent.creator = (String) beatmapObj.get("creator");

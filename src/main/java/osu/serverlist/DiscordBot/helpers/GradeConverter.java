@@ -25,4 +25,24 @@ public class GradeConverter {
                 return "Unknown";
         }
     }
+
+    public static String convertStatus(String status) {
+        switch (status) {
+            case "0":
+                return "Not submitted";
+            case "1":
+                return "Pending";
+            case "2":
+                return "<:mapRanked:1240314560259293204>";
+            case "3":
+                return "<:mapApproved:1240314561622573147>";
+            case "4":
+                return "Qualified";
+            case "5":
+                return "<:mapLoved:1240314558929961111>";
+            default:
+                return "Unknown";
+        }
+    }
+
 }
