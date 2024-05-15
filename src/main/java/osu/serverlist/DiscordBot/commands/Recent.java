@@ -129,12 +129,12 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         embed.addField("Difficulty", String.valueOf(gotRecent.diff) + "*", true);
 
-        embed.addField("Approach Rate (AR)", String.valueOf(gotRecent.ar), true);
-        embed.addField("Beats per Minute (BPM)", String.valueOf(gotRecent.bpm), true);
-        embed.addField("Overall Difficulty (OD)", String.valueOf(gotRecent.od), true);
-        embed.addField("", "[View Score](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score
-                + ") [osu.direct](https://osu.direct/beatmapsets/" + gotRecent.setId + "/" + gotRecent.mapId + ")",
-                true);
+        embed.addField("AR", String.valueOf(gotRecent.ar), true);
+        embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
+        embed.addField("OD", String.valueOf(gotRecent.od), true);
+        embed.addField("Actions", "[[View Score]](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score
+                + ")    [[osu.direct]](https://osu.direct/beatmapsets/" + gotRecent.setId + "/" + gotRecent.mapId + ")",
+                false);
         embed.setImage("https://assets.ppy.sh/beatmaps/" + gotRecent.setId + "/covers/cover.jpg");
 
         embed.setColor(0x5755d9);
