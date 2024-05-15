@@ -88,7 +88,6 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         try {
             gotRecent = recentHelper.requestRecentBanchoPy(infos);
         } catch (Exception e) {
-            Flogger.instance.error(e);
 
             if (event instanceof SlashCommandInteractionEvent) {
                 ((SlashCommandInteractionEvent) event).getHook().sendMessage("User not found").queue();
