@@ -44,7 +44,7 @@ public class Profile implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(server, ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.VOTE, EndpointType.BANCHOPY);
         }
         
         if (!endpoints.containsKey(server)) {
