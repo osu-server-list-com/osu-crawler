@@ -1,9 +1,7 @@
 package osu.serverlist.DiscordBot.commands;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -111,9 +109,11 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         }
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + infos.name);
+        String nameW = infos.name.substring(0, 1).toUpperCase() + infos.name.substring(1);
+
+        embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + nameW);
         embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
-                + GradeConverter.convertGrade(gotRecent.grade) + " ▪ [" + infos.name + "]("
+                + GradeConverter.convertGrade(gotRecent.grade) + " ▪ ["+ (nameW) + "]("
                 + Recent.endpoints.get(infos.server).getUrl() + "/u/" + infos.name + ") on \n" +
                 "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl()
                 + "/b/" + gotRecent.mapId + ")\n" +
@@ -123,21 +123,23 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
         embed.addField("Accuracy", String.valueOf(gotRecent.acc) + "%", true);
         String[] mods = GradeConverter.ModConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
-        if(mods.length == 0) {
+        if (mods.length == 0) {
             embed.addField("Mods", "-", true);
-        }else {
-            embed.addField("Mods", "+" + String.join("",mods), true);
+        } else {
+            embed.addField("Mods", "+" + String.join("", mods), true);
         }
-        
+
         embed.addField("Submitted", convertToDiscordTimestamp(gotRecent.playtime), true);
 
         embed.addField("Difficulty", String.format("%.2f*", gotRecent.diff), true);
-        
+
         embed.addField("AR", String.valueOf(gotRecent.ar), true);
         embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
         embed.addField("OD", String.valueOf(gotRecent.od), true);
-        embed.addField("Actions", "[[View Score]](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score
-                + ")    [[osu.direct]](https://osu.direct/beatmapsets/" + gotRecent.setId + "/" + gotRecent.mapId + ")",
+        embed.addField("Actions",
+                "[[View Score]](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score
+                        + ")    [[osu.direct]](https://osu.direct/beatmapsets/" + gotRecent.setId + "/"
+                        + gotRecent.mapId + ")",
                 false);
         embed.setImage("https://assets.ppy.sh/beatmaps/" + gotRecent.setId + "/covers/cover.jpg");
 
