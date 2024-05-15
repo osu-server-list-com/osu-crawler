@@ -122,12 +122,17 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
         embed.addField("Accuracy", String.valueOf(gotRecent.acc) + "%", true);
-
-        embed.addField("Mods", "+" + String.join("", GradeConverter.ModConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)))), true);
+        String[] mods = GradeConverter.ModConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
+        if(mods.length == 0) {
+            embed.addField("Mods", "-", true);
+        }else {
+            embed.addField("Mods", "+" + String.join("",mods), true);
+        }
+        
         embed.addField("Submitted", convertToDiscordTimestamp(gotRecent.playtime), true);
 
-        embed.addField("Difficulty", String.valueOf(gotRecent.diff) + "*", true);
-
+        embed.addField("Difficulty", String.valueOf(Math.round(gotRecent.diff)) + "*", true);
+        
         embed.addField("AR", String.valueOf(gotRecent.ar), true);
         embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
         embed.addField("OD", String.valueOf(gotRecent.od), true);
