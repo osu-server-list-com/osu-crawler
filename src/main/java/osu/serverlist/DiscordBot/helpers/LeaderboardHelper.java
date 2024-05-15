@@ -4,7 +4,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.GetRequest;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Leaderboard.LeaderboardInformations;
 import osu.serverlist.Models.ServerInformations;
@@ -21,9 +23,10 @@ public class LeaderboardHelper {
         GotLeaderboard gotLeaderboard = new GotLeaderboard();
         ServerInformations serverInformations = Leaderboard.endpoints.get(infos.server);
 
-        String response = new GetRequest(serverInformations.getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId
-        + "&limit=25&offset=" + (infos.offset) * 25).send("osu!ListBot");
-
+        String url = serverInformations.getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId
+                + "&limit=25&offset=" + (infos.offset) * 25;
+        String response = new GetRequest(url).send("osu!ListBot");
+        Flogger.instance.log(Prefix.API, "GET: " + url, offset);
           try {
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(response);

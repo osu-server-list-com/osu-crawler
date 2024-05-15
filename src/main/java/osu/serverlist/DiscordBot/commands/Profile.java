@@ -1,6 +1,5 @@
 package osu.serverlist.DiscordBot.commands;
 
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,19 +8,20 @@ import java.util.stream.Stream;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
-import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import osu.serverlist.DiscordBot.DiscordCommand;
+import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.Models.ServerInformations;
+import osu.serverlist.Utils.Endpoints.EndpointType;
+import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 
 public class Profile implements DiscordCommand {
 
@@ -43,32 +43,10 @@ public class Profile implements DiscordCommand {
             return;
         }
 
-        MySQL mysql = null;
-        try {
-            mysql = Database.getConnection();
-            if (!endpoints.containsKey(server)) {
-                ResultSet endpointResult = mysql.Query(
-                        "SELECT `endpoint`, `devserver`, `url`, `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = 'VOTE' AND `apitype` = 'BANCHOPY' AND LOWER(`name`) = ?",
-                        server);
-                while (endpointResult.next()) {
-                    if (!endpointResult.getBoolean("dcbot"))
-                        continue;
-                    ServerInformations s = new ServerInformations();
-                    s.setEndpoint(endpointResult.getString("endpoint"));
-                    s.setAvatarServer("https://a." + endpointResult.getString("devserver"));
-                    s.setUrl("https://" + endpointResult.getString("url"));
-                    s.setName(endpointResult.getString("name"));
-                    endpoints.put(server, s);
-                }
-            }
-        } catch (Exception e) {
-            Flogger.instance.error(e);
-            event.getHook().sendMessage("Internal error").queue();
-            return;
-        } finally {
-            mysql.close();
+        if (!endpoints.containsKey(server)) {
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
         }
-
+        
         if (!endpoints.containsKey(server)) {
             event.getHook().sendMessage("Server not found").queue();
             return;
