@@ -1,6 +1,5 @@
 package osu.serverlist.DiscordBot.commands;
 
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,15 +8,8 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
-import commons.marcandreher.Commons.GetRequest;
-import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -27,9 +19,14 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.DiscordCommand;
+import osu.serverlist.DiscordBot.helpers.EndpointHelper;
+import osu.serverlist.DiscordBot.helpers.LeaderboardHelper;
+import osu.serverlist.DiscordBot.helpers.LeaderboardHelper.GotLeaderboard;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper.SortHelper;
 import osu.serverlist.Models.ServerInformations;
+import osu.serverlist.Utils.Endpoints.EndpointType;
+import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 
 public class Leaderboard extends ListenerAdapter implements DiscordCommand {
 
@@ -52,7 +49,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     @Override
     public void handleCommand(SlashCommandInteractionEvent event) {
 
-        String userId = event.getUser().getId(); // Get user ID
+        String userId = event.getUser().getId();
 
         String server = event.getOption("server").getAsString().toLowerCase();
         String mode = event.getOption("mode").getAsString().toLowerCase();
@@ -63,35 +60,12 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         event.deferReply().queue();
 
         if (modeId == null || sortId == null) {
-
             event.getHook().sendMessage("Invalid mode or sort").queue();
             return;
         }
 
-        MySQL mysql = null;
-        try {
-            mysql = Database.getConnection();
-            if (!endpoints.containsKey(server)) {
-                ResultSet endpointResult = mysql.Query(
-                        "SELECT `endpoint`, `devserver`, `url`, `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = 'LEADERBOARD' AND `apitype` = 'BANCHOPY' AND LOWER(`name`) = ?",
-                        server);
-                while (endpointResult.next()) {
-                    if (!endpointResult.getBoolean("dcbot"))
-                        continue;
-                    ServerInformations s = new ServerInformations();
-                    s.setEndpoint(endpointResult.getString("endpoint"));
-                    s.setAvatarServer("https://a." + endpointResult.getString("devserver"));
-                    s.setUrl("https://" + endpointResult.getString("url"));
-                    s.setName(endpointResult.getString("name"));
-                    endpoints.put(server, s);
-                }
-            }
-        } catch (Exception e) {
-            Flogger.instance.error(e);
-            event.getHook().sendMessage("Internal error").queue();
-            return;
-        } finally {
-            mysql.close();
+        if (!endpoints.containsKey(server)) {
+            EndpointHelper.adjustEndpoints(endpoints, server, ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
         }
 
         if (!endpoints.containsKey(server)) {
@@ -116,56 +90,25 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     }
 
     public void requestLeaderboard(LeaderboardInformations infos, Event event) {
-        String response = "";
-        String url = "";
-        try {
-            url = endpoints.get(infos.server).getEndpoint() + "?sort=" + infos.sortId + "&mode=" + infos.modeId
-                    + "&limit=25&offset=" + (infos.offset) * 25;
-            Flogger.instance.log(Prefix.API, "Request: " + url, 0);
+        LeaderboardHelper leaderboardHelper = new LeaderboardHelper();
 
-            response = new GetRequest(url).send("osu!ListBot");
+        GotLeaderboard gotLeaderboard = null;
+        try {
+            switch(endpoints.get(infos.server).getType()) {
+                case "BANCHOPY":
+                    gotLeaderboard = leaderboardHelper.getLeaderboardBanchoPy(infos.offset, infos);
+                    break;
+                default:
+                    Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at requestLeaderboard()", 0);
+                    return;
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(response + " | " + url);
+            Flogger.instance.error(e);
             return;
         }
-
-        String description = "";
-        int size = 0;
-        try {
-            // Parse the JSON string
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(response);
-
-            // Get the "leaderboard" array
-            JSONArray leaderboard = (JSONArray) jsonObject.get("leaderboard");
-
-            int rank = infos.offset * 25;
-
-            for (Object obj : leaderboard) {
-                JSONObject player = (JSONObject) obj;
-                rank++;
-                // Extract required fields
-                String name = (String) player.get("name");
-                long playerId = (long) player.get("player_id");
-                String country = (String) player.get("country");
-                String countryFlag = ":flag_" + country + ":";
-                if(country.equalsIgnoreCase("XX")) countryFlag = ":flag_white:";
-                long pp = (long) player.get("pp");
-                double acc = (double) player.get("acc");
-                long playtime = (long) player.get("playtime");
-                double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
-                
-                description += countryFlag + " [" + name + "](" + endpoints.get(infos.server).getUrl() + "/u/"
-                        + playerId + ") #" + rank  + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
-            }
-            size = leaderboard.size();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        
         Button nextPageButton;
-        if(size == 25) {
+        if(gotLeaderboard.size == 25) {
             nextPageButton = Button.success("next_page", "Next Page");
         }else {
             nextPageButton = Button.success("next_page", "Next Page").asDisabled();
@@ -184,7 +127,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Leaderboard for " + infos.server + " - " + infos.mode.toUpperCase() + " - " + infos.sort + " (Page "
                 + (infos.offset + 1) + ")");
-        embed.setDescription(description);
+        embed.setDescription(gotLeaderboard.leaderboard);
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
@@ -201,6 +144,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(prevPageButton, nextPageButton).queue();
         }
     }
+
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String userId = event.getUser().getId();
@@ -231,6 +175,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             }
         }
     }
+
     private void scheduleOffsetRemoval(String userId) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -239,7 +184,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 userOffsets.remove(userId);
                 timer.cancel();
             }
-        }, 5 * 60 * 1000); // 5 minutes in milliseconds
+        }, 5 * 60 * 1500); 
     }
 
     @Override

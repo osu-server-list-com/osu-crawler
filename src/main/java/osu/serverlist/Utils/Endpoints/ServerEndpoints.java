@@ -4,5 +4,6 @@ public enum ServerEndpoints {
     VOTE,
     PLAYERCHECK,
     CALLBACK,
+    LEADERBOARD,
     CUSTOM
 }

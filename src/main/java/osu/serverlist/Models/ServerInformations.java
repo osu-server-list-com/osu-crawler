@@ -10,6 +10,8 @@ public class ServerInformations {
     private String avatarServer;
     private String url;
 
+    private String type;
+
 
     public String getEndpoint() {
         return this.endpoint;
@@ -41,6 +43,14 @@ public class ServerInformations {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
 }
