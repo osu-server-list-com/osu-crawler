@@ -4,7 +4,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.GetRequest;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Recent.RecentInformations;
 import osu.serverlist.Models.ServerInformations;
@@ -42,6 +44,7 @@ public class RecentHelper {
         ServerInformations serverInformations = Recent.endpoints.get(infos.server);
 
         String url = serverInformations.getEndpoint() + "?scope=recent&mode=" + infos.modeId + "&name=" + infos.name.replaceAll(" ", "_") + "&limit=55";
+        Flogger.instance.log(Prefix.API, "GET: " + url, 0);
         String response = new GetRequest(url).send("osu!ListBot");
 
         // Parse JSON
