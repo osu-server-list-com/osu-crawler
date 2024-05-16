@@ -48,13 +48,15 @@ public class EndpointHelper {
                 switch (type) {
                     case LEADERBOARD:
                         Leaderboard.endpoints.put(server, s);
-                        break;
+                        continue;
                     case VOTE:
                         Profile.endpoints.put(server, s);
+                        continue;
                     case RECENT:
                         Recent.endpoints.put(server, s);
+                        continue;
                     default:
-                        break;
+                        continue;
                 }
             }
         } catch (SQLException e) {

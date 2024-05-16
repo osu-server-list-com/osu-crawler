@@ -10,6 +10,7 @@ import commons.marcandreher.Commons.Database.ServerTimezone;
 import commons.marcandreher.Input.CommandHandler;
 import osu.serverlist.Cache.Action.CheckServer;
 import osu.serverlist.DiscordBot.DiscordBot;
+import osu.serverlist.Input.Commands.CheckDcCache;
 import osu.serverlist.Input.Commands.DelCmds;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Input.Commands.InitCmds;
@@ -42,6 +43,7 @@ public class Crawler {
         CommandHandler cmd = new CommandHandler(LOG);
         cmd.registerCommand(new ExceptionManager());
         cmd.registerCommand(new DelCmds());
+        cmd.registerCommand(new CheckDcCache());
         cmd.registerCommand(new InitCmds());
         cmd.initialize();
         
