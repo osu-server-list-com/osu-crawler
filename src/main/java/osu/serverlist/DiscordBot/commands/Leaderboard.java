@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
+import osu.serverlist.DiscordBot.helpers.GenericEvent;
 import osu.serverlist.DiscordBot.helpers.LeaderboardHelper;
 import osu.serverlist.DiscordBot.helpers.LeaderboardHelper.GotLeaderboard;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
@@ -42,7 +43,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         public String modeId;
         public String sortId;
         public String description;
-        private String messageId;
+        public String messageId = null;
         public int offset;
     }
 
@@ -132,17 +133,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
 
-        if (event instanceof SlashCommandInteractionEvent) {
-            ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
-            .setActionRow(prevPageButton, nextPageButton)
-            .queue(message -> {
-                SlashCommandInteractionEvent event2 = (SlashCommandInteractionEvent) event;
-                String messageId = message.getId();
-               userOffsets.get(event2.getUser().getId()).messageId = messageId;
-            });
-        } else if (event instanceof ButtonInteractionEvent) {
-            ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build()).setActionRow(prevPageButton, nextPageButton).queue();
-        }
+        GenericEvent.sendEditSendMessage(event, infos.messageId, embed, ServerEndpoints.LEADERBOARD, prevPageButton, nextPageButton);
     }
 
     @Override
@@ -156,22 +147,16 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 userOffsets.put(userId, infos);
                 requestLeaderboard(infos, event);
                 scheduleOffsetRemoval(userId);
-            } else {
-                return; 
-            }
+            } 
         } else if (event.getComponentId().equals("prev_page")) {
             LeaderboardInformations infos = userOffsets.get(userId);
-            if (infos != null) {
+            if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 if (infos.offset > 0) {
                     infos.offset -= 1;
                     userOffsets.put(userId, infos);
                     requestLeaderboard(infos, event);
                     scheduleOffsetRemoval(userId);
-                } else {
-                    return;
-                }
-            } else {
-                return;
+                } 
             }
         }
     }

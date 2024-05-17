@@ -22,7 +22,8 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
-import osu.serverlist.DiscordBot.helpers.GradeConverter;
+import osu.serverlist.DiscordBot.helpers.GenericEvent;
+import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.RecentHelper;
 import osu.serverlist.DiscordBot.helpers.RecentHelper.GotRecent;
@@ -114,8 +115,8 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         String nameW = infos.name.substring(0, 1).toUpperCase() + infos.name.substring(1);
 
         embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + nameW);
-        embed.setDescription(GradeConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
-                + GradeConverter.convertGrade(gotRecent.grade) + " ▪ ["+ (nameW) + "]("
+        embed.setDescription(OsuConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
+                + OsuConverter.convertGrade(gotRecent.grade) + " ▪ ["+ (nameW) + "]("
                 + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ") on \n" +
                 "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl()
                 + "/b/" + gotRecent.mapId + ")\n" +
@@ -124,7 +125,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
         embed.addField("Accuracy", String.valueOf(gotRecent.acc) + "%", true);
-        String[] mods = GradeConverter.ModConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
+        String[] mods = OsuConverter.ModConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
         if (mods.length == 0) {
             embed.addField("Mods", "-", true);
         } else {
@@ -148,18 +149,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
 
-        if (event instanceof SlashCommandInteractionEvent) {
-            ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
-                    .setActionRow(prevPageButton, nextPageButton)
-                    .queue(message -> {
-                        SlashCommandInteractionEvent event2 = (SlashCommandInteractionEvent) event;
-                        String messageId = message.getId();
-                        userOffsets.get(event2.getUser().getId()).messageId = messageId;
-                    });
-        } else if (event instanceof ButtonInteractionEvent) {
-            ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build())
-                    .setActionRow(prevPageButton, nextPageButton).queue();
-        }
+        GenericEvent.sendEditSendMessage(event, infos.messageId, embed, ServerEndpoints.RECENT, prevPageButton, nextPageButton);
     }
 
     @Override
@@ -167,30 +157,26 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         String userId = event.getUser().getId();
 
         if (event.getComponentId().equals("next_page_rec")) {
+
             RecentInformations infos = userOffsets.get(userId);
-            Flogger.instance.log(Prefix.IMPORTANT, event.getMessage().getId() + "|" + infos.messageId, 0);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
                 requestRecent(infos, event);
                 scheduleOffsetRemoval(userId);
-            } else {
-                return;
-            }
+            } 
+
         } else if (event.getComponentId().equals("prev_page_rec")) {
+
             RecentInformations infos = userOffsets.get(userId);
-            if (infos != null) {
+            if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 if (infos.offset > 0) {
                     infos.offset -= 1;
                     userOffsets.put(userId, infos);
                     requestRecent(infos, event);
                     scheduleOffsetRemoval(userId);
-                } else {
-                    return;
-                }
-            } else {
-                return;
-            }
+                } 
+            } 
         }
     }
 

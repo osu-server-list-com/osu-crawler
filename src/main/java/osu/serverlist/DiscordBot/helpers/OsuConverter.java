@@ -2,7 +2,7 @@ package osu.serverlist.DiscordBot.helpers;
 
 import java.util.ArrayList;
 
-public class GradeConverter {
+public class OsuConverter {
     public static String convertGrade(String grade) {
         switch (grade) {
             case "XH":
