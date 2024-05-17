@@ -1,4 +1,4 @@
-package osu.serverlist.DiscordBot.helpers;
+package osu.serverlist.DiscordBot.helpers.commands;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

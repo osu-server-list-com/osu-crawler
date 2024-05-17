@@ -2,7 +2,6 @@ package osu.serverlist.DiscordBot.commands;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -21,10 +20,11 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
-import osu.serverlist.DiscordBot.helpers.LeaderboardHelper;
-import osu.serverlist.DiscordBot.helpers.LeaderboardHelper.GotLeaderboard;
+import osu.serverlist.DiscordBot.helpers.InformationBase;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper.SortHelper;
+import osu.serverlist.DiscordBot.helpers.commands.LeaderboardHelper;
+import osu.serverlist.DiscordBot.helpers.commands.LeaderboardHelper.GotLeaderboard;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -34,17 +34,14 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     public static String[] servers = { "Loading..." };
 
     public static HashMap<String, ServerInformations> endpoints = new HashMap<>();
-    public static Map<String, LeaderboardInformations> userOffsets = new HashMap<>();
+    public static HashMap<String, InformationBase> userOffsets = new HashMap<>();
 
-    public class LeaderboardInformations {
-        public String server;
+    public class LeaderboardInformations extends InformationBase {
         public String mode;
         public String sort;
         public String modeId;
         public String sortId;
         public String description;
-        public String messageId = null;
-        public int offset;
     }
 
     @Override
@@ -133,7 +130,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
 
-        GenericEvent.sendEditSendMessage(event, infos.messageId, embed, ServerEndpoints.LEADERBOARD, prevPageButton, nextPageButton);
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.LEADERBOARD, prevPageButton, nextPageButton);
     }
 
     @Override
@@ -141,20 +138,20 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         String userId = event.getUser().getId();
     
         if (event.getComponentId().equals("next_page")) {
-            LeaderboardInformations infos = userOffsets.get(userId);
+            InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
-                requestLeaderboard(infos, event);
+                requestLeaderboard((LeaderboardInformations) infos, event);
                 scheduleOffsetRemoval(userId);
             } 
         } else if (event.getComponentId().equals("prev_page")) {
-            LeaderboardInformations infos = userOffsets.get(userId);
+            InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 if (infos.offset > 0) {
                     infos.offset -= 1;
                     userOffsets.put(userId, infos);
-                    requestLeaderboard(infos, event);
+                    requestLeaderboard((LeaderboardInformations) infos, event);
                     scheduleOffsetRemoval(userId);
                 } 
             }

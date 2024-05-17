@@ -23,10 +23,11 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
+import osu.serverlist.DiscordBot.helpers.InformationBase;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
+import osu.serverlist.DiscordBot.helpers.commands.RecentHelper;
+import osu.serverlist.DiscordBot.helpers.commands.RecentHelper.GotRecent;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
-import osu.serverlist.DiscordBot.helpers.RecentHelper;
-import osu.serverlist.DiscordBot.helpers.RecentHelper.GotRecent;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -37,15 +38,12 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
     public static HashMap<String, ServerInformations> endpoints = new HashMap<>();
 
-    public static HashMap<String, RecentInformations> userOffsets = new HashMap<>();
+    public static HashMap<String, InformationBase> userOffsets = new HashMap<>();
 
-    public class RecentInformations {
-        public String server;
+    public class RecentInformations extends InformationBase {
         public String mode;
         public String modeId;
-        public String messageId;
         public String name;
-        public int offset;
     }
 
     @Override
@@ -149,7 +147,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
 
-        GenericEvent.sendEditSendMessage(event, infos.messageId, embed, ServerEndpoints.RECENT, prevPageButton, nextPageButton);
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.RECENT, prevPageButton, nextPageButton);
     }
 
     @Override
@@ -158,22 +156,22 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         if (event.getComponentId().equals("next_page_rec")) {
 
-            RecentInformations infos = userOffsets.get(userId);
+            InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
-                requestRecent(infos, event);
+                requestRecent((RecentInformations) infos, event);
                 scheduleOffsetRemoval(userId);
             } 
 
         } else if (event.getComponentId().equals("prev_page_rec")) {
 
-            RecentInformations infos = userOffsets.get(userId);
+            InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 if (infos.offset > 0) {
                     infos.offset -= 1;
                     userOffsets.put(userId, infos);
-                    requestRecent(infos, event);
+                    requestRecent((RecentInformations) infos, event);
                     scheduleOffsetRemoval(userId);
                 } 
             } 
