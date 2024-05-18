@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import osu.serverlist.DiscordBot.DiscordCommand;
+import osu.serverlist.DiscordBot.base.DiscordCommand;
 
 public class Stats implements DiscordCommand {
 

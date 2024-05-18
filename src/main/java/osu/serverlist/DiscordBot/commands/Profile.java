@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import osu.serverlist.DiscordBot.DiscordCommand;
+import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.Models.ServerInformations;

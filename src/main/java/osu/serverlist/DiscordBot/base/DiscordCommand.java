@@ -1,4 +1,4 @@
-package osu.serverlist.DiscordBot;
+package osu.serverlist.DiscordBot.base;
 
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

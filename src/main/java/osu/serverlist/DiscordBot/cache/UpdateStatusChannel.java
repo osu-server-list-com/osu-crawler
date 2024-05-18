@@ -57,13 +57,18 @@ public class UpdateStatusChannel extends DatabaseAction {
         try {
             ResultSet statResult = mysql.Query(STAT_SQL);
             while (statResult.next()) {
-                builder.addField("Servers", statResult.getString("servers"), false);
+                builder.addField("Servers", statResult.getString("servers") + "(" + statResult.getString("svisisible") + ") Visible)", false);
                 builder.addField("Categories", statResult.getString("categories"), false);
                 builder.addField("Votes", statResult.getString("votes"), false);
                 builder.addField("Users", statResult.getString("users"), false);
-                builder.addField("Total Players", statResult.getString("tplayers"), false);
-                builder.addField("Total Players today", statResult.getString("tplayerstoday"), false);
-                builder.addField("AVG Players on Servers", statResult.getString("tplayersavg"), false);
+              
+
+                builder.addField("Max Players today", statResult.getString("tplayerstoday"), true);
+                builder.addField("Players online", statResult.getString("playersOnline"), true);
+
+
+                builder.addField("Total Players recorded", statResult.getString("tplayers"), false);
+                builder.addField("Avg Players on Servers", statResult.getString("tplayersavg"), false);
                 builder.addField("Unique Requests today", statResult.getString("uniqueReqToday"), false);
                 builder.addField("Crawler DB Records", statResult.getString("crawler"), false);
             }

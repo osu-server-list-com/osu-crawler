@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import osu.serverlist.DiscordBot.DiscordCommand;
+import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
 import osu.serverlist.DiscordBot.helpers.InformationBase;
