@@ -5,8 +5,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import commons.marcandreher.Commons.Flogger;
-import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.Flogger.Prefix;
+import commons.marcandreher.Commons.GetRequest;
 import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Recent.RecentInformations;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
@@ -132,9 +132,12 @@ public class RecentHelper {
         gotRecent.playtime = (String) curScore.get("time");
 
         JSONObject beatmap = (JSONObject) curScore.get("beatmap");
+        JSONObject user = (JSONObject) curScore.get("user");
+        gotRecent.userId = (long) user.get("user_id");
 
         gotRecent.setId = (long) beatmap.get("beatmapset_id");
         gotRecent.mapId = (long) beatmap.get("beatmap_id");
+        gotRecent.status = (long) beatmap.get("ranked");
         gotRecent.mapName = (String) beatmap.get("song_name");
         gotRecent.creator = null;
         gotRecent.mapArtist = null;

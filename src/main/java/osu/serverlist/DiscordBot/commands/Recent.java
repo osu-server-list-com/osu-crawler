@@ -103,7 +103,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
             }
 
         } catch (Exception e) {
-
+            e.printStackTrace();
             if (event instanceof SlashCommandInteractionEvent) {
                 ((SlashCommandInteractionEvent) event).getHook().sendMessage("User not found").queue();
             }
