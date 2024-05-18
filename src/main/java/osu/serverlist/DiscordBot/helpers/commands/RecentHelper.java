@@ -108,7 +108,7 @@ public class RecentHelper {
             rx = "0";
         }
 
-        String url = serverInformations.getEndpoint() + "?mode=" + mode + "&p=1&l=55&rx=" + rx + "&name="
+        String url = serverInformations.getEndpoint() + "?m=" + mode + "&p=1&l=55&rx=" + rx + "&name="
                 + infos.name.replaceAll(" ", "_");
         Flogger.instance.log(Prefix.API, "GET: " + url, 0);
         String response = new GetRequest(url).send("osu!ListBot");
@@ -161,7 +161,7 @@ public class RecentHelper {
             description += "(" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ")";
         }
 
-        description += "on \n";
+        description += " on \n";
 
         if (gotRecent.mapArtist != null) {
             description += "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "]";
