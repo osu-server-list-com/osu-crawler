@@ -14,7 +14,6 @@ import osu.serverlist.Models.ServerInformations;
 
 public class LeaderboardHelper {
 
-
     public class GotLeaderboard {
         public String leaderboard = "";
         public int size;
@@ -28,35 +27,37 @@ public class LeaderboardHelper {
                 + "&limit=25&offset=" + (infos.offset) * 25;
         String response = new GetRequest(url).send("osu!ListBot");
         Flogger.instance.log(Prefix.API, "GET: " + url, offset);
-          try {
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(response);
-            JSONArray leaderboard = (JSONArray) jsonObject.get("leaderboard");
 
-            int rank = infos.offset * 25;
-            for (Object obj : leaderboard) {
-                JSONObject player = (JSONObject) obj;
-                rank++;
-                String name = (String) player.get("name");
-                long playerId = (long) player.get("player_id");
-                String country = (String) player.get("country");
-                String countryFlag = OsuConverter.convertFlag(country);
-              
-                long pp = (long) player.get("pp");
-                double acc = (double) player.get("acc");
-                long playtime = (long) player.get("playtime");
-                double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
-                
-                gotLeaderboard.leaderboard += countryFlag + " [" + name + "](" + serverInformations.getUrl() + "/u/"
-                        + playerId + ") #" + rank  + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
-            }
-            gotLeaderboard.size = leaderboard.size();
-        } catch (Exception e) {
-            e.printStackTrace();
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) parser.parse(response);
+        JSONArray leaderboard = (JSONArray) jsonObject.get("leaderboard");
+
+        int rank = infos.offset * 25;
+        for (Object obj : leaderboard) {
+            JSONObject player = (JSONObject) obj;
+            rank++;
+            String name = (String) player.get("name");
+            long playerId = (long) player.get("player_id");
+            String country = (String) player.get("country");
+            String countryFlag = OsuConverter.convertFlag(country);
+
+            long pp = (long) player.get("pp");
+            double acc = (double) player.get("acc");
+            long playtime = (long) player.get("playtime");
+            double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
+
+            gotLeaderboard.leaderboard += applyLeaderboard(countryFlag, name, playerId, rank, pp, acc, playtimeHr,
+                    serverInformations);
         }
-        
-        
+        gotLeaderboard.size = leaderboard.size();
+
         return gotLeaderboard;
     }
-    
+
+    private String applyLeaderboard(String countryFlag, String name, long playerId, long rank, long pp, double acc,
+            double playtimeHr, ServerInformations serverInformations) {
+        return countryFlag + " [" + name + "](" + serverInformations.getUrl() + "/u/"
+                + playerId + ") #" + rank + " (" + pp + "pp, " + acc + "%, " + playtimeHr + "h)" + "\n";
+    }
+
 }

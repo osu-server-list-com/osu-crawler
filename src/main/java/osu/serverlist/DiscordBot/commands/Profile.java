@@ -55,7 +55,6 @@ public class Profile implements DiscordCommand {
         try {
             gotProfile = profileHelper.getProfileBanchoPy(name, mode, server);
         } catch (Exception e) {
-            e.printStackTrace();
             event.getHook().sendMessage("User not Found").queue();
             return;
         }
@@ -72,7 +71,7 @@ public class Profile implements DiscordCommand {
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder
-                    .setTitle(gotProfile.username + " (" + modeSafe + ")",
+                    .setTitle(gotProfile.username + " (" + modeSafe.toUpperCase() + ")",
                             endpoints.get(server).getUrl() + "/u/" + gotProfile.playerId)
                     .setDescription("\n\n" + gotProfile.username + " from "
                             + OsuConverter.convertFlag(gotProfile.country) + "\n\n ")

@@ -45,43 +45,37 @@ public class ProfileHelper {
         String url = serverInformations.getEndpoint() + "?name=" + name.replaceAll(" ", "_") + "&scope=all";
         String response = new GetRequest(url).send("osu!ListBot");
 
-        try {
-            JSONParser parser = new JSONParser();
-            JSONObject json = (JSONObject) parser.parse(response);
-            JSONObject player = (JSONObject) json.get("player");
-            JSONObject info = (JSONObject) player.get("info");
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(response);
+        JSONObject player = (JSONObject) json.get("player");
+        JSONObject info = (JSONObject) player.get("info");
 
-            profile.playerId = (Long) info.get("id");
-            profile.username = (String) info.get("name");
-            profile.country = (String) info.get("country");
+        profile.playerId = (Long) info.get("id");
+        profile.username = (String) info.get("name");
+        profile.country = (String) info.get("country");
 
-            JSONObject stats = (JSONObject) player.get("stats");
-            JSONObject modeObject = (JSONObject) stats.get(mode);
+        JSONObject stats = (JSONObject) player.get("stats");
+        JSONObject modeObject = (JSONObject) stats.get(mode);
 
-            profile.totalScore = (Long) modeObject.get("tscore");
-            profile.rankedScore = (Long) modeObject.get("rscore");
-            profile.pp = (Long) modeObject.get("pp");
-            profile.plays = (Long) modeObject.get("plays");
-            profile.playtime = (Long) modeObject.get("playtime");
+        profile.totalScore = (Long) modeObject.get("tscore");
+        profile.rankedScore = (Long) modeObject.get("rscore");
+        profile.pp = (Long) modeObject.get("pp");
+        profile.plays = (Long) modeObject.get("plays");
+        profile.playtime = (Long) modeObject.get("playtime");
 
-            profile.acc = (Double) modeObject.get("acc");
-            profile.maxCombo = (Long) modeObject.get("max_combo");
+        profile.acc = (Double) modeObject.get("acc");
+        profile.maxCombo = (Long) modeObject.get("max_combo");
 
-            profile.XHCount = (Long) modeObject.get("xh_count");
-            profile.XCount = (Long) modeObject.get("x_count");
-            profile.SHCount = (Long) modeObject.get("sh_count");
-            profile.SCount = (Long) modeObject.get("s_count");
-            profile.ACount = (Long) modeObject.get("a_count");
+        profile.XHCount = (Long) modeObject.get("xh_count");
+        profile.XCount = (Long) modeObject.get("x_count");
+        profile.SHCount = (Long) modeObject.get("sh_count");
+        profile.SCount = (Long) modeObject.get("s_count");
+        profile.ACount = (Long) modeObject.get("a_count");
 
-            profile.rank = (Long) modeObject.get("rank");
-            profile.countryRank = (Long) modeObject.get("country_rank");
-            profile.totalHits = (Long) modeObject.get("total_hits");
-            profile.replayViews = (Long) modeObject.get("replay_views");
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        profile.rank = (Long) modeObject.get("rank");
+        profile.countryRank = (Long) modeObject.get("country_rank");
+        profile.totalHits = (Long) modeObject.get("total_hits");
+        profile.replayViews = (Long) modeObject.get("replay_views");
 
         return profile;
     }
