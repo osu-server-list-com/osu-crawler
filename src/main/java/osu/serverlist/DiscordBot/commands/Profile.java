@@ -55,6 +55,7 @@ public class Profile implements DiscordCommand {
         try {
             gotProfile = profileHelper.getProfileBanchoPy(endpoints.get(server), name, mode);
         } catch (Exception e) {
+            e.printStackTrace();
             event.getHook().sendMessage("User not Found").queue();
             return;
         }
