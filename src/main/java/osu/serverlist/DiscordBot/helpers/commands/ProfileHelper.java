@@ -4,7 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import commons.marcandreher.Commons.GetRequest;
-import osu.serverlist.DiscordBot.commands.Leaderboard;
+import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.Models.ServerInformations;
 
 public class ProfileHelper {
@@ -38,9 +38,9 @@ public class ProfileHelper {
 
     }
 
-    public GotProfile getProfileBanchoPy(ServerInformations infos, String name, String mode) throws Exception {
+    public GotProfile getProfileBanchoPy(String name, String mode, String serverName) throws Exception {
         GotProfile profile = new GotProfile();
-        ServerInformations serverInformations = Leaderboard.endpoints.get(infos.getName());
+        ServerInformations serverInformations = Profile.endpoints.get(serverName);
 
         String url = serverInformations.getEndpoint() + "?name=" + name.replaceAll(" ", "_") + "&scope=all";
         String response = new GetRequest(url).send("osu!ListBot");
