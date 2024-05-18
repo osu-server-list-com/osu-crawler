@@ -141,7 +141,7 @@ public class RecentHelper {
         gotRecent.mapName = (String) beatmap.get("song_name");
         gotRecent.creator = null;
         gotRecent.mapArtist = null;
-        gotRecent.diff = (double) beatmap.get("difficulty");
+        gotRecent.diff = (long) beatmap.get("difficulty");
         gotRecent.ar = (double) beatmap.get("ar");
         gotRecent.bpm = 0;
         gotRecent.od = (double) beatmap.get("od");
