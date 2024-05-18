@@ -132,8 +132,12 @@ public class RecentHelper {
         gotRecent.playtime = (String) curScore.get("time");
 
         JSONObject beatmap = (JSONObject) curScore.get("beatmap");
-        JSONObject user = (JSONObject) curScore.get("user");
-        gotRecent.userId = (long) user.get("user_id");
+
+        try {
+            JSONObject user = (JSONObject) curScore.get("user");
+            gotRecent.userId = (long) user.get("user_id");
+        } catch (Exception e) { gotRecent.userId = 0; }
+        
 
         gotRecent.setId = (long) beatmap.get("beatmapset_id");
         gotRecent.mapId = (long) beatmap.get("beatmap_id");
@@ -151,8 +155,13 @@ public class RecentHelper {
 
     public String convertDescription(GotRecent gotRecent, String nameW, RecentInformations infos) {
         String description = OsuConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
-                + OsuConverter.convertGrade(gotRecent.grade) + " ▪ [" + (nameW) + "]("
-                + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ") on \n";
+                + OsuConverter.convertGrade(gotRecent.grade) + " ▪ [" + (nameW) + "]";
+
+        if(gotRecent.userId != 0) {
+            description += "(" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ")";
+        }
+
+        description += "on \n";
 
         if (gotRecent.mapArtist != null) {
             description += "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "]";
