@@ -73,15 +73,15 @@ public class EndpointHelper {
         ItemComponent[] buttons = new ItemComponent[2];
 
         if (prev) {
-            buttons[1] = Button.success("prev_page_" + identifier, "Previous Page").asDisabled();
+            buttons[0] = Button.danger("prev_page_" + identifier, "Previous Page").asDisabled();
         } else {
-            buttons[1] = Button.success("prev_page_" + identifier, "Previous Page");
+            buttons[0] = Button.danger("prev_page_" + identifier, "Previous Page");
         }
 
         if (next) {
-            buttons[0] = Button.success("next_page_" + identifier, "Next Page").asDisabled();
+            buttons[1] = Button.success("next_page_" + identifier, "Next Page").asDisabled();
         } else {
-            buttons[0] = Button.success("next_page_" + identifier, "Next Page");
+            buttons[1] = Button.success("next_page_" + identifier, "Next Page");
         }
 
         return buttons;
