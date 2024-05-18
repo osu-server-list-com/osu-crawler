@@ -60,7 +60,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(server, ServerEndpoints.RECENT, EndpointType.BANCHOPY);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.RECENT, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
         }
 
         if (!endpoints.containsKey(server)) {
@@ -105,12 +105,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         String nameW = infos.name.substring(0, 1).toUpperCase() + infos.name.substring(1);
 
         embed.setTitle("Recent plays on " + Recent.endpoints.get(infos.server).getName() + " for " + nameW);
-        embed.setDescription(OsuConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
-                + OsuConverter.convertGrade(gotRecent.grade) + " ▪ ["+ (nameW) + "]("
-                + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ") on \n" +
-                "[" + gotRecent.mapArtist + " | " + gotRecent.mapName + "](" + endpoints.get(infos.server).getUrl()
-                + "/b/" + gotRecent.mapId + ")\n" +
-                "Map by " + gotRecent.creator);
+        embed.setDescription(recentHelper.convertDescription(gotRecent, nameW, infos));
 
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
@@ -127,7 +122,9 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.addField("Difficulty", String.format("%.2f*", gotRecent.diff), true);
 
         embed.addField("AR", String.valueOf(gotRecent.ar), true);
-        embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
+
+        if(gotRecent.bpm != 0) embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
+
         embed.addField("OD", String.valueOf(gotRecent.od), true);
         embed.addField("Actions",
                 "[[View Score]](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score

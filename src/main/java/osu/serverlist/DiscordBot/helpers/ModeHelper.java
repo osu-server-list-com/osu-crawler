@@ -25,11 +25,34 @@ public class ModeHelper {
             default:
                 return null;
         }
-        
+
+    }
+
+    public static String convertModeRippleAPI(String mode) {
+        switch (mode) {
+            case "osu":
+                return "0";
+            case "osurx":
+                return "0|1";
+            case "osuap":
+                return "0|2";
+            case "taiko":
+                return "3";
+            case "catch":
+                return "4";
+            case "mania":
+                return "5";
+            case "taikorx":
+                return null;
+            case "catchrx":
+                return null;
+            default:
+                return null;
+        }
     }
 
     public class SortHelper {
-        //Available values : tscore, rscore, pp, acc, plays, playtime
+        // Available values : tscore, rscore, pp, acc, plays, playtime
         public static String[] sortArray = { "PP", "ACC", "Total Score", "Rated Score", "Plays", "Playtime" };
 
         public static String convertSort(String sort) {
