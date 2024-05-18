@@ -17,9 +17,11 @@ public class OsuConverter {
             case "xk":
                 return ":flag_white:";
             case "id_":
-            return ":flag_white:";
+                return ":flag_white:";
+            case "kr":
+                return ":flag_white:";
             default:
-                return ":flag_" + countryCode + ":";
+                return ":flag_" + countryCode.toLowerCase() + ":";
         }
     }
 
