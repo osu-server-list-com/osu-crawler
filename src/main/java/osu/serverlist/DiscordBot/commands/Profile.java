@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
+import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -112,7 +113,7 @@ public class Profile implements DiscordCommand {
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(realName + " (" + modeSafe + ")", endpoints.get(server).getUrl() + "/u/" + id)
-                    .setDescription("\n\n"+realName + " from :flag_" + country.toLowerCase() + ":" + "\n\n ")
+                    .setDescription("\n\n"+realName + " from " + OsuConverter.convertFlag(country) + "\n\n ")
                     .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + id)
                     .addField("Total Score", tscore.toString(), true)
                     .addField("Ranked Score", rscore.toString(), true)

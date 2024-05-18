@@ -3,6 +3,26 @@ package osu.serverlist.DiscordBot.helpers;
 import java.util.ArrayList;
 
 public class OsuConverter {
+
+    public static String convertFlag(String countryCode) {
+        switch (countryCode.toLowerCase()) {
+            case "xx":
+                return ":flag_white:";
+            case "id":
+                return ":flag_white:";
+            case "fi":
+                return ":flag_white:";
+            case "ma":
+                return ":flag_white:";
+            case "xk":
+                return ":flag_white:";
+            case "id_":
+            return ":flag_white:";
+            default:
+                return ":flag_" + countryCode + ":";
+        }
+    }
+
     public static String convertGrade(String grade) {
         switch (grade) {
             case "XH":

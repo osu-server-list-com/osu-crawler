@@ -9,6 +9,7 @@ import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Leaderboard.LeaderboardInformations;
+import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.Models.ServerInformations;
 
 public class LeaderboardHelper {
@@ -39,8 +40,8 @@ public class LeaderboardHelper {
                 String name = (String) player.get("name");
                 long playerId = (long) player.get("player_id");
                 String country = (String) player.get("country");
-                String countryFlag = ":flag_" + country + ":";
-                if(country.equalsIgnoreCase("XX")) countryFlag = ":flag_white:";
+                String countryFlag = OsuConverter.convertFlag(country);
+              
                 long pp = (long) player.get("pp");
                 double acc = (double) player.get("acc");
                 long playtime = (long) player.get("playtime");
