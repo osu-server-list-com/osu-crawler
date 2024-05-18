@@ -95,7 +95,6 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
                     return;
             }
 
-            gotRecent = recentHelper.requestRecentBanchoPy(infos);
         } catch (Exception e) {
 
             if (event instanceof SlashCommandInteractionEvent) {
