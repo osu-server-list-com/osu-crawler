@@ -123,7 +123,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
     
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Leaderboard for " + endpoints.get(infos.server).getName() + " | " + infos.mode.toUpperCase() + " | " + infos.sort + " | (Page "
+        embed.setTitle("Leaderboard for " + endpoints.get(infos.server).getName() + " | " + infos.mode.toUpperCase() + " | " + infos.sort.toUpperCase() + " | (Page "
                 + (infos.offset + 1) + ")");
         embed.setDescription(gotLeaderboard.leaderboard);
         embed.setColor(0x5755d9);

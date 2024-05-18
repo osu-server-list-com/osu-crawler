@@ -5,12 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
 import commons.marcandreher.Commons.Flogger;
-import commons.marcandreher.Commons.Flogger.Prefix;
-import commons.marcandreher.Commons.GetRequest;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -20,6 +15,8 @@ import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
+import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper;
+import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper.GotProfile;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -47,85 +44,50 @@ public class Profile implements DiscordCommand {
         if (!endpoints.containsKey(server)) {
             EndpointHelper.adjustEndpoints(server, ServerEndpoints.VOTE, EndpointType.BANCHOPY);
         }
-        
+
         if (!endpoints.containsKey(server)) {
             event.getHook().sendMessage("Server not found").queue();
             return;
         }
+        ProfileHelper profileHelper = new ProfileHelper();
 
-        String url = endpoints.get(server).getEndpoint() + "?name=" + name.replaceAll(" ", "_") + "&scope=all";
-        Flogger.instance.log(Prefix.API, "Request: " + url, 0);
-        String response;
+        GotProfile gotProfile;
         try {
-            response = new GetRequest(url).send("osu!ListBot");
+            gotProfile = profileHelper.getProfileBanchoPy(endpoints.get(server), name, mode);
         } catch (Exception e) {
-            event.getHook().sendMessage("User not found on " + endpoints.get(server).getName()).queue();
+            event.getHook().sendMessage("User not Found").queue();
             return;
         }
 
-        JSONParser parser = new JSONParser();
         try {
-            JSONObject json = (JSONObject) parser.parse(response);
-            JSONObject player = (JSONObject) json.get("player");
-            JSONObject info = (JSONObject) player.get("info");
 
-            Long id = (Long) info.get("id");
-            String realName = (String) info.get("name");
-            String country = (String) info.get("country");
+            double playtimeHr = Math.floor(gotProfile.playtime / 3600 * 100) / 100;
 
-            if (id == null) {
-                event.getHook().sendMessage("Player not found").queue();
-                return;
-            }
-
-            // Get the "stats" object within the "player" object
-            JSONObject stats = (JSONObject) player.get("stats");
-
-            // Get the mode object based on the mode selected
-            JSONObject modeObject = (JSONObject) stats.get(mode);
-
-            // Now you can access individual properties within the modeObject
-            Long tscore = (Long) modeObject.get("tscore");
-            Long rscore = (Long) modeObject.get("rscore");
-            Long pp = (Long) modeObject.get("pp");
-            Long plays = (Long) modeObject.get("plays");
-            Long playtime = (Long) modeObject.get("playtime");
-
-            Double acc = (Double) modeObject.get("acc");
-            Long max_combo = (Long) modeObject.get("max_combo");
-
-            Long xh_count = (Long) modeObject.get("xh_count");
-            Long x_count = (Long) modeObject.get("x_count");
-            Long sh_count = (Long) modeObject.get("sh_count");
-            Long s_count = (Long) modeObject.get("s_count");
-            Long a_count = (Long) modeObject.get("a_count");
-
-            Long rank = (Long) modeObject.get("rank");
-            Long country_rank = (Long) modeObject.get("country_rank");
-            Long total_hits = (Long) modeObject.get("total_hits");
-            Long replay_views = (Long) modeObject.get("replay_views");
-
-            double playtimeHr = Math.floor(playtime / 3600 * 100) / 100;
-
-            String numberCount = "<:rankingA:1239849498948407366> " + a_count + " <:rankingS:1239849495999807508> "
-                    + s_count + " <:rankingSH:1239849497375277076> " + sh_count + " <:rankingX:1239849492891697242> "
-                    + x_count + " <:rankingXH:1239849494393126922> " + xh_count;
+            String numberCount = "<:rankingA:1239849498948407366> " + gotProfile.ACount
+                    + " <:rankingS:1239849495999807508> "
+                    + gotProfile.SCount + " <:rankingSH:1239849497375277076> " + gotProfile.SHCount
+                    + " <:rankingX:1239849492891697242> "
+                    + gotProfile.XCount + " <:rankingXH:1239849494393126922> " + gotProfile.XHCount;
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            embedBuilder.setTitle(realName + " (" + modeSafe + ")", endpoints.get(server).getUrl() + "/u/" + id)
-                    .setDescription("\n\n"+realName + " from " + OsuConverter.convertFlag(country) + "\n\n ")
-                    .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + id)
-                    .addField("Total Score", tscore.toString(), true)
-                    .addField("Ranked Score", rscore.toString(), true)
-                    .addField("Performance Points", pp.toString() + "pp", true)
-                    .addField("Plays", plays.toString(), true)
+            embedBuilder
+                    .setTitle(gotProfile.username + " (" + modeSafe + ")",
+                            endpoints.get(server).getUrl() + "/u/" + gotProfile.playerId)
+                    .setDescription("\n\n" + gotProfile.username + " from "
+                            + OsuConverter.convertFlag(gotProfile.country) + "\n\n ")
+                    .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + gotProfile.playerId)
+                    .addField("Total Score", gotProfile.totalScore.toString(), true)
+                    .addField("Ranked Score", gotProfile.rankedScore.toString(), true)
+                    .addField("Performance Points", gotProfile.pp.toString() + "pp", true)
+                    .addField("Plays", gotProfile.plays.toString(), true)
                     .addField("Playtime", playtimeHr + "hours", true)
-                    .addField("Accuracy", acc.toString() + "%", true)
-                    .addField("Max Combo", max_combo.toString(), true)
-                    .addField("Total Hits", total_hits.toString(), true)
-                    .addField("Replay Views", replay_views.toString(), true).addField("Rankings", numberCount, false)
-                    .addField("Rank", "#" + rank.toString(), true)
-                    .addField("Country Rank", "#" + country_rank.toString(), true)
+                    .addField("Accuracy", gotProfile.acc + "%", true)
+                    .addField("Max Combo", gotProfile.maxCombo.toString(), true)
+                    .addField("Total Hits", gotProfile.totalHits.toString(), true)
+                    .addField("Replay Views", gotProfile.replayViews.toString(), true)
+                    .addField("Rankings", numberCount, false)
+                    .addField("Rank", "#" + gotProfile.rank.toString(), true)
+                    .addField("Country Rank", "#" + gotProfile.countryRank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
                     .setColor(0x5755d9);
 
@@ -149,7 +111,7 @@ public class Profile implements DiscordCommand {
                     .collect(Collectors.toList());
             event.replyChoices(options).queue();
         } else if (event.getFocusedOption().getName().equals("mode")) {
-        
+
             List<Command.Choice> options = Stream
                     .of(ModeHelper.modeArray)
                     .filter(mode -> mode.toLowerCase()
