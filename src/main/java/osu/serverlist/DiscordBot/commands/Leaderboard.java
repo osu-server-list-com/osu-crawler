@@ -112,7 +112,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
 
-        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.LEADERBOARD, EndpointHelper.getPageButtons(infos.offset == 0, gotLeaderboard.size == 25, "ld"));
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.LEADERBOARD, EndpointHelper.getPageButtons(infos.offset == 0, gotLeaderboard.size != 25, "ld"));
     }
 
     @Override
