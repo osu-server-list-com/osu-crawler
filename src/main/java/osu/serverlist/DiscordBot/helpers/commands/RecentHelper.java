@@ -120,9 +120,15 @@ public class RecentHelper {
         JSONArray scoresArray = (JSONArray) jsonObject.get("scores");
         JSONObject curScore = (JSONObject) scoresArray.get(infos.offset);
         gotRecent.size = scoresArray.size();
-
+        Object scoreId = curScore.get("id");
+        long scoreIdL = 0L;
+        if(scoreId instanceof String) {
+            scoreIdL = Long.parseLong((String) scoreId);
+        } else {
+            scoreIdL = (long) scoreId;
+        }
         // Parsing score object
-        gotRecent.scoreId = (long) curScore.get("id");
+        gotRecent.scoreId = scoreIdL;
         gotRecent.score = (long) curScore.get("score");
         gotRecent.pp = (double) curScore.get("pp");
         gotRecent.acc = (double) curScore.get("accuracy");

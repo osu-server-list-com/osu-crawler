@@ -105,7 +105,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         } catch (Exception e) {
             e.printStackTrace();
             if (event instanceof SlashCommandInteractionEvent) {
-                ((SlashCommandInteractionEvent) event).getHook().sendMessage("User not found").queue();
+                ((SlashCommandInteractionEvent) event).getHook().sendMessage("User/Scores not found").queue();
             }
             return;
         }
@@ -118,7 +118,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
-        embed.addField("Accuracy", String.valueOf(gotRecent.acc) + "%", true);
+        embed.addField("Accuracy", String.format("%.2f*", gotRecent.acc) + "%", true);
         String[] mods = OsuConverter.ModConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
         if (mods.length == 0) {
             embed.addField("Mods", "-", true);
