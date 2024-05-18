@@ -102,7 +102,7 @@ public class RecentHelper {
         if (rippleAPIMode.length() > 1) {
             String[] modeSplit = rippleAPIMode.split("|");
             mode = modeSplit[0];
-            rx = modeSplit[1];
+            rx = modeSplit[2];
         } else {
             mode = rippleAPIMode;
             rx = "0";
