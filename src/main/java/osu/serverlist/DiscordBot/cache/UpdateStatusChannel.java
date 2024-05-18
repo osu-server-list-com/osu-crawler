@@ -57,7 +57,7 @@ public class UpdateStatusChannel extends DatabaseAction {
         try {
             ResultSet statResult = mysql.Query(STAT_SQL);
             while (statResult.next()) {
-                builder.addField("Servers", statResult.getString("servers") + "(" + statResult.getString("svisisible") + ") Visible)", false);
+                builder.addField("Servers", statResult.getString("servers") + "(" + statResult.getString("svisible") + ") Visible)", false);
                 builder.addField("Categories", statResult.getString("categories"), false);
                 builder.addField("Votes", statResult.getString("votes"), false);
                 builder.addField("Users", statResult.getString("users"), false);
