@@ -33,18 +33,18 @@ public class ModeHelper {
         public static String[] sortArray = { "PP", "ACC", "Total Score", "Rated Score", "Plays", "Playtime" };
 
         public static String convertSort(String sort) {
-            switch (sort) {
-                case "Total Score":
+            switch (sort.toLowerCase()) {
+                case "total score":
                     return "tscore";
-                case "Rated Score":
+                case "rated score":
                     return "rscore";
-                case "PP":
+                case "pp":
                     return "pp";
-                case "ACC":
+                case "acc":
                     return "acc";
-                case "Plays":
+                case "plays":
                     return "plays";
-                case "Playtime":
+                case "playtime":
                     return "playtime";
                 default:
                     return null;
