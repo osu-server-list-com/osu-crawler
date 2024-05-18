@@ -45,7 +45,7 @@ public class UpdateStatusChannel extends DatabaseAction {
         }
     }
 
-    private final String STAT_SQL = "SELECT (SELECT COUNT(`id`) FROM `un_servers`) AS `servers`, (SELECT COUNT(`id`) FROM `un_categories`) AS `categories`, (SELECT COUNT(`id`) FROM `un_votes`) AS `votes`, (SELECT COUNT(`id`) FROM `un_crawler`) AS `crawler`, (SELECT COUNT(`id`) FROM `un_users`) AS `users`, (SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayers`, (SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK' AND `date` = CURDATE()) AS `tplayerstoday`, (SELECT ROUND(AVG(`value`), 2) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayersavg`, (SELECT IFNULL(SUM(`clicks`), 0) FROM `un_analytics` WHERE `date` = CURDATE()) AS `uniqueReqToday`;";
+    private final String STAT_SQL = "SELECT (SELECT COUNT(`id`) FROM `un_servers`) AS `servers`, (SELECT COUNT(`id`) FROM `un_servers` WHERE `visible` = 1) AS `svisible`, (SELECT SUM(`players`) FROM `un_servers` WHERE `visible` = 1) AS `playersOnline`, (SELECT COUNT(`id`) FROM `un_categories`) AS `categories`, (SELECT COUNT(`id`) FROM `un_votes`) AS `votes`, (SELECT COUNT(`id`) FROM `un_crawler`) AS `crawler`, (SELECT COUNT(`id`) FROM `un_users`) AS `users`, (SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayers`, (SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK' AND `date` = CURDATE()) AS `tplayerstoday`, (SELECT ROUND(AVG(`value`), 2) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayersavg`, (SELECT IFNULL(SUM(`clicks`), 0) FROM `un_analytics` WHERE `date` = CURDATE()) AS `uniqueReqToday`;";
 
     private MessageEmbed buildEmbed() throws SQLException {
         MySQL mysql = Database.getConnection();
