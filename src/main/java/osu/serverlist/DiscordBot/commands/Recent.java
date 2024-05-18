@@ -95,6 +95,13 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
                     return;
             }
 
+            if(gotRecent == null) {
+                if (event instanceof SlashCommandInteractionEvent) {
+                    ((SlashCommandInteractionEvent) event).getHook().sendMessage("Invalid mode for server " + infos.server).queue();
+                }
+                return;
+            }
+
         } catch (Exception e) {
 
             if (event instanceof SlashCommandInteractionEvent) {

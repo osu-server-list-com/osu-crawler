@@ -91,7 +91,7 @@ public class RecentHelper {
     public GotRecent requestRecentRippleAPIV1(RecentInformations infos) throws Exception {
         GotRecent gotRecent = new GotRecent();
         ServerInformations serverInformations = Recent.endpoints.get(infos.server);
-        String rippleAPIMode = ModeHelper.convertModeRippleAPI(infos.modeId);
+        String rippleAPIMode = ModeHelper.convertModeRippleAPI(infos.mode);
         String mode = "";
         String rx;
 
