@@ -142,9 +142,9 @@ public class RecentHelper {
         gotRecent.creator = null;
         gotRecent.mapArtist = null;
         gotRecent.diff = (long) beatmap.get("difficulty");
-        gotRecent.ar = (double) beatmap.get("ar");
+        gotRecent.ar = (long) beatmap.get("ar");
         gotRecent.bpm = 0;
-        gotRecent.od = (double) beatmap.get("od");
+        gotRecent.od = (long) beatmap.get("od");
 
         return gotRecent;
     }
