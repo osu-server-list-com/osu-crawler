@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
@@ -104,23 +103,6 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
             Flogger.instance.error(e);
             return;
         }
-        
-        Button nextPageButton;
-        if(gotLeaderboard.size == 25) {
-            nextPageButton = Button.success("next_page", "Next Page");
-        }else {
-            nextPageButton = Button.success("next_page", "Next Page").asDisabled();
-        }
-
-        Button prevPageButton;
-        if(infos.offset == 0) {
-            prevPageButton = Button.danger("prev_page", "Previous Page").asDisabled();
-        }else {
-            prevPageButton = Button.danger("prev_page", "Previous Page");
-        }
-        
-
-    
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Leaderboard for " + endpoints.get(infos.server).getName() + " | " + infos.mode.toUpperCase() + " | " + infos.sort.toUpperCase() + " | (Page "
@@ -130,14 +112,14 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
 
-        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.LEADERBOARD, prevPageButton, nextPageButton);
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.LEADERBOARD, EndpointHelper.getPageButtons(infos.offset == 0, gotLeaderboard.size == 25, "ld"));
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String userId = event.getUser().getId();
     
-        if (event.getComponentId().equals("next_page")) {
+        if (event.getComponentId().equals("next_page_ld")) {
             InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
@@ -145,7 +127,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                 requestLeaderboard((LeaderboardInformations) infos, event);
                 scheduleOffsetRemoval(userId);
             } 
-        } else if (event.getComponentId().equals("prev_page")) {
+        } else if (event.getComponentId().equals("prev_page_ld")) {
             InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 if (infos.offset > 0) {

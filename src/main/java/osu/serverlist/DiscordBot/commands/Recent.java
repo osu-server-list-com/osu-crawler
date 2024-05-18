@@ -9,7 +9,6 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,15 +18,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
 import osu.serverlist.DiscordBot.helpers.InformationBase;
+import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.DiscordBot.helpers.commands.RecentHelper;
 import osu.serverlist.DiscordBot.helpers.commands.RecentHelper.GotRecent;
-import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -85,6 +83,15 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         RecentHelper recentHelper = new RecentHelper();
         GotRecent gotRecent = null;
         try {
+            switch(endpoints.get(infos.server).getType()) {
+                case "BANCHOPY":
+                    gotRecent = recentHelper.requestRecentBanchoPy(infos);
+                    break;
+                default:
+                    Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at requestRecent()", 0);
+                    return;
+            }
+
             gotRecent = recentHelper.requestRecentBanchoPy(infos);
         } catch (Exception e) {
 
@@ -92,21 +99,6 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
                 ((SlashCommandInteractionEvent) event).getHook().sendMessage("User not found").queue();
             }
             return;
-        }
-
-        Button nextPageButton;
-        Flogger.instance.log(Prefix.API, "Paging: " + gotRecent.size + " | " + (infos.offset + 1), 0);
-        if (gotRecent.size == (infos.offset + 1)) {
-            nextPageButton = Button.success("next_page_rec", "Next Page").asDisabled();
-        } else {
-            nextPageButton = Button.success("next_page_rec", "Next Page");
-        }
-
-        Button prevPageButton;
-        if (infos.offset == 0) {
-            prevPageButton = Button.danger("prev_page_rec", "Previous Page").asDisabled();
-        } else {
-            prevPageButton = Button.danger("prev_page_rec", "Previous Page");
         }
 
         EmbedBuilder embed = new EmbedBuilder();
@@ -147,7 +139,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
 
-        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.RECENT, prevPageButton, nextPageButton);
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.RECENT, EndpointHelper.getPageButtons(infos.offset == 0, gotRecent.size == (infos.offset + 1), "rec"));
     }
 
     @Override

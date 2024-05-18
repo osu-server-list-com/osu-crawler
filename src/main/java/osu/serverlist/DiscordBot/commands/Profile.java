@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import commons.marcandreher.Commons.Flogger;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -53,6 +54,14 @@ public class Profile implements DiscordCommand {
 
         GotProfile gotProfile;
         try {
+            switch(endpoints.get(server).getType()) {
+                case "BANCHOPY":
+                    gotProfile = profileHelper.getProfileBanchoPy(name, mode, server);
+                    break;
+                default:
+                    Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at handleCommand() /profile", 0);
+                    return;
+            }
             gotProfile = profileHelper.getProfileBanchoPy(name, mode, server);
         } catch (Exception e) {
             event.getHook().sendMessage("User not Found").queue();
@@ -60,7 +69,6 @@ public class Profile implements DiscordCommand {
         }
 
         try {
-
             double playtimeHr = Math.floor(gotProfile.playtime / 3600 * 100) / 100;
 
             String numberCount = "<:rankingA:1239849498948407366> " + gotProfile.ACount

@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Recent;
@@ -67,6 +69,22 @@ public class EndpointHelper {
 
     }
 
-    
+    public static ItemComponent[] getPageButtons(boolean prev, boolean next, String identifier) {
+        ItemComponent[] buttons = new ItemComponent[2];
+
+        if (prev) {
+            buttons[1] = Button.success("prev_page_" + identifier, "Previous Page").asDisabled();
+        } else {
+            buttons[1] = Button.success("prev_page_" + identifier, "Previous Page");
+        }
+
+        if (next) {
+            buttons[0] = Button.success("next_page_" + identifier, "Next Page").asDisabled();
+        } else {
+            buttons[0] = Button.success("next_page_" + identifier, "Next Page");
+        }
+
+        return buttons;
+    }
 
 }
