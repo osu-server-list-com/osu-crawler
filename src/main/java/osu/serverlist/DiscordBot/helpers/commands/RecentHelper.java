@@ -122,7 +122,7 @@ public class RecentHelper {
         gotRecent.size = scoresArray.size();
         Object scoreId = curScore.get("id");
         long scoreIdL = 0L;
-        if(scoreId instanceof String) {
+        if (scoreId instanceof String) {
             scoreIdL = Long.parseLong((String) scoreId);
         } else {
             scoreIdL = (long) scoreId;
@@ -130,8 +130,8 @@ public class RecentHelper {
         // Parsing score object
         gotRecent.scoreId = scoreIdL;
         gotRecent.score = (long) curScore.get("score");
-        gotRecent.pp = (double) curScore.get("pp");
-        gotRecent.acc = (double) curScore.get("accuracy");
+        gotRecent.pp = ((Number) curScore.get("pp")).doubleValue();
+        gotRecent.acc = ((Number) curScore.get("accuracy")).doubleValue();
         gotRecent.mods = (long) curScore.get("mods");
         gotRecent.grade = (String) curScore.get("rank");
 
@@ -142,8 +142,9 @@ public class RecentHelper {
         try {
             JSONObject user = (JSONObject) curScore.get("user");
             gotRecent.userId = (long) user.get("user_id");
-        } catch (Exception e) { gotRecent.userId = 0; }
-        
+        } catch (Exception e) {
+            gotRecent.userId = 0;
+        }
 
         gotRecent.setId = (long) beatmap.get("beatmapset_id");
         gotRecent.mapId = (long) beatmap.get("beatmap_id");
@@ -163,7 +164,7 @@ public class RecentHelper {
         String description = OsuConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
                 + OsuConverter.convertGrade(gotRecent.grade) + " ▪ [" + (nameW) + "]";
 
-        if(gotRecent.userId != 0) {
+        if (gotRecent.userId != 0) {
             description += "(" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotRecent.userId + ")";
         }
 
