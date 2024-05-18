@@ -87,6 +87,9 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
                 case "BANCHOPY":
                     gotRecent = recentHelper.requestRecentBanchoPy(infos);
                     break;
+                case "RIPPLEAPIV1":
+                    gotRecent = recentHelper.requestRecentRippleAPIV1(infos);
+                    break;
                 default:
                     Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at requestRecent()", 0);
                     return;
