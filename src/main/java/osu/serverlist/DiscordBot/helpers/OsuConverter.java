@@ -69,59 +69,113 @@ public class OsuConverter {
         }
     }
 
-    public class ModConverter {
-        public static String[] convertMods(int mods) {
-            ArrayList<String> modList = new ArrayList<>();
-            if ((mods & 1) > 0) {
-                modList.add("NF");
-            }
-            if ((mods & 2) > 0) {
-                modList.add("EZ");
-            }
-            if ((mods & 4) > 0) {
-                modList.add("TD");
-            }
-            if ((mods & 8) > 0) {
-                modList.add("HD");
-            }
-            if ((mods & 16) > 0) {
-                modList.add("HR");
-            }
-            if ((mods & 32) > 0) {
-                modList.add("SD");
-            }
-            if ((mods & 64) > 0) {
-                modList.add("DT");
-            }
-            if ((mods & 128) > 0) {
-                modList.add("RX");
-            }
-            if ((mods & 256) > 0) {
-                modList.add("HT");
-            }
-            if ((mods & 512) > 0) {
-                modList.add("NC");
-            }
-            if ((mods & 1024) > 0) {
-                modList.add("FL");
-            }
-            if ((mods & 2048) > 0) {
-                modList.add("AT");
-            }
-            if ((mods & 4096) > 0) {
-                modList.add("SO");
-            }
-            if ((mods & 8192) > 0) {
-                modList.add("AP");
-            }
-            if ((mods & 16384) > 0) {
-                modList.add("PF");
-            }
-            if ((mods & 32768) > 0) {
-                modList.add("4K");
-            }
-            return modList.toArray(new String[modList.size()]);
+    public static String[] convertMods(int mods) {
+        ArrayList<String> modList = new ArrayList<>();
+
+        if ((mods & Mods.NoFail.getValue()) > 0) {
+            modList.add("NF");
         }
+        if ((mods & Mods.Easy.getValue()) > 0) {
+            modList.add("EZ");
+        }
+        if ((mods & Mods.TouchDevice.getValue()) > 0) {
+            modList.add("TD");
+        }
+        if ((mods & Mods.Hidden.getValue()) > 0) {
+            modList.add("HD");
+        }
+        if ((mods & Mods.HardRock.getValue()) > 0) {
+            modList.add("HR");
+        }
+        if ((mods & Mods.SuddenDeath.getValue()) > 0) {
+            modList.add("SD");
+        }
+        if ((mods & Mods.DoubleTime.getValue()) > 0) {
+            modList.add("DT");
+        }
+        if ((mods & Mods.Relax.getValue()) > 0) {
+            modList.add("RX");
+        }
+        if ((mods & Mods.HalfTime.getValue()) > 0) {
+            modList.add("HT");
+        }
+        if ((mods & Mods.Nightcore.getValue()) > 0) {
+            modList.add("NC");
+        }
+        if ((mods & Mods.Flashlight.getValue()) > 0) {
+            modList.add("FL");
+        }
+        if ((mods & Mods.Autoplay.getValue()) > 0) {
+            modList.add("AT");
+        }
+        if ((mods & Mods.SpunOut.getValue()) > 0) {
+            modList.add("SO");
+        }
+        if ((mods & Mods.Relax2.getValue()) > 0) {
+            modList.add("AP");
+        }
+        if ((mods & Mods.Perfect.getValue()) > 0) {
+            modList.add("PF");
+        }
+        if ((mods & Mods.Key4.getValue()) > 0) {
+            modList.add("4K");
+        }
+        if ((mods & Mods.Key5.getValue()) > 0) {
+            modList.add("5K");
+        }
+        if ((mods & Mods.Key6.getValue()) > 0) {
+            modList.add("6K");
+        }
+        if ((mods & Mods.Key7.getValue()) > 0) {
+            modList.add("7K");
+        }
+        if ((mods & Mods.Key8.getValue()) > 0) {
+            modList.add("8K");
+        }
+        if ((mods & Mods.FadeIn.getValue()) > 0) {
+            modList.add("FI");
+        }
+        if ((mods & Mods.Random.getValue()) > 0) {
+            modList.add("RD");
+        }
+        if ((mods & Mods.Cinema.getValue()) > 0) {
+            modList.add("CN");
+        }
+        if ((mods & Mods.Target.getValue()) > 0) {
+            modList.add("TP");
+        }
+        if ((mods & Mods.Key9.getValue()) > 0) {
+            modList.add("9K");
+        }
+        if ((mods & Mods.KeyCoop.getValue()) > 0) {
+            modList.add("KC");
+        }
+        if ((mods & Mods.Key1.getValue()) > 0) {
+            modList.add("1K");
+        }
+        if ((mods & Mods.Key3.getValue()) > 0) {
+            modList.add("3K");
+        }
+        if ((mods & Mods.Key2.getValue()) > 0) {
+            modList.add("2K");
+        }
+        if ((mods & Mods.ScoreV2.getValue()) > 0) {
+            modList.add("SV2");
+        }
+        if ((mods & Mods.Mirror.getValue()) > 0) {
+            modList.add("MR");
+        }
+
+        // Handle specific conditions
+        if (modList.contains("PF") && modList.contains("SD")) {
+            modList.remove("SD");
+        }
+        if (modList.contains("NC") && modList.contains("DT")) {
+            modList.remove("DT");
+        }
+
+        return modList.toArray(new String[modList.size()]);
     }
+
 
 }
