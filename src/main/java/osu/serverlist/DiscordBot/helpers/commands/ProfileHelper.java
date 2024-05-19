@@ -1,6 +1,7 @@
 package osu.serverlist.DiscordBot.helpers.commands;
 
-import org.json.JSONArray;
+
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -109,7 +110,7 @@ public class ProfileHelper {
         }
 
         String url = serverInformations.getEndpoint() + "/full?name=" + name.replaceAll(" ", "_");
-        Flogger.instance.log(Prefix.API, "GET:" + url, 0);
+        Flogger.instance.log(Prefix.API, "GET: " + url, 0);
         String response = new GetRequest(url).send("osu!ListBot");
 
         JSONParser parser = new JSONParser();
