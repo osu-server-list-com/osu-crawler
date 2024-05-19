@@ -135,15 +135,18 @@ public class ProfileHelper {
         profile.rankedScore = (Long) modeStatsObject.get("ranked_score");
         profile.pp = (Long) modeStatsObject.get("pp");
         profile.plays = (Long) modeStatsObject.get("playcount");
-        try {
-            profile.playtime = (Long) modeStatsObject.get("playtime");
-        } catch (Exception e) {
+        
+        profile.playtime = (Long) modeStatsObject.get("playtime");
+        
+        // osu!ascension fix
+        if(profile.playtime == null)
             profile.playtime = (Long) modeStatsObject.get("play_time");
-        }
+        
 
         profile.acc = (Double) modeStatsObject.get("accuracy");
         profile.maxCombo = (Long) modeStatsObject.get("max_combo");
 
+        // rippleapi fix
         profile.counts = false;
         try {
             profile.rank = (Long) modeStatsObject.get("global_leaderboard_rank");

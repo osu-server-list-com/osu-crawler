@@ -93,7 +93,7 @@ public class Profile implements DiscordCommand {
                     .addField("Performance Points", gotProfile.pp.toString() + "pp", true)
                     .addField("Plays", gotProfile.plays.toString(), true)
                     .addField("Playtime", playtimeHr + "hours", true)
-                    .addField("Accuracy", gotProfile.acc + "%", true)
+                    .addField("Accuracy", String.format("%.2f*", gotProfile.acc) + "%", true)
                     .addField("Max Combo", gotProfile.maxCombo.toString(), true)
                     .addField("Total Hits", gotProfile.totalHits.toString(), true);
             embedBuilder.addField("Replay Views", gotProfile.replayViews.toString(), true);
@@ -108,7 +108,7 @@ public class Profile implements DiscordCommand {
             event.getHook().sendMessageEmbeds(embed).queue();
         } catch (Exception e) {
             Flogger.instance.error(e);
-            event.getHook().sendMessage("Internal error | Older versions of bancho.py don't work").queue();
+            event.getHook().sendMessage("Internal error").queue();
             return;
         }
 
