@@ -135,15 +135,28 @@ public class ProfileHelper {
         profile.rankedScore = (Long) modeStatsObject.get("ranked_score");
         profile.pp = (Long) modeStatsObject.get("pp");
         profile.plays = (Long) modeStatsObject.get("playcount");
-        profile.playtime = (Long) modeStatsObject.get("playtime");
+        try {
+            profile.playtime = (Long) modeStatsObject.get("playtime");
+        } catch (Exception e) {
+            profile.playtime = (Long) modeStatsObject.get("play_time");
+        }
 
         profile.acc = (Double) modeStatsObject.get("accuracy");
         profile.maxCombo = (Long) modeStatsObject.get("max_combo");
 
         profile.counts = false;
+        try {
+            profile.rank = (Long) modeStatsObject.get("global_leaderboard_rank");
+        }catch(Exception e) {
+            profile.rank = 0L;
+        }
 
-        profile.rank = (Long) modeStatsObject.get("global_leaderboard_rank");
-        profile.countryRank = (Long) modeStatsObject.get("country_leaderboard_rank");
+        try {
+            profile.countryRank = (Long) modeStatsObject.get("country_leaderboard_rank");
+        }catch(Exception e) {
+            profile.countryRank = 0L;
+        }
+
         profile.totalHits = (Long) modeStatsObject.get("total_hits");
         profile.replayViews = (Long) modeStatsObject.get("replays_watched");
 

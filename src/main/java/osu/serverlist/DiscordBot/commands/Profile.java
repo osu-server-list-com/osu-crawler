@@ -99,8 +99,8 @@ public class Profile implements DiscordCommand {
             embedBuilder.addField("Replay Views", gotProfile.replayViews.toString(), true);
             if (gotProfile.counts == true)
                 embedBuilder.addField("Rankings", numberCount, false);
-            embedBuilder.addField("Rank", "#" + gotProfile.rank.toString(), true)
-                    .addField("Country Rank", "#" + gotProfile.countryRank.toString(), true)
+            embedBuilder.addField("Rank", "#" + convertRank(gotProfile.rank), true)
+                    .addField("Country Rank", "#" + convertRank(gotProfile.countryRank), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
                     .setColor(0x5755d9);
 
@@ -112,6 +112,14 @@ public class Profile implements DiscordCommand {
             return;
         }
 
+    }
+
+    private String convertRank(Long rank) {
+        if(rank == 0L) {
+            return "-";
+        }else{
+            return rank.toString();
+        }
     }
 
     @Override
