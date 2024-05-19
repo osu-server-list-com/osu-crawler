@@ -92,10 +92,13 @@ public class Profile implements DiscordCommand {
                     .addField("Ranked Score", gotProfile.rankedScore.toString(), true)
                     .addField("Performance Points", gotProfile.pp.toString() + "pp", true)
                     .addField("Plays", gotProfile.plays.toString(), true)
-                    .addField("Playtime", playtimeHr + "hours", true)
-                    .addField("Accuracy", String.format("%.2f*", gotProfile.acc) + "%", true)
-                    .addField("Max Combo", gotProfile.maxCombo.toString(), true)
-                    .addField("Total Hits", gotProfile.totalHits.toString(), true);
+                    .addField("Playtime", playtimeHr + "hours", true);
+            embedBuilder.addField("Accuracy", String.format("%.2f*", gotProfile.acc) + "%", true);
+            // Atoka, redstar fix
+            if(gotProfile.maxCombo != null)
+            embedBuilder.addField("Max Combo", gotProfile.maxCombo.toString(), true);
+
+            embedBuilder.addField("Total Hits", gotProfile.totalHits.toString(), true);
             embedBuilder.addField("Replay Views", gotProfile.replayViews.toString(), true);
             if (gotProfile.counts == true)
                 embedBuilder.addField("Rankings", numberCount, false);
