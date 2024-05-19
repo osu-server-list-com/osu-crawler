@@ -45,7 +45,7 @@ public class UpdateAutocompletions extends DatabaseAction {
     }
 
 
-    private static String ENDPOINT_SQL = "SELECT `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = ? AND `visible` = 1 % ORDER BY `votes` ASC";
+    private static String ENDPOINT_SQL = "SELECT `name`, `dcbot` FROM `un_endpoints` LEFT JOIN `un_servers` ON `un_endpoints`.`srv_id` = `un_servers`.`id` WHERE `type` = ? AND `visible` = 1 % ORDER BY `votes` DESC";
 
     public String[] getServersForEndpoint(ServerEndpoints type, EndpointType... endpoints) {
         ArrayList<String> serverList = new ArrayList<>();
