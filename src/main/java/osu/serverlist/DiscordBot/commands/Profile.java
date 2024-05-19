@@ -58,12 +58,16 @@ public class Profile implements DiscordCommand {
                 case "BANCHOPY":
                     gotProfile = profileHelper.getProfileBanchoPy(name, mode, server);
                     break;
+                case "RIPPLEAPIV1":
+                    gotProfile = profileHelper.getProfileRippleAPIV1(name, mode, server);
+                    break;
                 default:
                     Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at handleCommand() /profile", 0);
                     return;
             }
             gotProfile = profileHelper.getProfileBanchoPy(name, mode, server);
         } catch (Exception e) {
+            e.printStackTrace();
             event.getHook().sendMessage("User not Found").queue();
             return;
         }
