@@ -127,8 +127,10 @@ public class ProfileHelper {
             modeObject = (JSONObject) stats.get(Integer.parseInt(rx));
             modeStatsObject = (JSONObject) modeObject.get(ModeHelper.convertModeForRippleAPIString(mode));
         } catch (Exception e) {
-            throw new InvalidScorePlayerException(
-                    "No score found for player " + name + " on mode " + mode + " for Server " + serverName);
+            modeStatsObject = (JSONObject) json.get(ModeHelper.convertModeForRippleAPIString(mode));
+            if(rx == "1" || modeStatsObject == null) {
+                throw new InvalidScorePlayerException("Invalid score player: " + name + " for Server " + serverName);
+            }
         }
 
         profile.totalScore = (Long) modeStatsObject.get("total_score");
@@ -148,17 +150,10 @@ public class ProfileHelper {
 
         // rippleapi fix
         profile.counts = false;
-        try {
-            profile.rank = (Long) modeStatsObject.get("global_leaderboard_rank");
-        }catch(Exception e) {
-            profile.rank = 0L;
-        }
-
-        try {
-            profile.countryRank = (Long) modeStatsObject.get("country_leaderboard_rank");
-        }catch(Exception e) {
-            profile.countryRank = 0L;
-        }
+      
+        profile.rank = (Long) modeStatsObject.get("global_leaderboard_rank");
+        profile.countryRank = (Long) modeStatsObject.get("country_leaderboard_rank");
+    
 
         profile.totalHits = (Long) modeStatsObject.get("total_hits");
         profile.replayViews = (Long) modeStatsObject.get("replays_watched");
