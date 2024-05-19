@@ -143,9 +143,9 @@ public class ProfileHelper {
         profile.counts = false;
 
         profile.rank = (Long) modeStatsObject.get("global_leaderboard_rank");
-        profile.countryRank = (Long) modeObject.get("country_leaderboard_rank");
-        profile.totalHits = (Long) modeObject.get("total_hits");
-        profile.replayViews = (Long) modeObject.get("replays_watched");
+        profile.countryRank = (Long) modeStatsObject.get("country_leaderboard_rank");
+        profile.totalHits = (Long) modeStatsObject.get("total_hits");
+        profile.replayViews = (Long) modeStatsObject.get("replays_watched");
 
         return profile;
     }
