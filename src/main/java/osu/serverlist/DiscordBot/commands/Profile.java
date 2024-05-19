@@ -115,7 +115,7 @@ public class Profile implements DiscordCommand {
     }
 
     private String convertRank(Long rank) {
-        if(rank == 0L) {
+        if(rank == null) {
             return "-";
         }else{
             return rank.toString();
