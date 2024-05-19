@@ -99,7 +99,7 @@ public class Profile implements DiscordCommand {
                     .addField("Performance Points", gotProfile.pp.toString() + "pp", true)
                     .addField("Plays", gotProfile.plays.toString(), true)
                     .addField("Playtime", playtimeHr + "hours", true);
-            embedBuilder.addField("Accuracy", String.format("%.2f%", gotProfile.acc), true);
+            embedBuilder.addField("Accuracy", String.format("%.2f", gotProfile.acc) + "%", true);
             // Atoka, redstar fix
             if (gotProfile.maxCombo != null)
                 embedBuilder.addField("Max Combo", gotProfile.maxCombo.toString(), true);
