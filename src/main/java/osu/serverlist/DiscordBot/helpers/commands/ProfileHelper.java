@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import commons.marcandreher.Commons.Flogger;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
@@ -86,11 +88,12 @@ public class ProfileHelper {
         return profile;
     }
 
-    public GotProfile getProfileRippleAPIV1(String name, String mode, String serverName) throws Exception, InvalidModeException, InvalidScorePlayerException {
+    public GotProfile getProfileRippleAPIV1(String name, String mode, String serverName)
+            throws Exception, InvalidModeException, InvalidScorePlayerException {
         GotProfile profile = new GotProfile();
         ServerInformations serverInformations = Profile.endpoints.get(serverName);
         String rippleMode = ModeHelper.convertModeRippleAPI(mode);
-        String rx = "";;
+        String rx = "";
 
         if (rippleMode == null) {
             throw new InvalidModeException("Invalid mode: " + mode + " for Server " + serverName);
@@ -105,9 +108,8 @@ public class ProfileHelper {
             rx = "0";
         }
 
-        
-
         String url = serverInformations.getEndpoint() + "/full?name=" + name.replaceAll(" ", "_");
+        Flogger.instance.log(Prefix.API, "GET:" + url, 0);
         String response = new GetRequest(url).send("osu!ListBot");
 
         JSONParser parser = new JSONParser();
@@ -124,7 +126,8 @@ public class ProfileHelper {
             modeObject = (JSONObject) stats.get(Integer.parseInt(rx));
             modeStatsObject = (JSONObject) modeObject.get(ModeHelper.convertModeForRippleAPIString(mode));
         } catch (Exception e) {
-            throw new InvalidScorePlayerException("No score found for player " + name + " on mode " + mode + " for Server " + serverName);
+            throw new InvalidScorePlayerException(
+                    "No score found for player " + name + " on mode " + mode + " for Server " + serverName);
         }
 
         profile.totalScore = (Long) modeStatsObject.get("total_score");
