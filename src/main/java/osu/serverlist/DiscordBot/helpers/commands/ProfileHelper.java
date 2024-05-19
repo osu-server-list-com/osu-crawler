@@ -128,7 +128,7 @@ public class ProfileHelper {
             modeStatsObject = (JSONObject) modeObject.get(ModeHelper.convertModeForRippleAPIString(mode));
         } catch (Exception e) {
             modeStatsObject = (JSONObject) json.get(ModeHelper.convertModeForRippleAPIString(mode));
-            if(rx == "1" || modeStatsObject == null) {
+            if(rx.equals("1") || modeStatsObject == null) {
                 throw new InvalidScorePlayerException("Invalid score player: " + name + " for Server " + serverName);
             }
         }

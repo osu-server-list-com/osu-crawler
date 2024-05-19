@@ -18,6 +18,8 @@ import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper;
 import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper.GotProfile;
+import osu.serverlist.DiscordBot.helpers.exceptions.InvalidModeException;
+import osu.serverlist.DiscordBot.helpers.exceptions.InvalidScorePlayerException;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -43,7 +45,8 @@ public class Profile implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(server, ServerEndpoints.VOTE, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.VOTE, EndpointType.BANCHOPY,
+                    EndpointType.RIPPLEAPIV1);
         }
 
         if (!endpoints.containsKey(server)) {
@@ -52,7 +55,7 @@ public class Profile implements DiscordCommand {
         }
         ProfileHelper profileHelper = new ProfileHelper();
 
-        GotProfile gotProfile;
+        GotProfile gotProfile = null;
         try {
             switch (endpoints.get(server).getType()) {
                 case "BANCHOPY":
@@ -65,10 +68,13 @@ public class Profile implements DiscordCommand {
                     Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at handleCommand() /profile", 0);
                     return;
             }
-
+        } catch (InvalidModeException | InvalidScorePlayerException e) {
+            event.getHook().sendMessage(e.getMessage()).queue();
+            return;
+        
         } catch (Exception e) {
-            e.printStackTrace();
-            event.getHook().sendMessage("User not Found").queue();
+            Flogger.instance.error(e);
+            event.getHook().sendMessage("Internal error").queue();
             return;
         }
 
@@ -95,8 +101,8 @@ public class Profile implements DiscordCommand {
                     .addField("Playtime", playtimeHr + "hours", true);
             embedBuilder.addField("Accuracy", String.format("%.2f*", gotProfile.acc) + "%", true);
             // Atoka, redstar fix
-            if(gotProfile.maxCombo != null)
-            embedBuilder.addField("Max Combo", gotProfile.maxCombo.toString(), true);
+            if (gotProfile.maxCombo != null)
+                embedBuilder.addField("Max Combo", gotProfile.maxCombo.toString(), true);
 
             embedBuilder.addField("Total Hits", gotProfile.totalHits.toString(), true);
             embedBuilder.addField("Replay Views", gotProfile.replayViews.toString(), true);
@@ -118,9 +124,9 @@ public class Profile implements DiscordCommand {
     }
 
     private String convertRank(Long rank) {
-        if(rank == null) {
+        if (rank == null) {
             return "-";
-        }else{
+        } else {
             return rank.toString();
         }
     }
