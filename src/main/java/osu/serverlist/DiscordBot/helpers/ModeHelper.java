@@ -51,6 +51,21 @@ public class ModeHelper {
         }
     }
 
+    public static String convertModeForRippleAPIString(String mode) {
+        switch (mode) {
+            case "0":
+                return "std";
+            case "1":
+                return "taiko";
+            case "2":
+                return "catch";
+            case "3":
+                return "mania";
+            default:
+                return null;
+        }
+    }
+
     public class SortHelper {
         // Available values : tscore, rscore, pp, acc, plays, playtime
         public static String[] sortArray = { "PP", "ACC", "Total Score", "Rated Score", "Plays", "Playtime" };

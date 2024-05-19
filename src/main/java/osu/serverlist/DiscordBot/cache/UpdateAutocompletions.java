@@ -36,7 +36,7 @@ public class UpdateAutocompletions extends DatabaseAction {
         }
 
 
-        Profile.servers = getServersForEndpoint(ServerEndpoints.VOTE, EndpointType.BANCHOPY);
+        Profile.servers = getServersForEndpoint(ServerEndpoints.VOTE, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
 
         Leaderboard.servers = getServersForEndpoint(ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
 

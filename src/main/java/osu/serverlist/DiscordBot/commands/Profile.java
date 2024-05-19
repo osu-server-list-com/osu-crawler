@@ -43,7 +43,7 @@ public class Profile implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(server, ServerEndpoints.VOTE, EndpointType.BANCHOPY);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.VOTE, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
         }
 
         if (!endpoints.containsKey(server)) {
@@ -54,7 +54,7 @@ public class Profile implements DiscordCommand {
 
         GotProfile gotProfile;
         try {
-            switch(endpoints.get(server).getType()) {
+            switch (endpoints.get(server).getType()) {
                 case "BANCHOPY":
                     gotProfile = profileHelper.getProfileBanchoPy(name, mode, server);
                     break;
@@ -91,10 +91,11 @@ public class Profile implements DiscordCommand {
                     .addField("Playtime", playtimeHr + "hours", true)
                     .addField("Accuracy", gotProfile.acc + "%", true)
                     .addField("Max Combo", gotProfile.maxCombo.toString(), true)
-                    .addField("Total Hits", gotProfile.totalHits.toString(), true)
-                    .addField("Replay Views", gotProfile.replayViews.toString(), true)
-                    .addField("Rankings", numberCount, false)
-                    .addField("Rank", "#" + gotProfile.rank.toString(), true)
+                    .addField("Total Hits", gotProfile.totalHits.toString(), true);
+            embedBuilder.addField("Replay Views", gotProfile.replayViews.toString(), true);
+            if (gotProfile.counts == true)
+                embedBuilder.addField("Rankings", numberCount, false);
+            embedBuilder.addField("Rank", "#" + gotProfile.rank.toString(), true)
                     .addField("Country Rank", "#" + gotProfile.countryRank.toString(), true)
                     .setFooter("Pulled from " + endpoints.get(server).getName())
                     .setColor(0x5755d9);
