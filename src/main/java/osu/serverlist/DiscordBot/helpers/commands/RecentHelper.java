@@ -139,6 +139,7 @@ public class RecentHelper {
 
         JSONObject beatmap = (JSONObject) curScore.get("beatmap");
 
+        // uid ascension
         try {
             JSONObject user = (JSONObject) curScore.get("user");
             gotRecent.userId = (long) user.get("user_id");

@@ -20,6 +20,8 @@ public class OsuConverter {
                 return ":flag_white:";
             case "kr":
                 return ":flag_white:";
+            case "0":
+                return ":flag_white:";
             default:
                 return ":flag_" + countryCode.toLowerCase() + ":";
         }

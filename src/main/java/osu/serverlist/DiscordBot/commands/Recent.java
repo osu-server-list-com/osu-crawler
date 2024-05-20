@@ -118,7 +118,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
 
         embed.addField("Score", String.valueOf(gotRecent.score), true);
         embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
-        embed.addField("Accuracy", String.format("%.2f*", gotRecent.acc) + "%", true);
+        embed.addField("Accuracy", String.format("%.2f", gotRecent.acc) + "%", true);
         String[] mods = OsuConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
         if (mods.length == 0) {
             embed.addField("Mods", "-", true);
