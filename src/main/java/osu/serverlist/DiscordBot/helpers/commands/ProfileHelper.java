@@ -51,6 +51,7 @@ public class ProfileHelper {
         ServerInformations serverInformations = Profile.endpoints.get(serverName);
 
         String url = serverInformations.getEndpoint() + "?name=" + name.replaceAll(" ", "_") + "&scope=all";
+        Flogger.instance.log(Prefix.API, "GET: " + url, 0);
         String response = new GetRequest(url).send("osu!ListBot");
 
         JSONParser parser = new JSONParser();
@@ -128,6 +129,8 @@ public class ProfileHelper {
             modeStatsObject = (JSONObject) modeObject.get(ModeHelper.convertModeForRippleAPIString(mode));
         } catch (Exception e) {
             modeStatsObject = (JSONObject) json.get(ModeHelper.convertModeForRippleAPIString(mode));
+
+            // TODO: Fuquila fix https://fuquila.net/api/v1/users/full?name=zeze_viol%C3%A3o
             if(rx.equals("1") || modeStatsObject == null) {
                 throw new InvalidScorePlayerException("Invalid score player: " + name + " for Server " + serverName);
             }

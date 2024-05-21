@@ -1,5 +1,7 @@
 package osu.serverlist.DiscordBot.helpers;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 public class OsuConverter {
@@ -8,17 +10,7 @@ public class OsuConverter {
         switch (countryCode.toLowerCase()) {
             case "xx":
                 return ":flag_white:";
-            case "id":
-                return ":flag_white:";
-            case "fi":
-                return ":flag_white:";
-            case "ma":
-                return ":flag_white:";
-            case "xk":
-                return ":flag_white:";
             case "id_":
-                return ":flag_white:";
-            case "kr":
                 return ":flag_white:";
             case "0":
                 return ":flag_white:";
@@ -177,6 +169,21 @@ public class OsuConverter {
         }
 
         return modList.toArray(new String[modList.size()]);
+    }
+
+    public static String convertToDiscordTimestamp(String timestamp) {
+        int year = Integer.parseInt(timestamp.substring(0, 4));
+        int month = Integer.parseInt(timestamp.substring(5, 7));
+        int day = Integer.parseInt(timestamp.substring(8, 10));
+        int hour = Integer.parseInt(timestamp.substring(11, 13));
+        int minute = Integer.parseInt(timestamp.substring(14, 16));
+        int second = Integer.parseInt(timestamp.substring(17, 19));
+
+        LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+
+        long epochSeconds = dateTime.toEpochSecond(ZoneOffset.UTC);
+
+        return "<t:" + epochSeconds + ":R>";
     }
 
 

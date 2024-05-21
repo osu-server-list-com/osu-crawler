@@ -1,7 +1,5 @@
 package osu.serverlist.DiscordBot.commands;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -24,7 +22,10 @@ import osu.serverlist.DiscordBot.helpers.GenericEvent;
 import osu.serverlist.DiscordBot.helpers.InformationBase;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
+import osu.serverlist.DiscordBot.helpers.commands.BaseMessage;
 import osu.serverlist.DiscordBot.helpers.commands.RecentHelper;
+import osu.serverlist.DiscordBot.helpers.commands.BaseMessage.Messages;
+import osu.serverlist.DiscordBot.helpers.commands.BaseMessage.Placeholder;
 import osu.serverlist.DiscordBot.helpers.commands.RecentHelper.GotRecent;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
@@ -55,7 +56,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         event.deferReply().queue();
 
         if (modeId == null) {
-            event.getHook().sendMessage("Invalid mode").queue();
+            BaseMessage.sendMessageOnSlash(event, Messages.INVALID_MODE);
             return;
         }
 
@@ -64,7 +65,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            event.getHook().sendMessage("Server not found").queue();
+            BaseMessage.sendMessageOnSlash(event, Messages.INVALID_SERVER);
             return;
         }
 
@@ -96,17 +97,13 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
             }
 
             if(gotRecent == null) {
-                if (event instanceof SlashCommandInteractionEvent) {
-                    ((SlashCommandInteractionEvent) event).getHook().sendMessage("Invalid mode for server " + infos.server).queue();
-                }
+                BaseMessage.sendMessageOnSlash(event, Messages.INVALID_MODE_SERVER, new Placeholder("%server%", infos.server));
                 return;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (event instanceof SlashCommandInteractionEvent) {
-                ((SlashCommandInteractionEvent) event).getHook().sendMessage("User/Scores not found").queue();
-            }
+            BaseMessage.sendMessageOnSlash(event, Messages.USER_SCORES_NOT_FOUND, new Placeholder("%name%", infos.name), new Placeholder("%server%", infos.server));
             return;
         }
 
@@ -126,7 +123,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
             embed.addField("Mods", "+" + String.join("", mods), true);
         }
 
-        embed.addField("Submitted", convertToDiscordTimestamp(gotRecent.playtime), true);
+        embed.addField("Submitted", OsuConverter.convertToDiscordTimestamp(gotRecent.playtime), true);
 
         embed.addField("Difficulty", String.format("%.2f*", gotRecent.diff), true);
 
@@ -200,25 +197,6 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
     @Override
     public String getName() {
         return "recent";
-    }
-
-    public static String convertToDiscordTimestamp(String timestamp) {
-        // Extract year, month, day, hour, minute, second from the timestamp string
-        int year = Integer.parseInt(timestamp.substring(0, 4));
-        int month = Integer.parseInt(timestamp.substring(5, 7));
-        int day = Integer.parseInt(timestamp.substring(8, 10));
-        int hour = Integer.parseInt(timestamp.substring(11, 13));
-        int minute = Integer.parseInt(timestamp.substring(14, 16));
-        int second = Integer.parseInt(timestamp.substring(17, 19));
-
-        // Create LocalDateTime object
-        LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-
-        // Convert LocalDateTime to epoch seconds
-        long epochSeconds = dateTime.toEpochSecond(ZoneOffset.UTC);
-
-        // Generate Discord timestamp string
-        return "<t:" + epochSeconds + ":R>";
     }
 
     private void scheduleOffsetRemoval(String userId) {

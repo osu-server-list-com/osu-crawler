@@ -12,17 +12,16 @@ import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 public class GenericEvent {
 
     public static void sendEditSendMessage(Event event, HashMap<String, InformationBase> infos, EmbedBuilder embed, ServerEndpoints endpoint, ItemComponent... components) {
-         if (event instanceof SlashCommandInteractionEvent) {
-            ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build())
+         if (event instanceof SlashCommandInteractionEvent slashEvent) {
+            slashEvent.getHook().sendMessageEmbeds(embed.build())
                     .setActionRow(components)
                     .queue(message -> {
-                        SlashCommandInteractionEvent event2 = (SlashCommandInteractionEvent) event;
-                        String messageIdd = message.getId();
+                        String messageId = message.getId();
 
-                        infos.get(event2.getUser().getId()).messageId = messageIdd;
+                        infos.get(slashEvent.getUser().getId()).messageId = messageId;
                     });
-        } else if (event instanceof ButtonInteractionEvent) {
-            ((ButtonInteractionEvent) event).editMessageEmbeds(embed.build())
+        } else if (event instanceof ButtonInteractionEvent buttonEvent) {
+            buttonEvent.editMessageEmbeds(embed.build())
                     .setActionRow(components).queue();
         }
     }

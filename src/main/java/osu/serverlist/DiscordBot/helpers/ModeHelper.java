@@ -2,10 +2,10 @@ package osu.serverlist.DiscordBot.helpers;
 
 public class ModeHelper {
 
-    public static String[] modeArray = { "osu", "osurx", "osuap", "taiko", "catch", "mania", "taikorx", "catchrx" };
+    public static String[] modeArray = { "OSU", "OSURX", "OSUAP", "TAIKO", "CATCH", "MANIA", "TAIKORX", "CATCHRX" };
 
     public static String convertMode(String mode) {
-        switch (mode) {
+        switch (mode.toLowerCase()) {
             case "osu":
                 return "0";
             case "osurx":
@@ -29,7 +29,7 @@ public class ModeHelper {
     }
 
     public static String convertModeRippleAPI(String mode) {
-        switch (mode) {
+        switch (mode.toLowerCase()) {
             case "osu":
                 return "0";
             case "osurx":
