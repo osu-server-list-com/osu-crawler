@@ -19,7 +19,7 @@ import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper;
 import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper.GotProfile;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidModeException;
-import osu.serverlist.DiscordBot.helpers.exceptions.InvalidScorePlayerException;
+import osu.serverlist.DiscordBot.helpers.exceptions.InvalidPlayerException;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -68,7 +68,7 @@ public class Profile implements DiscordCommand {
                     Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at handleCommand() /profile", 0);
                     return;
             }
-        } catch (InvalidModeException | InvalidScorePlayerException e) {
+        } catch (InvalidModeException | InvalidPlayerException e) {
             event.getHook().sendMessage(e.getMessage()).queue();
             return;
         

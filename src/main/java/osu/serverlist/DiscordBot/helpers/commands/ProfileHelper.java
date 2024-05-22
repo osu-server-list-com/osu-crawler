@@ -11,6 +11,7 @@ import commons.marcandreher.Commons.GetRequest;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidModeException;
+import osu.serverlist.DiscordBot.helpers.exceptions.InvalidPlayerException;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidScorePlayerException;
 import osu.serverlist.Models.ServerInformations;
 
@@ -46,14 +47,19 @@ public class ProfileHelper {
 
     }
 
-    public GotProfile getProfileBanchoPy(String name, String mode, String serverName) throws Exception {
+    public GotProfile getProfileBanchoPy(String name, String mode, String serverName) throws Exception, InvalidPlayerException {
         GotProfile profile = new GotProfile();
         ServerInformations serverInformations = Profile.endpoints.get(serverName);
 
         String url = serverInformations.getEndpoint() + "?name=" + name.replaceAll(" ", "_") + "&scope=all";
         Flogger.instance.log(Prefix.API, "GET: " + url, 0);
-        String response = new GetRequest(url).send("osu!ListBot");
-
+        String response;
+        try {
+            response = new GetRequest(url).send("osu!ListBot");
+        } catch (Exception e) {
+            throw new InvalidPlayerException("Invalid player: " + name + " for Server " + serverName);
+        }
+        
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(response);
         JSONObject player = (JSONObject) json.get("player");
@@ -112,8 +118,13 @@ public class ProfileHelper {
 
         String url = serverInformations.getEndpoint() + "/full?name=" + name.replaceAll(" ", "_");
         Flogger.instance.log(Prefix.API, "GET: " + url, 0);
-        String response = new GetRequest(url).send("osu!ListBot");
-
+        String response;
+        try {
+            response = new GetRequest(url).send("osu!ListBot");
+        } catch (Exception e) {
+            throw new InvalidPlayerException("Invalid player: " + name + " for Server " + serverName);
+        }
+        
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(response);
 
