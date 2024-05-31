@@ -14,6 +14,7 @@ import osu.serverlist.Input.Commands.CheckDcCache;
 import osu.serverlist.Input.Commands.DelCmds;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Input.Commands.InitCmds;
+import osu.serverlist.Input.Commands.Servers;
 import osu.serverlist.Models.Config;
 
 public class Crawler {
@@ -45,6 +46,7 @@ public class Crawler {
         cmd.registerCommand(new DelCmds());
         cmd.registerCommand(new CheckDcCache());
         cmd.registerCommand(new InitCmds());
+        cmd.registerCommand(new Servers());
         cmd.initialize();
         
     }
