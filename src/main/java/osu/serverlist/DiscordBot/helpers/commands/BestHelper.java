@@ -8,7 +8,7 @@ import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
 import osu.serverlist.DiscordBot.commands.Best.BestInformations;
-import osu.serverlist.DiscordBot.commands.Recent;
+import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.Models.ServerInformations;
@@ -43,7 +43,7 @@ public class BestHelper {
 
     public GotBest requestBestBanchoPy(BestInformations infos) throws Exception {
         GotBest gotBest = new GotBest();
-        ServerInformations serverInformations = Recent.endpoints.get(infos.server);
+        ServerInformations serverInformations = Best.endpoints.get(infos.server);
 
         String url = serverInformations.getEndpoint() + "?scope=best&mode=" + infos.modeId + "&name="
                 + infos.name.replaceAll(" ", "_") + "&limit=55";
@@ -90,7 +90,7 @@ public class BestHelper {
 
     public GotBest requestBestRippleAPIV1(BestInformations infos) throws Exception {
         GotBest gotBest = new GotBest();
-        ServerInformations serverInformations = Recent.endpoints.get(infos.server);
+        ServerInformations serverInformations = Best.endpoints.get(infos.server);
         String rippleAPIMode = ModeHelper.convertModeRippleAPI(infos.mode);
         String mode = "";
         String rx;
@@ -166,7 +166,7 @@ public class BestHelper {
                 + OsuConverter.convertGrade(gotBest.grade) + " ▪ [" + (nameW) + "]";
 
         if (gotBest.userId != 0) {
-            description += "(" + Recent.endpoints.get(infos.server).getUrl() + "/u/" + gotBest.userId + ")";
+            description += "(" + Best.endpoints.get(infos.server).getUrl() + "/u/" + gotBest.userId + ")";
         }
 
         description += " on \n";
@@ -177,7 +177,7 @@ public class BestHelper {
             description += "[" + gotBest.mapName + "]";
         }
 
-        description += "(" + Recent.endpoints.get(infos.server).getUrl()
+        description += "(" + Best.endpoints.get(infos.server).getUrl()
                 + "/b/" + gotBest.mapId + ")\n";
 
         if (gotBest.creator != null) {
