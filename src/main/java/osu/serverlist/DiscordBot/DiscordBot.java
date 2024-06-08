@@ -86,7 +86,7 @@ public class DiscordBot {
             .addOption(OptionType.STRING, "name", "Name on the server", true, false)
             .queue();
 
-            jdaInstance.upsertCommand("recent", "Shows best scores")
+            jdaInstance.upsertCommand("best", "Shows best scores")
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
             .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
             .addOption(OptionType.STRING, "name", "Name on the server", true, false)
