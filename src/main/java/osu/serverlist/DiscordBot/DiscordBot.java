@@ -68,19 +68,25 @@ public class DiscordBot {
             jdaInstance.upsertCommand("invite", "Invite the bot")
             .queue();
 
-            jdaInstance.upsertCommand("profile", "Show the profile of the user")
+            jdaInstance.upsertCommand("profile", "Shows profile of the user")
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
             .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
             .addOption(OptionType.STRING, "name", "Name on the server", true, false)
             .queue();
 
-            jdaInstance.upsertCommand("leaderboard", "Show the leaderboard")
+            jdaInstance.upsertCommand("leaderboard", "Shows leaderboard")
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
             .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
             .addOption(OptionType.STRING, "sort", "How you want to sort the leaderboard", true, true)
             .queue();
 
-            jdaInstance.upsertCommand("recent", "Show the leaderboard")
+            jdaInstance.upsertCommand("recent", "Shows recent scores")
+            .addOption(OptionType.STRING, "server", "The name of the server", true, true)
+            .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
+            .addOption(OptionType.STRING, "name", "Name on the server", true, false)
+            .queue();
+
+            jdaInstance.upsertCommand("recent", "Shows best scores")
             .addOption(OptionType.STRING, "server", "The name of the server", true, true)
             .addOption(OptionType.STRING, "mode", "Mode you want to see stats for", true, true)
             .addOption(OptionType.STRING, "name", "Name on the server", true, false)
