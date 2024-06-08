@@ -33,7 +33,7 @@ public class DiscordBot {
                     .addEventListeners(new DiscordCommandHandler(), new Leaderboard(), new Recent(), new Best()).setActivity(activity).build().awaitReady();
         } catch (Exception e) {
             logger.error(e);
-            logger.log(Prefix.ERROR, "Failed to start DiscordBot", 0);
+            logger.log(Prefix.ERROR, "Failed to start Discord Bot", 0);
             return;
         }
         cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
