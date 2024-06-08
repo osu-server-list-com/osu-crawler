@@ -61,7 +61,7 @@ public class Best extends ListenerAdapter implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(server, ServerEndpoints.RECENT, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.BEST, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
         }
 
         if (!endpoints.containsKey(server)) {
@@ -110,7 +110,7 @@ public class Best extends ListenerAdapter implements DiscordCommand {
         EmbedBuilder embed = new EmbedBuilder();
         String nameW = infos.name.substring(0, 1).toUpperCase() + infos.name.substring(1);
 
-        embed.setTitle("Best plays on " + Recent.endpoints.get(infos.server).getName() + " for " + nameW);
+        embed.setTitle("Best plays on " + Best.endpoints.get(infos.server).getName() + " for " + nameW);
         embed.setDescription(recentHelper.convertDescription(gotBest, nameW, infos));
 
         embed.addField("Score", String.valueOf(gotBest.score), true);
@@ -133,7 +133,7 @@ public class Best extends ListenerAdapter implements DiscordCommand {
 
         embed.addField("OD", String.valueOf(gotBest.od), true);
         embed.addField("Actions",
-                "[[View Score]](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotBest.score
+                "[[View Score]](" + Best.endpoints.get(infos.server).getUrl() + "/score/" + gotBest.score
                         + ")    [[osu.direct]](https://osu.direct/beatmapsets/" + gotBest.setId + "/"
                         + gotBest.mapId + ")",
                 false);
@@ -142,7 +142,7 @@ public class Best extends ListenerAdapter implements DiscordCommand {
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
 
-        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.RECENT, EndpointHelper.getPageButtons(infos.offset == 0, gotBest.size == (infos.offset + 1), "rec"));
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.BEST, EndpointHelper.getPageButtons(infos.offset == 0, gotBest.size == (infos.offset + 1), "rec"));
     }
 
     @Override
@@ -196,7 +196,7 @@ public class Best extends ListenerAdapter implements DiscordCommand {
 
     @Override
     public String getName() {
-        return "recent";
+        return "best";
     }
 
     private void scheduleOffsetRemoval(String userId) {
