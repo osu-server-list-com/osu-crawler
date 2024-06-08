@@ -8,6 +8,7 @@ import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Recent;
@@ -56,6 +57,9 @@ public class EndpointHelper {
                         continue;
                     case RECENT:
                         Recent.endpoints.put(server, s);
+                        continue;
+                    case BEST:
+                        Best.endpoints.put(server, s);
                         continue;
                     default:
                         continue;
