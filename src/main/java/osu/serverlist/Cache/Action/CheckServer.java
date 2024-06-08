@@ -72,6 +72,7 @@ public class CheckServer extends DatabaseAction {
                             dp.FinishPrint(true);
                             nc.updateRegisteredPlayerCount(v, registeredPlayers.intValue());
                             nc.updateExtraBanchoPyStats(v);
+                            nc.updateExtraOkayuAPI(v);
                             nc.setOnline(v);
                             break;
                         case LISEKAPI:

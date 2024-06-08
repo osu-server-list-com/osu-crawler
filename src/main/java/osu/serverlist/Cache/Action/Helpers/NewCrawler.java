@@ -38,7 +38,7 @@ public class NewCrawler {
     }
 
     public void setOffline(Server v) {
-       mysql.Exec(ONLINE_STATUS_UPDATE_SQL, "0", String.valueOf(v.getId()));
+        mysql.Exec(ONLINE_STATUS_UPDATE_SQL, "0", String.valueOf(v.getId()));
     }
 
     public void setOnline(Server v) {
@@ -48,7 +48,8 @@ public class NewCrawler {
     public void updateExtraBanchoPyStats(Server v) {
         JSONObject jsonObject = null;
         try {
-            String jsonResponse = new GetRequest("https://osu-server-list.com/api/v1/banchopy/stats?id=" + v.getId()).send("osu!ListBot");
+            String jsonResponse = new GetRequest("https://osu-server-list.com/api/v1/banchopy/stats?id=" + v.getId())
+                    .send("osu!ListBot");
             jsonObject = CheckServer.parseJsonResponse(jsonResponse);
             updateAnyCount(CrawlerType.MAPS, v, ((Long) jsonObject.get("maps")).intValue());
             updateAnyCount(CrawlerType.CLANS, v, ((Long) jsonObject.get("clans")).intValue());
@@ -56,6 +57,28 @@ public class NewCrawler {
             DelayedPrint.PrintValue("MAPS", String.valueOf(jsonObject.get("maps")), true);
             DelayedPrint.PrintValue("CLANS", String.valueOf(jsonObject.get("clans")), true);
             DelayedPrint.PrintValue("PLAYS", String.valueOf(jsonObject.get("plays")), true);
+        } catch (Exception e) {
+            DelayedPrint.PrintValue("MAPS", "0", false);
+            DelayedPrint.PrintValue("CLANS", "0", false);
+            DelayedPrint.PrintValue("PLAYS", "0", false);
+        }
+    }
+
+    public void updateExtraOkayuAPI(Server v) {
+        JSONObject jsonObject = null;
+
+        if (v.getId() != 13)
+            return;
+
+        try {
+            String jsonResponse = new GetRequest("https://apiv2.risunasa.xyz/stats").send("osu!ListBot");
+            jsonObject = CheckServer.parseJsonResponse(jsonResponse);
+            updateAnyCount(CrawlerType.MAPS, v, ((Long) jsonObject.get("maps")).intValue());
+            updateAnyCount(CrawlerType.CLANS, v, ((Long) jsonObject.get("clans")).intValue());
+            updateAnyCount(CrawlerType.PLAYS, v, ((Long) jsonObject.get("scores")).intValue());
+            DelayedPrint.PrintValue("MAPS", String.valueOf(jsonObject.get("maps")), true);
+            DelayedPrint.PrintValue("CLANS", String.valueOf(jsonObject.get("clans")), true);
+            DelayedPrint.PrintValue("PLAYS", String.valueOf(jsonObject.get("scores")), true);
         } catch (Exception e) {
             DelayedPrint.PrintValue("MAPS", "0", false);
             DelayedPrint.PrintValue("CLANS", "0", false);
