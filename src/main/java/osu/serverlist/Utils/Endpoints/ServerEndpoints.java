@@ -6,5 +6,6 @@ public enum ServerEndpoints {
     CALLBACK,
     LEADERBOARD,
     RECENT,
+    BEST,
     CUSTOM
 }

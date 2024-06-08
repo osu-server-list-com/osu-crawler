@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import commons.marcandreher.Cache.Action.DatabaseAction;
 import commons.marcandreher.Commons.Flogger;
+import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Recent;
@@ -41,6 +42,8 @@ public class UpdateAutocompletions extends DatabaseAction {
         Leaderboard.servers = getServersForEndpoint(ServerEndpoints.LEADERBOARD, EndpointType.BANCHOPY);
 
         Recent.servers = getServersForEndpoint(ServerEndpoints.RECENT, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
+
+        Best.servers = getServersForEndpoint(ServerEndpoints.BEST, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
 
     }
 
