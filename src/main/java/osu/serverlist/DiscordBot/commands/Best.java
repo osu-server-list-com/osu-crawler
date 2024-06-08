@@ -77,10 +77,10 @@ public class Best extends ListenerAdapter implements DiscordCommand {
         bestInformations.name = name;
 
         userOffsets.put(userId, bestInformations);
-        requestRecent(bestInformations, event);
+        requestBest(bestInformations, event);
     }
 
-    public void requestRecent(BestInformations infos, Event event) {
+    public void requestBest(BestInformations infos, Event event) {
         BestHelper recentHelper = new BestHelper();
         GotBest gotBest = null;
         try {
@@ -92,7 +92,7 @@ public class Best extends ListenerAdapter implements DiscordCommand {
                     gotBest = recentHelper.requestBestRippleAPIV1(infos);
                     break;
                 default:
-                    Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at requestRecent()", 0);
+                    Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at requestBest()", 0);
                     return;
             }
 
@@ -140,33 +140,33 @@ public class Best extends ListenerAdapter implements DiscordCommand {
         embed.setImage("https://assets.ppy.sh/beatmaps/" + gotBest.setId + "/covers/cover.jpg");
 
         embed.setColor(0x5755d9);
-        embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
+        embed.setFooter("Data from " + Best.endpoints.get(infos.server).getName());
 
-        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.BEST, EndpointHelper.getPageButtons(infos.offset == 0, gotBest.size == (infos.offset + 1), "rec"));
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.BEST, EndpointHelper.getPageButtons(infos.offset == 0, gotBest.size == (infos.offset + 1), "bes"));
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String userId = event.getUser().getId();
 
-        if (event.getComponentId().equals("next_page_rec")) {
+        if (event.getComponentId().equals("next_page_bes")) {
 
             InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 infos.offset += 1;
                 userOffsets.put(userId, infos);
-                requestRecent((BestInformations) infos, event);
+                requestBest((BestInformations) infos, event);
                 scheduleOffsetRemoval(userId);
             } 
 
-        } else if (event.getComponentId().equals("prev_page_rec")) {
+        } else if (event.getComponentId().equals("prev_page_bes")) {
 
             InformationBase infos = userOffsets.get(userId);
             if (infos != null && event.getMessage().getId().equals(infos.messageId)) {
                 if (infos.offset > 0) {
                     infos.offset -= 1;
                     userOffsets.put(userId, infos);
-                    requestRecent((BestInformations) infos, event);
+                    requestBest((BestInformations) infos, event);
                     scheduleOffsetRemoval(userId);
                 } 
             } 
