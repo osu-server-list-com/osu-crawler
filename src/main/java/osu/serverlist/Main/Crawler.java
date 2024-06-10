@@ -12,6 +12,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import osu.serverlist.Cache.Action.CheckServer;
 import osu.serverlist.DiscordBot.DiscordBot;
 import osu.serverlist.Input.Commands.CheckDcCache;
+import osu.serverlist.Input.Commands.Crawlerlog;
 import osu.serverlist.Input.Commands.DelCmds;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Input.Commands.InitCmds;
@@ -47,6 +48,7 @@ public class Crawler {
         cmd.registerCommand(new CheckDcCache());
         cmd.registerCommand(new InitCmds());
         cmd.registerCommand(new Servers());
+        cmd.registerCommand(new Crawlerlog());
         cmd.initialize();
         
     }

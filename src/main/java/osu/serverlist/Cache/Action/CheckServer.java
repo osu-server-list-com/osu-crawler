@@ -12,6 +12,7 @@ import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.Helpers.CrawlerType;
 import osu.serverlist.Cache.Action.Helpers.NewCrawler;
+import osu.serverlist.Input.Commands.Crawlerlog;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Models.Server;
 import osu.serverlist.Utils.Endpoints.Endpoint;
@@ -37,182 +38,193 @@ public class CheckServer extends DatabaseAction {
 
                 v.setUrl(serverCache.getString("url"));
 
-                DelayedPrint dp = new DelayedPrint(v.getName(), Prefix.ACTION);
+                DelayedPrint dp;
+
+                if (Crawlerlog.enabled) {
+                    dp = new DelayedPrint(v.getName(), Prefix.ACTION);
+                } else {
+                    dp = null;
+                }
+
                 NewCrawler nc = new NewCrawler(mysql);
                 try {
-                  
-               
-                UpdateAPIKey.executeAction(serverCache, v, mysql);
-                UpdateVotes.executeAction(mysql, v);
 
-                EndpointHandler eh = new EndpointHandler(mysql);
-                Endpoint p = eh.getEndpoint(v, ServerEndpoints.PLAYERCHECK);
-                EndpointType et = EndpointType.valueOf(p.getApitype());
+                    UpdateAPIKey.executeAction(serverCache, v, mysql);
+                    UpdateVotes.executeAction(mysql, v);
 
-                String apiUrl = p.getUrl();
-                String jsonResponse = null;
-                JSONObject jsonObject = null;
-                long connectedClients = 0;
-                boolean noerrors = true;
+                    EndpointHandler eh = new EndpointHandler(mysql);
+                    Endpoint p = eh.getEndpoint(v, ServerEndpoints.PLAYERCHECK);
+                    EndpointType et = EndpointType.valueOf(p.getApitype());
 
-                try {
-                    switch (et) {
+                    String apiUrl = p.getUrl();
+                    String jsonResponse = null;
+                    JSONObject jsonObject = null;
+                    long connectedClients = 0;
+                    boolean noerrors = true;
 
-                        case BANCHOPY:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                    try {
+                        switch (et) {
 
-                            JSONObject result = (JSONObject) jsonObject.get("counts");
+                            case BANCHOPY:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                            connectedClients = (long) result.get("online");
+                                JSONObject result = (JSONObject) jsonObject.get("counts");
 
-                            Long registeredPlayers = (long) result.get("total");
+                                connectedClients = (long) result.get("online");
 
-                            v.setPlayers((int) connectedClients);
-                            dp.FinishPrint(true);
-                            nc.updateRegisteredPlayerCount(v, registeredPlayers.intValue());
-                            nc.updateExtraBanchoPyStats(v);
-                            nc.updateExtraOkayuAPI(v);
-                            nc.setOnline(v);
-                            break;
-                        case LISEKAPI:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                                Long registeredPlayers = (long) result.get("total");
 
-                            JSONObject data = (JSONObject) jsonObject.get("data");
+                                v.setPlayers((int) connectedClients);
+                                if (dp != null)
+                                    dp.FinishPrint(true);
+                                nc.updateRegisteredPlayerCount(v, registeredPlayers.intValue());
+                                nc.updateExtraBanchoPyStats(v);
+                                nc.updateExtraOkayuAPI(v);
+                                nc.setOnline(v);
+                                break;
+                            case LISEKAPI:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                            connectedClients = (long) data.get("online");
-                            Long totalPlayers = (long) data.get("users");
+                                JSONObject data = (JSONObject) jsonObject.get("data");
 
-                            v.setPlayers((int) connectedClients);
-                            dp.FinishPrint(true);
-                            nc.setOnline(v);
-                            nc.updateRegisteredPlayerCount(v, totalPlayers.intValue());
+                                connectedClients = (long) data.get("online");
+                                Long totalPlayers = (long) data.get("users");
 
-                            break;
-                        case RIPPLEAPIV1:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                                v.setPlayers((int) connectedClients);
+                                if (dp != null)
+                                    dp.FinishPrint(true);
+                                nc.setOnline(v);
+                                nc.updateRegisteredPlayerCount(v, totalPlayers.intValue());
 
-                            connectedClients = (long) jsonObject.get("result");
+                                break;
+                            case RIPPLEAPIV1:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                            v.setPlayers((int) connectedClients);
-                            dp.FinishPrint(true);
-                            nc.setOnline(v);
-                            break;
-                        case RIPPLEAPIV2:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                                connectedClients = (long) jsonObject.get("result");
 
-                            connectedClients = (long) jsonObject.get("connected_clients");
-                            v.setPlayers((int) connectedClients);
-                            dp.FinishPrint(true);
-                            nc.setOnline(v);
-                            break;
+                                v.setPlayers((int) connectedClients);
+                                if (dp != null)
+                                    dp.FinishPrint(true);
+                                nc.setOnline(v);
+                                break;
+                            case RIPPLEAPIV2:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                        case GATARIAPI:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                                connectedClients = (long) jsonObject.get("connected_clients");
+                                v.setPlayers((int) connectedClients);
+                                if (dp != null)
+                                    dp.FinishPrint(true);
+                                nc.setOnline(v);
+                                break;
 
-                            JSONObject js = (JSONObject) jsonObject.get("result");
-                            connectedClients = (long) js.get("online");
+                            case GATARIAPI:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                            v.setPlayers((int) connectedClients);
-                            dp.FinishPrint(true);
+                                JSONObject js = (JSONObject) jsonObject.get("result");
+                                connectedClients = (long) js.get("online");
 
-                            Long gatTotalPlayers = (long) js.get("users");
-                            nc.updateRegisteredPlayerCount(v, gatTotalPlayers.intValue());
+                                v.setPlayers((int) connectedClients);
+                                if (dp != null)
+                                    dp.FinishPrint(true);
 
-                            Long gatBannedPlayers = (long) js.get("banned");
-                            nc.updateBannedPlayerCount(v, gatBannedPlayers.intValue());
-                            nc.setOnline(v);
-                            break;
-                        case HEIAAPI:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                                Long gatTotalPlayers = (long) js.get("users");
+                                nc.updateRegisteredPlayerCount(v, gatTotalPlayers.intValue());
 
-                            JSONObject heiaData = (JSONObject) jsonObject.get("data");
+                                Long gatBannedPlayers = (long) js.get("banned");
+                                nc.updateBannedPlayerCount(v, gatBannedPlayers.intValue());
+                                nc.setOnline(v);
+                                break;
+                            case HEIAAPI:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                            JSONObject heiaDataUsers = (JSONObject) heiaData.get("users");
+                                JSONObject heiaData = (JSONObject) jsonObject.get("data");
 
-                            int heiaOnline = Integer.parseInt(heiaDataUsers.get("online").toString());
-                            int heiaRegistered = Integer.parseInt(heiaDataUsers.get("total").toString());
-                            int heiaBanned = Integer.parseInt(heiaDataUsers.get("restricted").toString());
+                                JSONObject heiaDataUsers = (JSONObject) heiaData.get("users");
 
-                            v.setPlayers(heiaOnline);
+                                int heiaOnline = Integer.parseInt(heiaDataUsers.get("online").toString());
+                                int heiaRegistered = Integer.parseInt(heiaDataUsers.get("total").toString());
+                                int heiaBanned = Integer.parseInt(heiaDataUsers.get("restricted").toString());
 
-                            dp.FinishPrint(true);
+                                v.setPlayers(heiaOnline);
+                                if (dp != null)
+                                    dp.FinishPrint(true);
 
-                            nc.updateBannedPlayerCount(v, heiaBanned);
+                                nc.updateBannedPlayerCount(v, heiaBanned);
 
-                            nc.updateRegisteredPlayerCount(v, heiaRegistered);
+                                nc.updateRegisteredPlayerCount(v, heiaRegistered);
 
-                            JSONObject heiaDataSquads = (JSONObject) heiaData.get("squads");
+                                JSONObject heiaDataSquads = (JSONObject) heiaData.get("squads");
 
-                            int heiaSquads = Integer.parseInt(heiaDataSquads.get("total").toString());
+                                int heiaSquads = Integer.parseInt(heiaDataSquads.get("total").toString());
 
-                            nc.updateAnyCount(CrawlerType.CLANS, v, heiaSquads);
+                                nc.updateAnyCount(CrawlerType.CLANS, v, heiaSquads);
 
-                            JSONObject heiaDataMaps = (JSONObject) heiaData.get("beatmaps");
+                                JSONObject heiaDataMaps = (JSONObject) heiaData.get("beatmaps");
 
-                            int heiaMaps = Integer.parseInt(heiaDataMaps.get("total").toString());
+                                int heiaMaps = Integer.parseInt(heiaDataMaps.get("total").toString());
 
-                            nc.updateAnyCount(CrawlerType.MAPS, v, heiaMaps);
+                                nc.updateAnyCount(CrawlerType.MAPS, v, heiaMaps);
 
-                            JSONObject heiaDataPlays = (JSONObject) heiaData.get("scores");
+                                JSONObject heiaDataPlays = (JSONObject) heiaData.get("scores");
 
-                            int heiaPlays = Integer.parseInt(heiaDataPlays.get("total").toString());
+                                int heiaPlays = Integer.parseInt(heiaDataPlays.get("total").toString());
 
-                            nc.updateAnyCount(CrawlerType.PLAYS, v, heiaPlays);
-                            nc.setOnline(v);
-                            break;
+                                nc.updateAnyCount(CrawlerType.PLAYS, v, heiaPlays);
+                                nc.setOnline(v);
+                                break;
 
-                        case ICEBERG:
-                            jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
-                            jsonObject = parseJsonResponse(jsonResponse);
+                            case ICEBERG:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
 
-                            int iceScores = Integer.parseInt(jsonObject.get("total_scores").toString());
-                            int iceUsers = Integer.parseInt(jsonObject.get("total_users").toString());
-                            int iceOnline = Integer.parseInt(jsonObject.get("online_users").toString());
+                                int iceScores = Integer.parseInt(jsonObject.get("total_scores").toString());
+                                int iceUsers = Integer.parseInt(jsonObject.get("total_users").toString());
+                                int iceOnline = Integer.parseInt(jsonObject.get("online_users").toString());
 
-                            v.setPlayers(iceOnline);
+                                v.setPlayers(iceOnline);
 
-                            dp.FinishPrint(true);
+                                dp.FinishPrint(true);
 
-                            nc.updateRegisteredPlayerCount(v, iceUsers);
+                                nc.updateRegisteredPlayerCount(v, iceUsers);
 
-                            nc.updateAnyCount(CrawlerType.PLAYS, v, iceScores);
+                                nc.updateAnyCount(CrawlerType.PLAYS, v, iceScores);
 
-                            nc.setOnline(v);
-                            
-                        break;
+                                nc.setOnline(v);
 
+                                break;
+
+                        }
+                    } catch (Exception e) {
+                        nc.setOffline(v);
+                        if (dp != null)
+                            dp.FinishPrint(false);
+                        noerrors = false;
                     }
+
+                    if (dp != null) {
+                        DelayedPrint.PrintValue("VOTES", String.valueOf(v.getVotes()), noerrors);
+                        DelayedPrint.PrintValue("PLAYERS", String.valueOf(v.getPlayers()), noerrors);
+                    }
+                    mysql.Exec("UPDATE `un_servers` SET `players`=? WHERE `id` = ?", String.valueOf(v.getPlayers()),
+                            String.valueOf(v.getId()));
+
+                    nc.updatePlayerCount(v);
+
                 } catch (Exception e) {
-                    nc.setOffline(v);
-                    dp.FinishPrint(false);
-                    noerrors = false;
-                }
-            
+                    if (dp != null)
+                        dp.FinishPrint(false);
 
-                DelayedPrint.PrintValue("VOTES", String.valueOf(v.getVotes()), noerrors);
-                DelayedPrint.PrintValue("PLAYERS", String.valueOf(v.getPlayers()), noerrors);
-
-                mysql.Exec("UPDATE `un_servers` SET `players`=? WHERE `id` = ?", String.valueOf(v.getPlayers()),
-                        String.valueOf(v.getId()));
-
-                nc.updatePlayerCount(v);
-
-            
-                } catch (Exception e) {
-                    dp.FinishPrint(false);
-                   
                 }
             }
 
-                
         } catch (Exception e) {
-     
+
             ExceptionManager.addException(e);
             e.printStackTrace();
         }

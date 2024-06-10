@@ -10,6 +10,7 @@ import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.CheckServer;
+import osu.serverlist.Input.Commands.Crawlerlog;
 import osu.serverlist.Main.Crawler;
 import osu.serverlist.Models.Server;
 
@@ -25,7 +26,8 @@ public class NewCrawler {
 
     public void updateBannedPlayerCount(Server v, int banned_players) {
         updateAnyCount(CrawlerType.BANNED_PLAYERS, v, banned_players);
-        DelayedPrint.PrintValue("BANNED", String.valueOf(banned_players), true);
+        if (Crawlerlog.enabled)
+            DelayedPrint.PrintValue("BANNED", String.valueOf(banned_players), true);
 
     }
 
@@ -35,7 +37,8 @@ public class NewCrawler {
 
     public void updateRegisteredPlayerCount(Server v, int registered_players) {
         updateAnyCount(CrawlerType.REGISTERED_PLAYERS, v, registered_players);
-        DelayedPrint.PrintValue("REGISTERED", String.valueOf(registered_players), true);
+        if (Crawlerlog.enabled)
+            DelayedPrint.PrintValue("REGISTERED", String.valueOf(registered_players), true);
     }
 
     public void setOffline(Server v) {
@@ -51,10 +54,10 @@ public class NewCrawler {
         try {
 
             String url;
-            if(Crawler.env.get("LOCALHOST").length() > 2) {
+            if (Crawler.env.get("LOCALHOST").length() > 2) {
                 url = Crawler.env.get("LOCALHOST") + "/api/v1/banchopy/stats?id=" + v.getId();
             } else {
-                url = Crawler.env.get("DOMAIN") +  "/api/v1/banchopy/stats?id=" + v.getId();
+                url = Crawler.env.get("DOMAIN") + "/api/v1/banchopy/stats?id=" + v.getId();
             }
 
             String jsonResponse = new GetRequest(url).send("osu!ListBot");
@@ -63,13 +66,17 @@ public class NewCrawler {
             updateAnyCount(CrawlerType.MAPS, v, ((Long) jsonObject.get("maps")).intValue());
             updateAnyCount(CrawlerType.CLANS, v, ((Long) jsonObject.get("clans")).intValue());
             updateAnyCount(CrawlerType.PLAYS, v, ((Long) jsonObject.get("plays")).intValue());
-            DelayedPrint.PrintValue("MAPS", String.valueOf(jsonObject.get("maps")), true);
-            DelayedPrint.PrintValue("CLANS", String.valueOf(jsonObject.get("clans")), true);
-            DelayedPrint.PrintValue("PLAYS", String.valueOf(jsonObject.get("plays")), true);
+            if (Crawlerlog.enabled) {
+                DelayedPrint.PrintValue("MAPS", String.valueOf(jsonObject.get("maps")), true);
+                DelayedPrint.PrintValue("CLANS", String.valueOf(jsonObject.get("clans")), true);
+                DelayedPrint.PrintValue("PLAYS", String.valueOf(jsonObject.get("plays")), true);
+            }
         } catch (Exception e) {
-            DelayedPrint.PrintValue("MAPS", "0", false);
-            DelayedPrint.PrintValue("CLANS", "0", false);
-            DelayedPrint.PrintValue("PLAYS", "0", false);
+            if (Crawlerlog.enabled) {
+                DelayedPrint.PrintValue("MAPS", "0", false);
+                DelayedPrint.PrintValue("CLANS", "0", false);
+                DelayedPrint.PrintValue("PLAYS", "0", false);
+            }
         }
     }
 
@@ -85,13 +92,18 @@ public class NewCrawler {
             updateAnyCount(CrawlerType.MAPS, v, ((Long) jsonObject.get("maps")).intValue());
             updateAnyCount(CrawlerType.CLANS, v, ((Long) jsonObject.get("clans")).intValue());
             updateAnyCount(CrawlerType.PLAYS, v, ((Long) jsonObject.get("scores")).intValue());
-            DelayedPrint.PrintValue("MAPS", String.valueOf(jsonObject.get("maps")), true);
-            DelayedPrint.PrintValue("CLANS", String.valueOf(jsonObject.get("clans")), true);
-            DelayedPrint.PrintValue("PLAYS", String.valueOf(jsonObject.get("scores")), true);
+            if (Crawlerlog.enabled) {
+                DelayedPrint.PrintValue("MAPS", String.valueOf(jsonObject.get("maps")), true);
+                DelayedPrint.PrintValue("CLANS", String.valueOf(jsonObject.get("clans")), true);
+                DelayedPrint.PrintValue("PLAYS", String.valueOf(jsonObject.get("scores")), true);
+            }
+
         } catch (Exception e) {
-            DelayedPrint.PrintValue("MAPS", "0", false);
-            DelayedPrint.PrintValue("CLANS", "0", false);
-            DelayedPrint.PrintValue("PLAYS", "0", false);
+            if (Crawlerlog.enabled) {
+                DelayedPrint.PrintValue("MAPS", "0", false);
+                DelayedPrint.PrintValue("CLANS", "0", false);
+                DelayedPrint.PrintValue("PLAYS", "0", false);
+            }
         }
     }
 
