@@ -5,11 +5,12 @@ import java.sql.SQLException;
 
 import org.json.simple.JSONObject;
 
+import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.CheckServer;
-import osu.serverlist.Input.Commands.ExceptionManager;
+import osu.serverlist.Main.Crawler;
 import osu.serverlist.Models.Server;
 
 public class NewCrawler {
@@ -48,8 +49,16 @@ public class NewCrawler {
     public void updateExtraBanchoPyStats(Server v) {
         JSONObject jsonObject = null;
         try {
-            String jsonResponse = new GetRequest("https://osu-server-list.com/api/v1/banchopy/stats?id=" + v.getId())
-                    .send("osu!ListBot");
+
+            String url;
+            if(Crawler.env.get("LOCALHOST").length() > 2) {
+                url = Crawler.env.get("LOCALHOST") + "/api/v1/banchopy/stats?id=" + v.getId();
+            } else {
+                url = Crawler.env.get("DOMAIN") +  "/api/v1/banchopy/stats?id=" + v.getId();
+            }
+
+            String jsonResponse = new GetRequest(url).send("osu!ListBot");
+
             jsonObject = CheckServer.parseJsonResponse(jsonResponse);
             updateAnyCount(CrawlerType.MAPS, v, ((Long) jsonObject.get("maps")).intValue());
             updateAnyCount(CrawlerType.CLANS, v, ((Long) jsonObject.get("clans")).intValue());
@@ -71,7 +80,7 @@ public class NewCrawler {
             return;
 
         try {
-            String jsonResponse = new GetRequest("https://apiv2.risunasa.xyz/stats").send("osu!ListBot");
+            String jsonResponse = new GetRequest("https://apiv2.osuokayu.moe/stats").send("osu!ListBot");
             jsonObject = CheckServer.parseJsonResponse(jsonResponse);
             updateAnyCount(CrawlerType.MAPS, v, ((Long) jsonObject.get("maps")).intValue());
             updateAnyCount(CrawlerType.CLANS, v, ((Long) jsonObject.get("clans")).intValue());
@@ -107,7 +116,7 @@ public class NewCrawler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            ExceptionManager.addException(e);
+            Flogger.instance.error(e);
         }
 
     }

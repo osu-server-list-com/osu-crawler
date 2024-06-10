@@ -8,6 +8,7 @@ import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Commons.Database.ServerTimezone;
 import commons.marcandreher.Input.CommandHandler;
+import io.github.cdimascio.dotenv.Dotenv;
 import osu.serverlist.Cache.Action.CheckServer;
 import osu.serverlist.DiscordBot.DiscordBot;
 import osu.serverlist.Input.Commands.CheckDcCache;
@@ -20,11 +21,12 @@ import osu.serverlist.Models.Config;
 public class Crawler {
     protected static Flogger LOG = null;
     protected static Config CONFIG;
+    public static Dotenv env;
 
     public static void main(String[] args) {
         MySQL.LOGLEVEL = 5;
         CONFIG = Config.initializeNewConfig();
-
+        env = Dotenv.load();
         LOG = new Flogger(CONFIG.getLogLevel());
 
         Database db = new Database();
