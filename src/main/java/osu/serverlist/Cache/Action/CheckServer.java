@@ -189,6 +189,7 @@ public class CheckServer extends DatabaseAction {
 
                                 v.setPlayers(iceOnline);
 
+                                if (dp != null)
                                 dp.FinishPrint(true);
 
                                 nc.updateRegisteredPlayerCount(v, iceUsers);
