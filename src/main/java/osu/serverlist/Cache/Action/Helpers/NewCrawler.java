@@ -133,4 +133,34 @@ public class NewCrawler {
 
     }
 
+    public enum BotType {
+        PLAYERS, SERVERS
+    }
+
+    public void updateBotCount(BotType botType, int value) {
+        ResultSet checkRs = mysql.Query(
+                "SELECT * FROM `un_crawler` WHERE `srv_id` = ? AND `date` = CURDATE() AND `type` = ? ",
+                String.valueOf(0), botType.toString());
+
+        try {
+            int i = 0;
+            while (checkRs.next()) {
+                i++;
+                if (value > checkRs.getInt("value")) {
+                    mysql.Exec("UPDATE `un_crawler` SET `value`=?,`srv_id`=? WHERE `id` = ?",
+                            String.valueOf(value), String.valueOf(0), String.valueOf(checkRs.getInt("id")));
+                }
+            }
+
+            if (i == 0) {
+                mysql.Exec("INSERT INTO `un_crawler` (`type`, `value`, `date`, `srv_id`) VALUES (?,?,CURDATE(),?)",
+                botType.toString(), String.valueOf(value), String.valueOf(0));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Flogger.instance.error(e);
+        }
+
+    }
+
 }

@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import osu.serverlist.DiscordBot.cache.UpdateAutocompletions;
+import osu.serverlist.DiscordBot.cache.UpdateDiscordRelatedStats;
 import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
 import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
@@ -38,6 +39,7 @@ public class DiscordBot {
         }
         cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
         cacheTimer.addAction(new UpdateAutocompletions());
+        cacheTimer.addAction(new UpdateDiscordRelatedStats());
 
     }
 
