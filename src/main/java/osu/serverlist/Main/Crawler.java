@@ -36,8 +36,12 @@ public class Crawler {
         
         CacheTimer cacheTimer = new CacheTimer(15, 1, TimeUnit.MINUTES);
         cacheTimer.addAction(new CheckServer());
-        new DiscordBot(LOG, cacheTimer);
-        
+
+        Runnable discordBotRunnable = new DiscordBot(LOG, cacheTimer);
+        Thread discordBotStarter = new Thread(discordBotRunnable);
+        discordBotStarter.setName("DiscordBot-Executor");
+        discordBotStarter.start();
+
         if(args.length == 1 && !args[0].contains("-nocmd")) {
             return;
         }
