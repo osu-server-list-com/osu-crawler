@@ -30,9 +30,9 @@ public class DiscordBot implements Runnable {
     private CacheTimer cacheTimer;
     private Flogger logger;
 
-    public DiscordBot(Flogger logger, CacheTimer cacheTimer) {
+    public DiscordBot(Flogger logger) {
         this.logger = logger;
-        this.cacheTimer = cacheTimer;
+
     }
 
     public static void deleteCommandsForAllServers() {
@@ -104,7 +104,7 @@ public class DiscordBot implements Runnable {
 
             logger.log(Prefix.API, "Bot Username: " + jdaInstance.getSelfUser().getName());
             logger.log(Prefix.API, "Bot Discriminator: " + jdaInstance.getSelfUser().getDiscriminator());
-
+            cacheTimer  = new CacheTimer(15, 1, TimeUnit.MINUTES);
             cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
             cacheTimer.addAction(new UpdateAutocompletions());
             botHandler = new CacheTimer(60, 1, TimeUnit.MINUTES);

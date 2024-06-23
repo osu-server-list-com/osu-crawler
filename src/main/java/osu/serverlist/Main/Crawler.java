@@ -37,7 +37,7 @@ public class Crawler {
         CacheTimer cacheTimer = new CacheTimer(15, 1, TimeUnit.MINUTES);
         cacheTimer.addAction(new CheckServer());
 
-        Runnable discordBotRunnable = new DiscordBot(LOG, cacheTimer);
+        Runnable discordBotRunnable = new DiscordBot(LOG);
         Thread discordBotStarter = new Thread(discordBotRunnable);
         discordBotStarter.setName("DiscordBot-Executor");
         discordBotStarter.start();
