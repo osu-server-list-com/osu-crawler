@@ -101,15 +101,17 @@ public class DiscordBot implements Runnable {
             jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN"))
                     .addEventListeners(new DiscordCommandHandler(), new Leaderboard(), new Recent(), new Best())
                     .setActivity(activity).build().awaitReady();
-
+            logger.log("\n");
             logger.log(Prefix.API, "Bot Username: " + jdaInstance.getSelfUser().getName());
             logger.log(Prefix.API, "Bot Discriminator: " + jdaInstance.getSelfUser().getDiscriminator());
             cacheTimer  = new CacheTimer(15, 1, TimeUnit.MINUTES);
-            cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
             cacheTimer.addAction(new UpdateAutocompletions());
+            cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
+            
             botHandler = new CacheTimer(60, 1, TimeUnit.MINUTES);
             botHandler.addAction(new UpdateDiscordRelatedStats());
         } catch (Exception e) {
+            logger.log("\n");
             logger.log(Prefix.ERROR, "DiscordBot failed starting", 0);
             return;
         }
