@@ -1,6 +1,7 @@
 package osu.serverlist.DiscordBot;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import commons.marcandreher.Cache.CacheTimer;
 import commons.marcandreher.Commons.Flogger;
@@ -24,6 +25,8 @@ public class DiscordBot {
 
     public Dotenv dotenv;
 
+    public CacheTimer botHandler = null;
+
     public DiscordBot(Flogger logger, CacheTimer cacheTimer) {
 
         Activity activity = Activity.playing("osu-server-list.com");
@@ -39,8 +42,8 @@ public class DiscordBot {
         }
         cacheTimer.addAction(new UpdateStatusChannel(dotenv.get("DISCORD_STATS_CHANNEL_ID")));
         cacheTimer.addAction(new UpdateAutocompletions());
-        cacheTimer.addAction(new UpdateDiscordRelatedStats());
-
+        botHandler = new CacheTimer(60, 1, TimeUnit.MINUTES);
+        botHandler.addAction(new UpdateDiscordRelatedStats());
     }
 
     public static void deleteCommandsForAllServers() {
