@@ -1,7 +1,9 @@
 package osu.serverlist.DiscordBot;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -9,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
@@ -101,13 +104,13 @@ public class DiscordCommandHandler extends ListenerAdapter {
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
         try (
-                OutputStream output = connection.getOutputStream();
-                PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, "UTF-8"), true)) {
+            OutputStream output = connection.getOutputStream();
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, "UTF-8"), true)
+        ) {
             // Send binary file.
             writer.append("--").append(boundary).append(CRLF);
-            writer.append("Content-Disposition: form-data; name=\"osr_file\"; filename=\"" + file.getName() + "\"")
-                    .append(CRLF);
-            writer.append("Content-Type: " + Files.probeContentType(file.toPath())).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"osr_file\"; filename=\"").append(file.getName()).append("\"").append(CRLF);
+            writer.append("Content-Type: ").append(Files.probeContentType(file.toPath())).append(CRLF);
             writer.append(CRLF).flush();
             Files.copy(file.toPath(), output);
             output.flush(); // Important before continuing with writer!
@@ -121,17 +124,34 @@ public class DiscordCommandHandler extends ListenerAdapter {
         int responseCode = connection.getResponseCode();
         Flogger.instance.log(Prefix.INFO, "Response Code: " + responseCode, 0);
 
-        connection.getHeaderFields().forEach((key, value) -> {
-            if (key != null && value != null) {
-                value.forEach(v -> Flogger.instance.log(Prefix.INFO, key + ": " + v, 0));
+        Map<String, List<String>> headerFields = connection.getHeaderFields();
+        for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
+            String key = entry.getKey();
+            List<String> values = entry.getValue();
+            if (key != null && values != null) {
+                for (String value : values) {
+                    Flogger.instance.log(Prefix.INFO, key + ": " + value, 0);
+                }
             }
-        });
+        }
 
         if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
             String redirectUrl = connection.getHeaderField("Location");
             Flogger.instance.log(Prefix.INFO, "Redirect URL: " + redirectUrl, 0);
         }
-        Flogger.instance.log(Prefix.INFO + "Body:" + connection.getContent().toString(), 0);
+
+        // Read and log the response body
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            Flogger.instance.log(Prefix.INFO, "Response Body: " + response.toString(), 0);
+        } catch (IOException e) {
+            Flogger.instance.error(new Exception(e));
+        }
+
         connection.disconnect();
     }
 
