@@ -13,6 +13,10 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.entities.Message.Attachment;
@@ -80,7 +84,11 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     // Download the file
                     attachment.downloadToFile().thenAccept(file -> {
                         try {
-                            uploadFile(file);
+                            String image = uploadFile(file);
+                            if (image != null) {
+
+                                event.getChannel().sendMessage("https://lookatmysco.re " + image).queue();
+                            }
                         } catch (IOException e) {
                             Flogger.instance.error(new Exception(e));
                         }
@@ -93,11 +101,11 @@ public class DiscordCommandHandler extends ListenerAdapter {
         }
     }
 
-    private void uploadFile(File file) throws IOException {
+     private String uploadFile(File file) throws IOException {
         String url = "https://lookatmysco.re/api/submit-osr";
         String boundary = Long.toHexString(System.currentTimeMillis()); // Just a random unique string
         String CRLF = "\r\n"; // Line separator required by multipart/form-data.
-
+        String outputUrl = null;
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
@@ -122,7 +130,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
         // Log the response headers and redirect URL
         int responseCode = connection.getResponseCode();
-        Flogger.instance.log(Prefix.INFO, "Response Code: " + responseCode, 0);
+        Flogger.instance.log(Prefix.API, url + " | " + responseCode, 0);
 
         Map<String, List<String>> headerFields = connection.getHeaderFields();
         for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
@@ -135,26 +143,33 @@ public class DiscordCommandHandler extends ListenerAdapter {
             }
         }
 
-        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
-            String redirectUrl = connection.getHeaderField("Location");
-            Flogger.instance.log(Prefix.INFO, "Redirect URL: " + redirectUrl, 0);
-        }
-
-        // Read and log the response body
+    
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String inputLine;
             StringBuilder response = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            Flogger.instance.log(Prefix.INFO, "Response Body: " + response.toString(), 0);
+           
+            if (response.length() > 0) {
+                try {
+                    JSONParser parser = new JSONParser();
+                    JSONObject jsonResponse = (JSONObject) parser.parse(response.toString());
+                    JSONObject image = (JSONObject) jsonResponse.get("image");
+                    if (image != null) {
+                        outputUrl = (String) image.get("url");
+                    }
+                } catch (ParseException e) {
+                    Flogger.instance.error(e);
+                }
+            }
         } catch (IOException e) {
             Flogger.instance.error(new Exception(e));
         }
 
         connection.disconnect();
+        return outputUrl;
     }
-
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         Flogger.instance.log(Prefix.API, "Slash Command: " + event.getName(), 0);
