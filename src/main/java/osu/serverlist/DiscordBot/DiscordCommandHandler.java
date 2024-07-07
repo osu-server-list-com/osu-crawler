@@ -91,7 +91,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
     }
 
     private void uploadFile(File file) throws IOException {
-        String url = "http://yourserver.com/api/submit-osr";
+        String url = "https://lookatmysco.re/api/submit-osr";
         String boundary = Long.toHexString(System.currentTimeMillis()); // Just a random unique string
         String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 
