@@ -110,12 +110,10 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
     @ Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        // Check if the reaction is from a bot
         if (event.getUser().isBot()) {
             return;
         }
 
-        // Handle the reaction add event
         String messageId = event.getMessageId();
         Emoji emoji = event.getEmoji();
         
@@ -123,8 +121,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
             return;
         }
 
-        // Example handling based on emoji
-        if (emoji.getAsReactionCode().equals("U+2705")) { 
+        if (emoji.getAsReactionCode().equals("✅")) { 
             try {
                 String image = uploadFile(awaitingMaps.get(messageId));
                 if (image != null) {
@@ -134,7 +131,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
                 } catch (IOException e) {
                 Flogger.instance.error(new Exception(e));
                 }
-        } else if (emoji.getAsReactionCode().equals("U+274C")) { // Cross mark
+        } else if (emoji.getAsReactionCode().equals("❌")) {
             event.getChannel().deleteMessageById(messageId).queue();
             awaitingMaps.remove(messageId);
             
