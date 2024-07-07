@@ -50,6 +50,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
         Flogger.instance.log(Prefix.API, "Message received from " + event.getAuthor().getAsTag(), 0);
 
         List<Attachment> attachments = event.getMessage().getAttachments();
+        
         Flogger.instance.log(Prefix.API, "Attachment list size: " + attachments.size(), 0);
         Flogger.instance.log(Prefix.API, "Attachments: " + attachments.toString(), 0);
         if (!attachments.isEmpty()) {
