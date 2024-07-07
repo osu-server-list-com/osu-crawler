@@ -5,6 +5,7 @@ import java.util.List;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -48,7 +49,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         Flogger.instance.log(Prefix.API, "Message received from " + event.getAuthor().getAsTag(), 0);
 
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        List<Attachment> attachments = event.getMessage().getAttachments();
         Flogger.instance.log(Prefix.API, "Attachment list size: " + attachments.size(), 0);
         Flogger.instance.log(Prefix.API, "Attachments: " + attachments.toString(), 0);
         if (!attachments.isEmpty()) {
