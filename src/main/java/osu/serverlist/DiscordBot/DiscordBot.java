@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import osu.serverlist.DiscordBot.cache.UpdateAutocompletions;
 import osu.serverlist.DiscordBot.cache.UpdateDiscordRelatedStats;
 import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
@@ -100,7 +101,7 @@ public class DiscordBot implements Runnable {
             dotenv = Dotenv.configure().filename("discord.env").load();
             jdaInstance = JDABuilder.createDefault(dotenv.get("DISCORD_BOT_TOKEN"))
                     .addEventListeners(new DiscordCommandHandler(), new Leaderboard(), new Recent(), new Best())
-                    .setActivity(activity).build().awaitReady();
+                    .setActivity(activity).enableIntents(GatewayIntent.MESSAGE_CONTENT).build().awaitReady();
             logger.log("\n");
             logger.log(Prefix.API, "Bot Username: " + jdaInstance.getSelfUser().getName());
             logger.log(Prefix.API, "Bot Discriminator: " + jdaInstance.getSelfUser().getDiscriminator());
