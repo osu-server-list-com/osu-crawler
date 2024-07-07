@@ -50,12 +50,16 @@ public class DiscordCommandHandler extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getMessage().getAttachments().size() > 0) {
             List<Message.Attachment> attachments = event.getMessage().getAttachments();
+            Flogger.instance.log(Prefix.API, "Got attatchment", 0);
             for (Message.Attachment attachment : attachments) {
                 if (attachment.isVideo() && attachment.isImage()) {
                     return;
                 }
 
-                if(!event.getAuthor().getId().equals("307257319266320394"))return;
+                if(!event.getAuthor().getId().equals("307257319266320394")){
+                    Flogger.instance.log(Prefix.API, "Permission denied", 0);
+                    return;
+                }
 
                 String fileUrl = attachment.getUrl();
                 String fileName = attachment.getFileName();
