@@ -79,11 +79,6 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     continue;
                 }
 
-                if (!event.getAuthor().getId().equals("307257319266320394")) {
-                    Flogger.instance.log(Prefix.API, "Permission denied for " + event.getAuthor().getName(), 0);
-                    return;
-                }
-
                 String fileName = attachment.getFileName();
 
                 if (fileName.endsWith(".osr")) {
