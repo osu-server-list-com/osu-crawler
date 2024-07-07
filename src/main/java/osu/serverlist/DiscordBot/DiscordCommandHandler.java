@@ -1,10 +1,17 @@
 package osu.serverlist.DiscordBot;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.List;
 
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -47,42 +54,85 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        Flogger.instance.log(Prefix.API, "Message received from " + event.getAuthor().getAsTag(), 0);
-
         List<Attachment> attachments = event.getMessage().getAttachments();
-        
-        Flogger.instance.log(Prefix.API, "Attachment list size: " + attachments.size(), 0);
-        Flogger.instance.log(Prefix.API, "Attachments: " + attachments.toString(), 0);
         if (!attachments.isEmpty()) {
-            Flogger.instance.log(Prefix.API, "Got attachment", 0);
-
-            for (Message.Attachment attachment : attachments) {
-                Flogger.instance.log(Prefix.API, "Processing attachment: " + attachment.getFileName(), 0);
-
+            for (Attachment attachment : attachments) {
                 // Skip if the attachment is a video or image
                 if (attachment.isVideo() || attachment.isImage()) {
-                    Flogger.instance.log(Prefix.API, "Skipping video or image: " + attachment.getFileName(), 0);
                     continue;
                 }
 
-                // Check if the author is allowed to send the attachment
+                // Check if the user has the right permissions
                 if (!event.getAuthor().getId().equals("307257319266320394")) {
                     Flogger.instance.log(Prefix.API, "Permission denied for " + event.getAuthor().getAsTag(), 0);
                     return;
                 }
 
-                String fileUrl = attachment.getUrl();
                 String fileName = attachment.getFileName();
-                Flogger.instance.log(Prefix.API, "File: " + fileName + " URL: " + fileUrl, 0);
 
-                // Handle specific file types
+                // Process only .osr files
                 if (fileName.endsWith(".osr")) {
                     Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
+
+                    // Download the file
+                    attachment.downloadToFile().thenAccept(file -> {
+                        try {
+                            uploadFile(file);
+                        } catch (IOException e) {
+                            Flogger.instance.error(new Exception(e));
+                        }
+                    }).exceptionally(e -> {
+                        Flogger.instance.error(new Exception(e));
+                        return null;
+                    });
                 }
             }
-        } else {
-            Flogger.instance.log(Prefix.API, "No attachments in message", 0);
         }
+    }
+
+    private void uploadFile(File file) throws IOException {
+        String url = "http://yourserver.com/api/submit-osr";
+        String boundary = Long.toHexString(System.currentTimeMillis()); // Just a random unique string
+        String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+        try (
+                OutputStream output = connection.getOutputStream();
+                PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, "UTF-8"), true)) {
+            // Send binary file.
+            writer.append("--").append(boundary).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"osr_file\"; filename=\"" + file.getName() + "\"")
+                    .append(CRLF);
+            writer.append("Content-Type: " + Files.probeContentType(file.toPath())).append(CRLF);
+            writer.append(CRLF).flush();
+            Files.copy(file.toPath(), output);
+            output.flush(); // Important before continuing with writer!
+            writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
+
+            // End of multipart/form-data.
+            writer.append("--").append(boundary).append("--").append(CRLF).flush();
+        }
+
+        // Log the response headers and redirect URL
+        int responseCode = connection.getResponseCode();
+        Flogger.instance.log(Prefix.INFO, "Response Code: " + responseCode, 0);
+
+        connection.getHeaderFields().forEach((key, value) -> {
+            if (key != null && value != null) {
+                value.forEach(v -> Flogger.instance.log(Prefix.INFO, key + ": " + v, 0));
+            }
+        });
+
+        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
+            String redirectUrl = connection.getHeaderField("Location");
+            Flogger.instance.log(Prefix.INFO, "Redirect URL: " + redirectUrl, 0);
+        }
+
+        connection.disconnect();
     }
 
     @Override
