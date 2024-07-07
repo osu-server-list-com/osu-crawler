@@ -46,16 +46,17 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
     }
 
+    @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Flogger.instance.log(Prefix.API, "Message received from " + event.getAuthor().getAsTag(), 0);
-        
-        if (event.getMessage().getAttachments().size() > 0) {
-            List<Message.Attachment> attachments = event.getMessage().getAttachments();
+
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (!attachments.isEmpty()) {
             Flogger.instance.log(Prefix.API, "Got attachment", 0);
-            
+
             for (Message.Attachment attachment : attachments) {
                 Flogger.instance.log(Prefix.API, "Processing attachment: " + attachment.getFileName(), 0);
-                
+
                 if (attachment.isVideo() || attachment.isImage()) {
                     Flogger.instance.log(Prefix.API, "Skipping video or image: " + attachment.getFileName(), 0);
                     continue;
@@ -78,7 +79,6 @@ public class DiscordCommandHandler extends ListenerAdapter {
             Flogger.instance.log(Prefix.API, "No attachments in message", 0);
         }
     }
-    
 
 
 
