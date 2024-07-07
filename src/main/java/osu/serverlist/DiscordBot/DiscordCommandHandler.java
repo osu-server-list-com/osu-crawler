@@ -90,8 +90,8 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
                     attachment.downloadToFile().thenAccept(file -> {
                         EmbedBuilder embed = new EmbedBuilder();
-                        embed.setColor(0x630959);
-                        embed.setDescription("Do you want to generate a [https://lookatmysco.re]anel?\nMessage dissapears in 8 seconds");
+                        embed.setColor(0x5755d9);
+                        embed.setDescription("Do you want to generate a [lookatmysco.re](https://lookatmysco.re) Panel?\nMessage dissapears in 8 seconds");
                         event.getChannel().sendMessage("").addEmbeds(embed.build())
                                 .queue(message -> {
 
@@ -134,8 +134,8 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     awaitingMaps.remove(messageId);
                     EmbedBuilder embed = new EmbedBuilder();
                     embed.setImage(image);
-                    embed.setColor(0x630959);
-                    embed.setFooter("Panel by [https://lookatmysco.re](https://lookatmysco.re) | Powered by [osu!ServerList](https://osu-server-list.com)");
+                    embed.setColor(0x5755d9);
+                    embed.setDescription("Panel by [lookatmysco.re](https://lookatmysco.re) | Powered by [osu!ServerList](https://osu-server-list.com)");
                     event.getChannel().sendMessage("").addEmbeds(embed.build()).queue();
                 }
 
