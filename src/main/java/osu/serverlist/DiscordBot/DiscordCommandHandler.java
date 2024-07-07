@@ -10,8 +10,11 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -86,8 +89,40 @@ public class DiscordCommandHandler extends ListenerAdapter {
                         try {
                             String image = uploadFile(file);
                             if (image != null) {
-
                                 event.getChannel().sendMessage("https://lookatmysco.re " + image).queue();
+
+                                // Ask if the user wants to generate a card
+                                event.getChannel().sendMessage("Do you want to generate a card? Reply with 'yes' or 'no'.")
+                                    .queue(message -> {
+                                        // Add a listener for the next message from the same user
+                                        event.getJDA().addEventListener(new ListenerAdapter() {
+                                            @Override
+                                            public void onMessageReceived(MessageReceivedEvent responseEvent) {
+                                                // Check if the response is from the same user and the same channel
+                                                if (responseEvent.getAuthor().equals(event.getAuthor()) && 
+                                                    responseEvent.getChannel().equals(event.getChannel())) {
+                                                    
+                                                    // Check if the response is 'yes'
+                                                    if (responseEvent.getMessage().getContentRaw().equalsIgnoreCase("yes")) {
+                                                        LocalDateTime now = LocalDateTime.now();
+                                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                        String timestamp = now.format(formatter);
+                                                        event.getChannel().sendMessage("Card generated at: " + timestamp)
+                                                            .queue(cardMessage -> {
+                                                                cardMessage.delete().queueAfter(8, TimeUnit.SECONDS);
+                                                            });
+                                                    }
+
+                                                    // Remove this listener after handling the response
+                                                    event.getJDA().removeEventListener(this);
+                                                }
+                                            }
+                                        });
+
+                                        // Set a timeout to remove the listener if no response is received within 10 seconds
+                                        event.getChannel().sendMessage("Waiting for response...")
+                                            .queue(waitingMessage -> waitingMessage.delete().queueAfter(10, TimeUnit.SECONDS));
+                                    });
                             }
                         } catch (IOException e) {
                             Flogger.instance.error(new Exception(e));
