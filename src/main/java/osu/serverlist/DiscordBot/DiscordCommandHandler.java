@@ -34,44 +34,45 @@ public class DiscordCommandHandler extends ListenerAdapter {
             return;
         }
 
-        else if(event.getName().equals("recent")) { 
+        else if (event.getName().equals("recent")) {
             new Recent().handleAutoComplete(event);
         }
 
-        else if(event.getName().equals("best")) { 
+        else if (event.getName().equals("best")) {
             new Best().handleAutoComplete(event);
         }
-        
-
 
     }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Flogger.instance.log(Prefix.API, "Message received from " + event.getAuthor().getAsTag(), 0);
-    
+
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        Flogger.instance.log(Prefix.API, "Attachment list size: " + attachments.size(), 0);
+        Flogger.instance.log(Prefix.API, "Attachments: " + attachments.toString(), 0);
         if (!attachments.isEmpty()) {
             Flogger.instance.log(Prefix.API, "Got attachment", 0);
-    
+
             for (Message.Attachment attachment : attachments) {
                 Flogger.instance.log(Prefix.API, "Processing attachment: " + attachment.getFileName(), 0);
-    
+
                 // Skip if the attachment is a video or image
                 if (attachment.isVideo() || attachment.isImage()) {
                     Flogger.instance.log(Prefix.API, "Skipping video or image: " + attachment.getFileName(), 0);
                     continue;
                 }
-    
+
                 // Check if the author is allowed to send the attachment
                 if (!event.getAuthor().getId().equals("307257319266320394")) {
                     Flogger.instance.log(Prefix.API, "Permission denied for " + event.getAuthor().getAsTag(), 0);
                     return;
                 }
-    
+
                 String fileUrl = attachment.getUrl();
                 String fileName = attachment.getFileName();
                 Flogger.instance.log(Prefix.API, "File: " + fileName + " URL: " + fileUrl, 0);
-    
+
                 // Handle specific file types
                 if (fileName.endsWith(".osr")) {
                     Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
@@ -82,26 +83,23 @@ public class DiscordCommandHandler extends ListenerAdapter {
         }
     }
 
-
-
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         Flogger.instance.log(Prefix.API, "Slash Command: " + event.getName(), 0);
         if (event.getName().equals("stats")) {
             new Stats().handleCommand(event);
-        } else if(event.getName().equals("profile")) { 
+        } else if (event.getName().equals("profile")) {
             new Profile().handleCommand(event);
-        }else if(event.getName().equals("leaderboard")) { 
+        } else if (event.getName().equals("leaderboard")) {
             new Leaderboard().handleCommand(event);
-        }else if(event.getName().equals("recent")) { 
+        } else if (event.getName().equals("recent")) {
             new Recent().handleCommand(event);
-        }else if(event.getName().equals("best")) { 
+        } else if (event.getName().equals("best")) {
             new Best().handleCommand(event);
         } else {
             String inviteUrl = event.getJDA().getInviteUrl();
             event.reply("Here's the invite link: " + inviteUrl).queue();
         }
     }
-
 
 }
