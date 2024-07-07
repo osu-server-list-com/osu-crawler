@@ -50,13 +50,14 @@ public class DiscordCommandHandler extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getMessage().getAttachments().size() > 0) {
             List<Message.Attachment> attachments = event.getMessage().getAttachments();
-            Flogger.instance.log(Prefix.API, "Got attatchment", 0);
+            Flogger.instance.log(Prefix.API, "Got attachment", 0);
             for (Message.Attachment attachment : attachments) {
-                if (attachment.isVideo() && attachment.isImage()) {
-                    return;
+                
+                if (attachment.isVideo() || attachment.isImage()) {
+                    continue;
                 }
 
-                if(!event.getAuthor().getId().equals("307257319266320394")){
+                if (!event.getAuthor().getId().equals("307257319266320394")) {
                     Flogger.instance.log(Prefix.API, "Permission denied", 0);
                     return;
                 }
@@ -64,11 +65,10 @@ public class DiscordCommandHandler extends ListenerAdapter {
                 String fileUrl = attachment.getUrl();
                 String fileName = attachment.getFileName();
                 Flogger.instance.log(Prefix.API, "File: " + fileName + " URL: " + fileUrl, 0);
-            
+
                 if (fileName.endsWith(".osr")) {
-                    Flogger.instance.log(Prefix.INFO + "OSR Recieved " + fileName);
+                    Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
                 }
-            
             }
         }
     }
