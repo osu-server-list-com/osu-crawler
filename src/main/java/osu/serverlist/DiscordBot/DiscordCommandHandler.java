@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
@@ -97,21 +98,46 @@ public class DiscordCommandHandler extends ListenerAdapter {
                                     }, 8, TimeUnit.SECONDS);
                                 });
 
-                        // try {
-                        // String image = uploadFile(file);
-                        // if (image != null) {
-
-                        // event.getChannel().sendMessage("https://lookatmysco.re " + image).queue();
-                        // }
-                        // } catch (IOException e) {
-                        // Flogger.instance.error(new Exception(e));
-                        // }
+                      
                     }).exceptionally(e -> {
                         Flogger.instance.error(new Exception(e));
                         return null;
                     });
                 }
             }
+        }
+    }
+
+    @ Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        // Check if the reaction is from a bot
+        if (event.getUser().isBot()) {
+            return;
+        }
+
+        // Handle the reaction add event
+        String messageId = event.getMessageId();
+        Emoji emoji = event.getEmoji();
+        
+        if(!awaitingMaps.containsKey(messageId)) {
+            return;
+        }
+
+        // Example handling based on emoji
+        if (emoji.getAsReactionCode().equals("U+2705")) { 
+            try {
+                String image = uploadFile(awaitingMaps.get(messageId));
+                if (image != null) {
+
+                event.getChannel().sendMessage("https://lookatmysco.re " + image).queue();
+                }
+                } catch (IOException e) {
+                Flogger.instance.error(new Exception(e));
+                }
+        } else if (emoji.getAsReactionCode().equals("U+274C")) { // Cross mark
+            event.getChannel().deleteMessageById(messageId).queue();
+            awaitingMaps.remove(messageId);
+            
         }
     }
 
