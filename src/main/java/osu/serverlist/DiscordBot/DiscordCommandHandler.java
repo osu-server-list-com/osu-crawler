@@ -45,32 +45,34 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
 
     }
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Flogger.instance.log(Prefix.API, "Message received from " + event.getAuthor().getAsTag(), 0);
-
+    
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (!attachments.isEmpty()) {
             Flogger.instance.log(Prefix.API, "Got attachment", 0);
-
+    
             for (Message.Attachment attachment : attachments) {
                 Flogger.instance.log(Prefix.API, "Processing attachment: " + attachment.getFileName(), 0);
-
+    
+                // Skip if the attachment is a video or image
                 if (attachment.isVideo() || attachment.isImage()) {
                     Flogger.instance.log(Prefix.API, "Skipping video or image: " + attachment.getFileName(), 0);
                     continue;
                 }
-
+    
+                // Check if the author is allowed to send the attachment
                 if (!event.getAuthor().getId().equals("307257319266320394")) {
                     Flogger.instance.log(Prefix.API, "Permission denied for " + event.getAuthor().getAsTag(), 0);
                     return;
                 }
-
+    
                 String fileUrl = attachment.getUrl();
                 String fileName = attachment.getFileName();
                 Flogger.instance.log(Prefix.API, "File: " + fileName + " URL: " + fileUrl, 0);
-
+    
+                // Handle specific file types
                 if (fileName.endsWith(".osr")) {
                     Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
                 }
