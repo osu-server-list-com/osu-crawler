@@ -8,7 +8,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.json.simple.parser.ParseException;
 
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -67,6 +69,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         List<Attachment> attachments = event.getMessage().getAttachments();
@@ -86,7 +89,10 @@ public class DiscordCommandHandler extends ListenerAdapter {
                 if (fileName.endsWith(".osr")) {
                     Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
                     attachment.downloadToFile().thenAccept(file -> {
-                        event.getChannel().sendMessage("Do you want to generate a lookatmysco.re panel")
+                        EmbedBuilder embed = new EmbedBuilder();
+                        embed.setColor(0x630959);
+                        embed.setDescription("Do you want to generate a [https://lookatmysco.re]anel?\nMessage dissapears in 8 seconds");
+                        event.getChannel().sendMessage("").addEmbeds(embed.build())
                                 .queue(message -> {
 
                                     awaitingMaps.put(message.getId(), file);
@@ -98,7 +104,6 @@ public class DiscordCommandHandler extends ListenerAdapter {
                                     }, 8, TimeUnit.SECONDS);
                                 });
 
-                      
                     }).exceptionally(e -> {
                         Flogger.instance.error(new Exception(e));
                         return null;
@@ -108,7 +113,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
         }
     }
 
-    @ Override
+    @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot()) {
             return;
@@ -116,36 +121,44 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
         String messageId = event.getMessageId();
         Emoji emoji = event.getEmoji();
-        
-        if(!awaitingMaps.containsKey(messageId)) {
+
+        if (!awaitingMaps.containsKey(messageId)) {
             return;
         }
 
-        if (emoji.getAsReactionCode().equals("✅")) { 
+        if (emoji.getAsReactionCode().equals("✅")) {
             try {
                 String image = uploadFile(awaitingMaps.get(messageId));
                 if (image != null) {
+                    event.getChannel().deleteMessageById(messageId).queue();
+                    awaitingMaps.remove(messageId);
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setImage(image);
+                    embed.setColor(0x630959);
+                    embed.setFooter("Panel by [https://lookatmysco.re](https://lookatmysco.re) | Powered by [osu!ServerList](https://osu-server-list.com)");
+                    event.getChannel().sendMessage("").addEmbeds(embed.build()).queue();
+                }
 
-                event.getChannel().sendMessage("https://lookatmysco.re " + image).queue();
-                }
-                } catch (IOException e) {
+            } catch (IOException e) {
                 Flogger.instance.error(new Exception(e));
-                }
+            } catch (URISyntaxException e) {
+                Flogger.instance.error(new Exception(e));
+            }
         } else if (emoji.getAsReactionCode().equals("❌")) {
             event.getChannel().deleteMessageById(messageId).queue();
             awaitingMaps.remove(messageId);
-            
-        }else {
+
+        } else {
             Flogger.instance.log(Prefix.API, "Unknown reaction: " + emoji.getAsReactionCode(), 0);
         }
     }
 
-    private String uploadFile(File file) throws IOException {
+    private String uploadFile(File file) throws IOException, URISyntaxException {
         String url = "https://lookatmysco.re/api/submit-osr";
         String boundary = Long.toHexString(System.currentTimeMillis()); // Just a random unique string
         String CRLF = "\r\n"; // Line separator required by multipart/form-data.
         String outputUrl = null;
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -170,7 +183,6 @@ public class DiscordCommandHandler extends ListenerAdapter {
         // Log the response headers and redirect URL
         int responseCode = connection.getResponseCode();
         Flogger.instance.log(Prefix.API, url + " | " + responseCode, 0);
-
 
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String inputLine;
