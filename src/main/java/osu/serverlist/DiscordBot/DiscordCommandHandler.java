@@ -138,6 +138,8 @@ public class DiscordCommandHandler extends ListenerAdapter {
             event.getChannel().deleteMessageById(messageId).queue();
             awaitingMaps.remove(messageId);
             
+        }else {
+            Flogger.instance.log(Prefix.API, "Unknown reaction: " + emoji.getAsReactionCode(), 0);
         }
     }
 
