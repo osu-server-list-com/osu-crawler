@@ -131,7 +131,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
             String redirectUrl = connection.getHeaderField("Location");
             Flogger.instance.log(Prefix.INFO, "Redirect URL: " + redirectUrl, 0);
         }
-
+        Flogger.instance.log(Prefix.INFO + "Body:" + connection.getResponseMessage(), 0);
         connection.disconnect();
     }
 
