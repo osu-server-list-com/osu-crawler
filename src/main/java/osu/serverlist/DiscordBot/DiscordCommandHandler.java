@@ -87,7 +87,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setColor(0x5755d9);
                         String userMention = event.getAuthor().getAsMention();
-                        embed.setDescription(userMention + " do you want to generate a [lookatmysco.re](https://lookatmysco.re) Panel with your given replace?\n-# Message disappears in 8 seconds");
+                        embed.setDescription(userMention + " do you want to generate a [lookatmysco.re](https://lookatmysco.re) Panel with your given replay?\n-# Message disappears in 8 seconds");
                         event.getChannel().sendMessage("").addEmbeds(embed.build())
                                 .queue(message -> {
 
