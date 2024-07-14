@@ -86,7 +86,8 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     attachment.downloadToFile().thenAccept(file -> {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setColor(0x5755d9);
-                        embed.setDescription("Do you want to generate a [lookatmysco.re](https://lookatmysco.re) Panel?\nMessage dissapears in 8 seconds");
+                        String userMention = event.getAuthor().getAsMention();
+                        embed.setDescription(userMention + " do you want to generate a [lookatmysco.re](https://lookatmysco.re) Panel with your given replace?\n-# Message disappears in 8 seconds");
                         event.getChannel().sendMessage("").addEmbeds(embed.build())
                                 .queue(message -> {
 
@@ -130,7 +131,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     EmbedBuilder embed = new EmbedBuilder();
                     embed.setImage(image);
                     embed.setColor(0x5755d9);
-                    embed.setDescription("Panel by [lookatmysco.re](https://lookatmysco.re) | Powered by [osu!ServerList](https://osu-server-list.com)");
+                    embed.setDescription("-# Panel by [lookatmysco.re](https://lookatmysco.re) | Powered by [osu!ServerList](https://osu-server-list.com)");
                     event.getChannel().sendMessage("").addEmbeds(embed.build()).queue();
                 }
 
@@ -157,7 +158,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-
+        connection.setRequestProperty("User-Agent", "https://osu-server-list.com (compatible: Linux OSL-App)");
         try (
                 OutputStream output = connection.getOutputStream();
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, "UTF-8"), true)) {
