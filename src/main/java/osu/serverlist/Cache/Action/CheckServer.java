@@ -12,6 +12,7 @@ import commons.marcandreher.Commons.GetRequest;
 import commons.marcandreher.Utils.DelayedPrint;
 import osu.serverlist.Cache.Action.Helpers.CrawlerType;
 import osu.serverlist.Cache.Action.Helpers.NewCrawler;
+import osu.serverlist.Handlers.AlertHandler;
 import osu.serverlist.Input.Commands.Crawlerlog;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Models.Server;
@@ -21,6 +22,8 @@ import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
 
 public class CheckServer extends DatabaseAction {
+
+    private String lastDescSend = "";
 
     @Override
     public void executeAction(Flogger logger) {
@@ -214,6 +217,16 @@ public class CheckServer extends DatabaseAction {
                     }
                     mysql.Exec("UPDATE `un_servers` SET `players`=? WHERE `id` = ?", String.valueOf(v.getPlayers()),
                             String.valueOf(v.getId()));
+
+                    if(v.getPlayers() >= 1000) {
+                        AlertHandler ah = new AlertHandler(mysql);
+                        String newDesc = lastDescSend = v.getName() + " has reached " + v.getPlayers() + " players";
+                        if(!lastDescSend.equals(newDesc)) {
+                            ah.createSystemAlert("Suspicous playercount detected", newDesc);
+                            lastDescSend = newDesc;
+                        }
+                        
+                    }
 
                     nc.updatePlayerCount(v);
 
