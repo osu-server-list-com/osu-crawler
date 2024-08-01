@@ -29,7 +29,9 @@ import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -60,6 +62,38 @@ public class DiscordCommandHandler extends ListenerAdapter {
         alertHandler.createSystemAlert("OSL Bot joined a Server", "OSL Discord Bot joined the " + event.getGuild().getName() + " server with " + event.getGuild().getMemberCount() + " members");
         mysql.close();
     }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        MySQL mysql = null;
+        try {
+            mysql = Database.getConnection();
+        } catch (SQLException e) {
+            Flogger.instance.error(e);
+            return;
+        }
+        AlertHandler alertHandler = new AlertHandler(mysql);
+        alertHandler.createSystemAlert("OSL Bot left a Server", "OSL Discord Bot left the " + event.getGuild().getName() + " server.");
+        mysql.close();
+    }
+
+    @Override
+    public void onGuildBan(GuildBanEvent event) {
+        if (!event.getUser().isBot()) {
+            return;
+        }
+        MySQL mysql = null;
+        try {
+            mysql = Database.getConnection();
+        } catch (SQLException e) {
+            Flogger.instance.error(e);
+            return;
+        }
+        AlertHandler alertHandler = new AlertHandler(mysql);
+        alertHandler.createSystemAlert("OSL Bot was banned from a Server", "OSL Discord Bot was banned from the " + event.getGuild().getName() + " server.");
+        mysql.close();
+    }
+
 
     @Override
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
