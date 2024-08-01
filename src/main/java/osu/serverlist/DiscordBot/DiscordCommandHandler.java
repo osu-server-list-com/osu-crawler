@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -21,11 +22,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
+import commons.marcandreher.Commons.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -36,11 +40,26 @@ import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Stats;
+import osu.serverlist.Handlers.AlertHandler;
 
 public class DiscordCommandHandler extends ListenerAdapter {
 
     HashMap<String, File> awaitingMaps = new HashMap<String, File>();
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    @Override
+    public void onGuildJoin(GuildJoinEvent event) {
+        MySQL mysql = null;;
+        try {
+            mysql = Database.getConnection();
+        } catch (SQLException e) {
+            Flogger.instance.error(e);
+            return;
+        }
+        AlertHandler alertHandler = new AlertHandler(mysql);
+        alertHandler.createSystemAlert("OSL Bot joined a Server", "OSL Discord Bot joined the " + event.getGuild().getName() + " server with " + event.getGuild().getMemberCount() + " members");
+        mysql.close();
+    }
 
     @Override
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
