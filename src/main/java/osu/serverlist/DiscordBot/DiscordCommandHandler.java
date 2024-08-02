@@ -136,7 +136,7 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
                 if (fileName.endsWith(".osr")) {
                     Flogger.instance.log(Prefix.INFO, "OSR Received " + fileName, 0);
-                    attachment.downloadToFile().thenAccept(file -> {
+                    attachment.downloadToFile("osr/").thenAccept(file -> {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setColor(0x5755d9);
                         String userMention = event.getAuthor().getAsMention();

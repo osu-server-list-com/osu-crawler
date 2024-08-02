@@ -1,5 +1,6 @@
 package osu.serverlist.Main;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import commons.marcandreher.Cache.CacheTimer;
@@ -24,6 +25,9 @@ public class Crawler {
 
     public static void main(String[] args) {
         MySQL.LOGLEVEL = 5;
+
+        File directory = new File("osr");
+        if (!directory.exists()) directory.mkdir();
   
         env = Dotenv.load();
         LOG = new Flogger(Integer.parseInt(env.get("LOGLEVEL")));
