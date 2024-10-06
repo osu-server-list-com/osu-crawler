@@ -7,5 +7,6 @@ public enum EndpointType {
     RIPPLEAPIV2,
     GATARIAPI,
     HEIAAPI, 
-    ICEBERG
+    ICEBERG,
+    RAGNAROKAPI
 }

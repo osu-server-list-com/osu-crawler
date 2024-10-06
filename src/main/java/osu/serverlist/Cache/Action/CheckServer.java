@@ -203,6 +203,25 @@ public class CheckServer extends DatabaseAction {
 
                                 break;
 
+                            case RAGNAROKAPI:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
+
+                                int ragOnline = Integer.parseInt(jsonObject.get("online_players").toString());
+                                int ragUsers = Integer.parseInt(jsonObject.get("registered_players").toString());
+                                int ragScores = Integer.parseInt(jsonObject.get("total_scores").toString());
+
+                                v.setPlayers(ragOnline);
+
+                                if (dp != null)
+                                dp.FinishPrint(true);
+
+                                nc.updateRegisteredPlayerCount(v, ragUsers);
+                                nc.updateAnyCount(CrawlerType.PLAYS, v, ragScores);
+                                nc.setOnline(v);
+
+                                break;
+
                         }
                     } catch (Exception e) {
                         nc.setOffline(v);
