@@ -222,6 +222,25 @@ public class CheckServer extends DatabaseAction {
 
                                 break;
 
+                                case SUNRISE:
+                                jsonResponse = new GetRequest(apiUrl).send("osu!ListBot");
+                                jsonObject = parseJsonResponse(jsonResponse);
+
+                                int sunOnline = Integer.parseInt(jsonObject.get("users_online").toString());
+                                int sunUsers = Integer.parseInt(jsonObject.get("total_users").toString());
+                                int sunScores = Integer.parseInt(jsonObject.get("total_scores").toString());
+
+                                v.setPlayers(sunOnline);
+
+                                if (dp != null)
+                                dp.FinishPrint(true);
+
+                                nc.updateRegisteredPlayerCount(v, sunUsers);
+                                nc.updateAnyCount(CrawlerType.PLAYS, v, sunScores);
+                                nc.setOnline(v);
+                                
+                                break;
+
                         }
                     } catch (Exception e) {
                         nc.setOffline(v);

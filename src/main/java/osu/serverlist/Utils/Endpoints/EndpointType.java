@@ -8,5 +8,6 @@ public enum EndpointType {
     GATARIAPI,
     HEIAAPI, 
     ICEBERG,
-    RAGNAROKAPI
+    RAGNAROKAPI,
+    SUNRISE
 }
