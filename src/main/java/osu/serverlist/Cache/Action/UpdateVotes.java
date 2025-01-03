@@ -8,13 +8,20 @@ import osu.serverlist.Models.Server;
 public class UpdateVotes {
 
     public static void executeAction(MySQL mysql, Server v) throws Exception {
-        ResultSet voteRs = mysql.Query("SELECT `id` FROM `un_votes` WHERE `srv_id` = ?", v.getId() + "");
+        ResultSet voteRs = mysql.Query("SELECT `id` FROM `un_votes` WHERE `srv_id` = ? AND `expired` = 0", v.getId() + "");
         Integer votes = 0;
         while (voteRs.next()) {
             votes++;
         }
 
-        mysql.Exec("UPDATE `un_servers` SET `votes`=? WHERE `id` = ?", votes + "", v.getId() + "");
+        ResultSet expiredVotesRs = mysql.Query("SELECT `id` FROM `un_votes` WHERE `srv_id` = ? AND `expired` = 1", v.getId() + "");
+        Integer expiredVotes = 0;
+        while (expiredVotesRs.next()) {
+            expiredVotes++;
+        }
+        mysql.Exec("UPDATE `un_servers` SET `expired`=? WHERE `id` = ?", String.valueOf(expiredVotes), String.valueOf(v.getId()));
+
+        mysql.Exec("UPDATE `un_servers` SET `votes`=? WHERE `id` = ?", String.valueOf(votes), String.valueOf(v.getId()));
     }
 
 }
