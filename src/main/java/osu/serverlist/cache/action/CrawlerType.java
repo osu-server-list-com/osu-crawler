@@ -1,4 +1,4 @@
-package osu.serverlist.Cache.Action.Helpers;
+package osu.serverlist.cache.action;
 
 public enum CrawlerType {
 

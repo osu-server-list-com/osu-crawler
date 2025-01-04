@@ -10,7 +10,6 @@ import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Input.CommandHandler;
 import io.github.cdimascio.dotenv.Dotenv;
-import osu.serverlist.Cache.Action.CheckServer;
 import osu.serverlist.DiscordBot.DiscordBot;
 import osu.serverlist.Input.Commands.CheckDcCache;
 import osu.serverlist.Input.Commands.Crawlerlog;
@@ -19,6 +18,7 @@ import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Input.Commands.ExpireVotes;
 import osu.serverlist.Input.Commands.InitCmds;
 import osu.serverlist.Input.Commands.Servers;
+import osu.serverlist.cache.action.CrawlerAction;
 
 public class Crawler {
     protected static Flogger LOG = null;
@@ -40,7 +40,7 @@ public class Crawler {
         db.connectToMySQL(env.get("DBHOST"), env.get("DBUSER"), env.get("DBPASS"), env.get("DBNAME"), ServerTimezone.UTC);
         
         CacheTimer cacheTimer = new CacheTimer(15, 1, TimeUnit.MINUTES);
-        cacheTimer.addAction(new CheckServer());
+        cacheTimer.addAction(new CrawlerAction());
 
         Runnable discordBotRunnable = new DiscordBot(LOG);
         Thread discordBotStarter = new Thread(discordBotRunnable);

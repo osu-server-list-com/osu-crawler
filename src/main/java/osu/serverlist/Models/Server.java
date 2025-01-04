@@ -1,5 +1,8 @@
 package osu.serverlist.Models;
 
+import lombok.Data;
+
+@Data
 public class Server {
 
     private int id;
@@ -13,6 +16,8 @@ public class Server {
     private int players;
 
     private String safe_name;
+
+    private String apiKey;
 
     private Boolean banchopy;
     private Boolean lisekApi;
