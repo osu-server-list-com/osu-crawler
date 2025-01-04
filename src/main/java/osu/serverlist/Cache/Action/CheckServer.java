@@ -29,7 +29,7 @@ public class CheckServer extends DatabaseAction {
     public void executeAction(Flogger logger) {
         super.executeAction(logger);
 
-        String sql = "SELECT * FROM `un_servers`";
+        String sql = "SELECT * FROM `un_servers` WHERE `locked` = 0";
 
         try {
             ResultSet serverCache = mysql.Query(sql);
