@@ -188,31 +188,31 @@ public class CrawlerAction extends DatabaseAction {
                     clients = countsElement.getAsJsonObject().get("online").getAsInt();
                     registered = countsElement.getAsJsonObject().get("total").getAsInt();
 
-                    String url = Crawler.env.get("LOCALHOST").length() > 2
-                            ? Crawler.env.get("LOCALHOST") + "/api/v1/banchopy/stats?id=" + server.getId()
-                            : Crawler.env.get("DOMAIN") + "/api/v1/banchopy/stats?id=" + server.getId();
+                    // String url = Crawler.env.get("LOCALHOST").length() > 2
+                    //         ? Crawler.env.get("LOCALHOST") + "/api/v1/banchopy/stats?id=" + server.getId()
+                    //         : Crawler.env.get("DOMAIN") + "/api/v1/banchopy/stats?id=" + server.getId();
 
-                    EndpointHandler endpointHandler = new EndpointHandler(mysql);
-                    Endpoint endpoint = endpointHandler.getEndpoint(server, ServerEndpoints.CUSTOM);
-                    if (endpoint.getUrl() != null) {
-                        Request extraBpyRequest = new Request.Builder().url(url).header("User-Agent", USER_AGENT).build();
-                        try (Response extraBpyResponse = client.newCall(extraBpyRequest).execute()) {
-                            if (!extraBpyResponse.isSuccessful()) {
-                                return createIncident("Failed to get extra bpy stats for: " + server.getName(),
-                                        extraBpyResponse.code(), url);
-                            }
+                    // EndpointHandler endpointHandler = new EndpointHandler(mysql);
+                    // Endpoint endpoint = endpointHandler.getEndpoint(server, ServerEndpoints.CUSTOM);
+                    // if (endpoint.getUrl() != null) {
+                    //     Request extraBpyRequest = new Request.Builder().url(url).header("User-Agent", USER_AGENT).build();
+                    //     try (Response extraBpyResponse = client.newCall(extraBpyRequest).execute()) {
+                    //         if (!extraBpyResponse.isSuccessful()) {
+                    //             return createIncident("Failed to get extra bpy stats for: " + server.getName(),
+                    //                     extraBpyResponse.code(), url);
+                    //         }
 
-                            String extraBpyResponseBody = extraBpyResponse.body().string();
-                            JsonObject extraBpyJsonObject = JsonParser.parseString(extraBpyResponseBody)
-                                    .getAsJsonObject();
+                    //         String extraBpyResponseBody = extraBpyResponse.body().string();
+                    //         JsonObject extraBpyJsonObject = JsonParser.parseString(extraBpyResponseBody)
+                    //                 .getAsJsonObject();
 
-                            maps = extraBpyJsonObject.get("maps").getAsInt();
-                            clans = extraBpyJsonObject.get("clans").getAsInt();
-                            plays = extraBpyJsonObject.get("plays").getAsInt();
-                        } catch (Exception e) {
-                            return createIncident("Failed to get extra bpy stats for:: " + server.getName(), 500, null);
-                        }
-                    }
+                    //         maps = extraBpyJsonObject.get("maps").getAsInt();
+                    //         clans = extraBpyJsonObject.get("clans").getAsInt();
+                    //         plays = extraBpyJsonObject.get("plays").getAsInt();
+                    //     } catch (Exception e) {
+                    //         return createIncident("Failed to get extra bpy stats for:: " + server.getName(), 500, null);
+                    //     }
+                    // }
                     break;
 
                 case LISEKAPI:
@@ -303,7 +303,7 @@ public class CrawlerAction extends DatabaseAction {
 
             if (plays != null) {
                 crawlerLog.logStat("PLAYS", plays);
-                dump.dumpStat("CLANS", CrawlerType.PLAYS, plays);
+                dump.dumpStat("PLAYS", CrawlerType.PLAYS, plays);
             }
 
             if (banned != null) {

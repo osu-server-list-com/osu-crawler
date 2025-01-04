@@ -15,15 +15,15 @@ public class CrawlerDump {
         this.server = server;
     }
 
-    private final String CHECK_EXISTING_ENTRY_SQL = "SELECT `id` FROM `un_crawler` WHERE `type` = ? AND `srv_id` = ? AND `date` = CURDATE();";
+    private final String CHECK_EXISTING_ENTRY_SQL = "SELECT `srv_id` FROM `un_crawler` WHERE `type` = ? AND `srv_id` = ? AND `date` = CURDATE();";
     private final String INSERT_STAT_SQL = "INSERT INTO `un_crawler`(`type`, `value`, `date`, `srv_id`) VALUES (?, ?, CURDATE(), ?);";
-    private final String UPDATE_STAT_SQL = "UPDATE `un_crawler` SET `value` = ? WHERE `srv_id` = ?;";
+    private final String UPDATE_STAT_SQL = "UPDATE `un_crawler` SET `value` = ? WHERE `srv_id` = ? AND `type` = ? AND `date` = CURDATE();";
 
     public void dumpStat(String name, CrawlerType type, Integer stat) {
         try {
             ResultSet resultSet = mysql.Query(CHECK_EXISTING_ENTRY_SQL, type.name(), String.valueOf(server.getId()));
             if (resultSet.next()) {
-                mysql.Exec(UPDATE_STAT_SQL, String.valueOf(stat), String.valueOf(server.getId()));
+                mysql.Exec(UPDATE_STAT_SQL, String.valueOf(stat), String.valueOf(server.getId()), type.name());
             } else {
                 mysql.Exec(INSERT_STAT_SQL, type.name(), String.valueOf(stat), String.valueOf(server.getId()));
             }
