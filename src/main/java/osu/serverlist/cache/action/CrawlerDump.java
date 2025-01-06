@@ -51,4 +51,10 @@ public class CrawlerDump {
             mysql.Exec(UPDATE_APIKEY_SQL, StringUtils.generateRandomString(25), String.valueOf(server.getId()));
         }
     }
+
+    private static final String SET_SERVER_OFFLINE_SQL = "UPDATE `un_servers` SET `online` = 0 WHERE `id` = ?;";
+
+    public static void setServerOffline(MySQL mysql, Server server) {
+        mysql.Exec(SET_SERVER_OFFLINE_SQL, String.valueOf(server.getId()));
+    }
 }

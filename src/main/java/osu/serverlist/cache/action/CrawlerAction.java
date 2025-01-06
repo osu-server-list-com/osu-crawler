@@ -2,13 +2,16 @@ package osu.serverlist.cache.action;
 
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
@@ -38,6 +41,8 @@ public class CrawlerAction extends DatabaseAction {
     private final CrawlerLog crawlerLog = new CrawlerLog();
     private Flogger logger;
     private final Map<Server, Long> incidentCooldownMap = new HashMap<>();
+    private final List<Server> incidentServerList = new ArrayList<>();
+
 
     @Override
     public void executeAction(Flogger logger) {
@@ -52,6 +57,7 @@ public class CrawlerAction extends DatabaseAction {
                 Incident incident = prepareCrawlServer(server);
 
                 if (incident != null) {
+                    CrawlerDump.setServerOffline(mysql, server);
                     handleIncident(server, incident);
                 }
             }
@@ -77,6 +83,8 @@ public class CrawlerAction extends DatabaseAction {
             }else {
                 mysql.Exec("INSERT INTO `un_incidents`(`message`, `response_code`, `url`) VALUES (?,?,?);", incident.getMessage(), String.valueOf(incident.getResponseCode()), incident.getUrl());
             }
+
+            incidentServerList.add(server);
 
             String incidentsWebhook = Crawler.env.get("INCIDENTS_WEBHOOK");
             if (!incidentsWebhook.isEmpty()) {
@@ -112,6 +120,29 @@ public class CrawlerAction extends DatabaseAction {
         client.send(builtEmbed).join();
         client.close();
     }
+
+    private void sendResolutionWebhook(Server server) {
+        String incidentsWebhook = Crawler.env.get("INCIDENTS_WEBHOOK");
+        if (incidentsWebhook.isEmpty()) {
+            return;
+        }
+    
+        WebhookClientBuilder builder = new WebhookClientBuilder(incidentsWebhook);
+        builder.setWait(true);
+        WebhookClient client = builder.build();
+    
+        WebhookEmbedBuilder embed = new WebhookEmbedBuilder()
+                .setColor(0x00FF00) 
+                .setTitle(new EmbedTitle("Incident Resolved", ""))
+                .setDescription("Server: " + server.getName() + " (" + server.getId() + ") is now crawlable again.")
+                .setThumbnailUrl("https://osu-server-list.com/" + server.getLogo_loc())
+                .setFooter(new EmbedFooter("osu-server-list.com - Crawler v.2.0", null));
+    
+        WebhookEmbed builtEmbed = embed.build();
+        client.send(builtEmbed).join();
+        client.close();
+    }
+    
 
     public Server populateServer(ResultSet crawlerResultSet) {
         Server server = new Server();
@@ -172,6 +203,11 @@ public class CrawlerAction extends DatabaseAction {
                 return createIncident("Failed to crawl server: " + server.getName(), response.code(), apiUrl);
             }
 
+            if (!incidentCooldownMap.containsKey(server) && incidentServerList.contains(server)) {
+                sendResolutionWebhook(server);
+                incidentServerList.remove(server);
+            }    
+
             String responseBody = response.body().string();
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
 
@@ -188,31 +224,31 @@ public class CrawlerAction extends DatabaseAction {
                     clients = countsElement.getAsJsonObject().get("online").getAsInt();
                     registered = countsElement.getAsJsonObject().get("total").getAsInt();
 
-                    // String url = Crawler.env.get("LOCALHOST").length() > 2
-                    //         ? Crawler.env.get("LOCALHOST") + "/api/v1/banchopy/stats?id=" + server.getId()
-                    //         : Crawler.env.get("DOMAIN") + "/api/v1/banchopy/stats?id=" + server.getId();
+                    String url = Crawler.env.get("LOCALHOST").length() > 2
+                            ? Crawler.env.get("LOCALHOST") + "/api/v1/banchopy/stats?id=" + server.getId()
+                            : Crawler.env.get("DOMAIN") + "/api/v1/banchopy/stats?id=" + server.getId();
 
-                    // EndpointHandler endpointHandler = new EndpointHandler(mysql);
-                    // Endpoint endpoint = endpointHandler.getEndpoint(server, ServerEndpoints.CUSTOM);
-                    // if (endpoint.getUrl() != null) {
-                    //     Request extraBpyRequest = new Request.Builder().url(url).header("User-Agent", USER_AGENT).build();
-                    //     try (Response extraBpyResponse = client.newCall(extraBpyRequest).execute()) {
-                    //         if (!extraBpyResponse.isSuccessful()) {
-                    //             return createIncident("Failed to get extra bpy stats for: " + server.getName(),
-                    //                     extraBpyResponse.code(), url);
-                    //         }
+                    EndpointHandler endpointHandler = new EndpointHandler(mysql);
+                    Endpoint endpoint = endpointHandler.getEndpoint(server, ServerEndpoints.CUSTOM);
+                    if (endpoint.getUrl() != null) {
+                        Request extraBpyRequest = new Request.Builder().url(url).header("User-Agent", USER_AGENT).build();
+                        try (Response extraBpyResponse = client.newCall(extraBpyRequest).execute()) {
+                            if (!extraBpyResponse.isSuccessful()) {
+                                return createIncident("Failed to get extra bpy stats for: " + server.getName(),
+                                        extraBpyResponse.code(), url);
+                            }
 
-                    //         String extraBpyResponseBody = extraBpyResponse.body().string();
-                    //         JsonObject extraBpyJsonObject = JsonParser.parseString(extraBpyResponseBody)
-                    //                 .getAsJsonObject();
+                            String extraBpyResponseBody = extraBpyResponse.body().string();
+                            JsonObject extraBpyJsonObject = JsonParser.parseString(extraBpyResponseBody)
+                                    .getAsJsonObject();
 
-                    //         maps = extraBpyJsonObject.get("maps").getAsInt();
-                    //         clans = extraBpyJsonObject.get("clans").getAsInt();
-                    //         plays = extraBpyJsonObject.get("plays").getAsInt();
-                    //     } catch (Exception e) {
-                    //         return createIncident("Failed to get extra bpy stats for:: " + server.getName(), 500, null);
-                    //     }
-                    // }
+                            maps = extraBpyJsonObject.get("maps").getAsInt();
+                            clans = extraBpyJsonObject.get("clans").getAsInt();
+                            plays = extraBpyJsonObject.get("plays").getAsInt();
+                        } catch (Exception e) {
+                            return createIncident("Failed to get extra bpy stats for:: " + server.getName(), 500, null);
+                        }
+                    }
                     break;
 
                 case LISEKAPI:
