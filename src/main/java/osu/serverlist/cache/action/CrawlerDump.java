@@ -52,10 +52,10 @@ public class CrawlerDump {
         }
     }
 
-    private static final String SET_SERVER_OFFLINE_SQL = "UPDATE `un_servers` SET `online` = 0 WHERE `id` = ?;";
+    private static final String SET_SERVER_STATUS_SQL = "UPDATE `un_servers` SET `online` = ? WHERE `id` = ?;";
 
-    public static void setServerOffline(MySQL mysql, Server server) {
-        mysql.Exec(SET_SERVER_OFFLINE_SQL, String.valueOf(server.getId()));
+    public static void setServerStatus(MySQL mysql, Server server, Boolean status) {
+        mysql.Exec(SET_SERVER_STATUS_SQL, String.valueOf(status ? 1 : 0), String.valueOf(server.getId()));
     }
 
     private static final String SET_SERVER_PING_SQL = "UPDATE `un_servers` SET `ping` = ? WHERE `id` = ?;";

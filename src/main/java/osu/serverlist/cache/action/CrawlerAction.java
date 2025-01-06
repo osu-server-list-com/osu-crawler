@@ -57,7 +57,8 @@ public class CrawlerAction extends DatabaseAction {
                 Incident incident = prepareCrawlServer(server);
 
                 if (incident != null) {
-                    CrawlerDump.setServerOffline(mysql, server);
+                    CrawlerDump.setServerStatus(mysql, server, false);
+                    new CrawlerDump(mysql, server).updatePlayers(0);
                     handleIncident(server, incident);
                 }
             }
@@ -203,7 +204,7 @@ public class CrawlerAction extends DatabaseAction {
                 return createIncident("Failed to crawl server: " + server.getName(), response.code(), apiUrl);
             }
 
-            if (!incidentCooldownMap.containsKey(server) && incidentServerList.contains(server)) {
+            if (incidentCooldownMap.containsKey(server) && incidentServerList.contains(server)) {
                 sendResolutionWebhook(server);
                 incidentServerList.remove(server);
             }    
@@ -353,6 +354,8 @@ public class CrawlerAction extends DatabaseAction {
             crawlerLog.logln("Crawl time: " + crawlTimeInMS + "ms");
 
             dump.dumpStat("PING", CrawlerType.PING, Math.toIntExact(crawlTimeInMS));
+
+            CrawlerDump.setServerStatus(mysql, server, true);
         } catch (Exception e) {
             return createIncident("Failed to parse JSON for: " + server.getName(), 500, apiUrl);
         }

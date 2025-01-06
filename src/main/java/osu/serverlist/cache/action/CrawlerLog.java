@@ -32,8 +32,11 @@ public class CrawlerLog {
     }
 
     public void logStat(String name, Integer stat) {
-        if(Crawlerlog.enabled) {
-            System.out.println(PREFIX + name + " -> (" + Color.GREEN + stat + Color.RESET + ")");
+        if (Crawlerlog.enabled) {
+            int nameWidth = 15; 
+            String formattedName = String.format("%-" + nameWidth + "s", name); 
+            System.out.println(PREFIX + formattedName + " -> (" + Color.GREEN + stat + Color.RESET + ")");
         }
     }
+    
 }
