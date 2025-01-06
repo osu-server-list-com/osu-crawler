@@ -7,6 +7,7 @@ public enum CrawlerType {
     BANNED_PLAYERS,
     MAPS,
     PLAYS,
-    CLANS
+    CLANS,
+    PING
     
 }

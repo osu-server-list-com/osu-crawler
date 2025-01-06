@@ -197,7 +197,7 @@ public class CrawlerAction extends DatabaseAction {
     public Incident crawlServer(Server server, EndpointType endpointType, String apiUrl) {
         Request request = new Request.Builder().url(apiUrl).header("User-Agent", USER_AGENT).build();
         crawlerLog.log("Crawling " + server.getName());
-
+        long startCrawlTime = System.currentTimeMillis();
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 return createIncident("Failed to crawl server: " + server.getName(), response.code(), apiUrl);
@@ -210,7 +210,7 @@ public class CrawlerAction extends DatabaseAction {
 
             String responseBody = response.body().string();
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
-
+            long endCrawlTime = System.currentTimeMillis();
             Integer clients = null;
             Integer registered = null;
             Integer maps = null;
@@ -346,6 +346,13 @@ public class CrawlerAction extends DatabaseAction {
                 crawlerLog.logStat("BANNED", banned);
                 dump.dumpStat("BANNED_PLAYERS", CrawlerType.BANNED_PLAYERS, banned);
             }
+
+            
+            long crawlTimeInMS = endCrawlTime - startCrawlTime;
+            CrawlerDump.setServerPing(mysql, server, crawlTimeInMS);
+            crawlerLog.logln("Crawl time: " + crawlTimeInMS + "ms");
+
+            dump.dumpStat("PING", CrawlerType.PING, Math.toIntExact(crawlTimeInMS));
         } catch (Exception e) {
             return createIncident("Failed to parse JSON for: " + server.getName(), 500, apiUrl);
         }

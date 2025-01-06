@@ -57,4 +57,10 @@ public class CrawlerDump {
     public static void setServerOffline(MySQL mysql, Server server) {
         mysql.Exec(SET_SERVER_OFFLINE_SQL, String.valueOf(server.getId()));
     }
+
+    private static final String SET_SERVER_PING_SQL = "UPDATE `un_servers` SET `ping` = ? WHERE `id` = ?;";
+
+    public static void setServerPing(MySQL mysql, Server server, long ping) {
+        mysql.Exec(SET_SERVER_PING_SQL, String.valueOf(ping), String.valueOf(server.getId()));
+    }
 }
