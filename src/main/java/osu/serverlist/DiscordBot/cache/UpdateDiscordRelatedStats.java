@@ -18,7 +18,7 @@ public class UpdateDiscordRelatedStats extends DatabaseAction {
     @Override
     public void executeAction(Flogger logger) {
         super.executeAction(logger);
-        JDA jda = DiscordBot.jdaInstance;
+        JDA jda = DiscordBot.getJdaInstance();
         List<Guild> guilds = jda.getGuilds();
         
         updateBotCount(BotType.SERVERS, guilds.size());

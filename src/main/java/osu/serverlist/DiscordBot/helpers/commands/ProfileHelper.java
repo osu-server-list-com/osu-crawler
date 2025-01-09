@@ -8,14 +8,20 @@ import org.json.simple.parser.JSONParser;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidModeException;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidPlayerException;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidScorePlayerException;
+import osu.serverlist.Main.Crawler;
 import osu.serverlist.Models.ServerInformations;
 
 public class ProfileHelper {
+
+    private final OkHttpClient client = new OkHttpClient();
 
     public class GotProfile {
 
@@ -38,6 +44,8 @@ public class ProfileHelper {
         public Long SHCount;
         public Long SCount;
         public Long ACount;
+
+        public Double level;
 
         public Long totalHits;
         public Long replayViews;
@@ -151,7 +159,7 @@ public class ProfileHelper {
         profile.rankedScore = (Long) modeStatsObject.get("ranked_score");
         profile.pp = (Long) modeStatsObject.get("pp");
         profile.plays = (Long) modeStatsObject.get("playcount");
-        
+        profile.level = (Double) modeStatsObject.get("level");
         profile.playtime = (Long) modeStatsObject.get("playtime");
         
         // osu!ascension fix
@@ -173,6 +181,68 @@ public class ProfileHelper {
         profile.replayViews = (Long) modeStatsObject.get("replays_watched");
 
         return profile;
+    }
+
+    public GotProfile getProfileBancho(String name, String mode, String serverName) throws InvalidModeException, InvalidPlayerException {
+        if(Integer.parseInt(mode) > 3) {
+            throw new InvalidModeException("Invalid mode: " + mode + " for Server " + serverName);
+        }
+
+        String requestUrl = Profile.endpoints.get(serverName).getUrl() + "/api/get_user?k=" + Crawler.env.get("OSU_API_KEY") + "&u=" + name + "&m=" + mode;
+        
+ 
+        Request request = new Request.Builder()
+                .url(requestUrl)
+                .build();
+        System.out.println(Prefix.API + "GET: " + requestUrl);
+  
+
+        GotProfile profile = new GotProfile();
+        try(Response response = client.newCall(request).execute()) {
+            if(!response.isSuccessful()) {
+                throw new InvalidPlayerException("Invalid player: " + name + " for Server " + serverName);
+            }
+
+            String responseBody = response.body().string();
+
+            JSONParser parser = new JSONParser();
+            Object obj = parser.parse(responseBody);
+
+            // Convert parsed object to JSONArray
+            JSONArray jsonArray = (JSONArray) obj;
+            for (Object o : jsonArray) {
+                JSONObject player = (JSONObject) o;
+                profile.playerId = Long.parseLong((String) player.get("user_id"));
+                profile.username = (String) player.get("username");
+                profile.country = (String) player.get("country");
+                profile.pp = Double.valueOf((String) player.get("pp_raw")).longValue();
+                profile.rank = Long.parseLong((String) player.get("pp_rank"));
+                profile.countryRank = Long.parseLong((String) player.get("pp_country_rank"));
+                profile.totalScore = Long.parseLong((String) player.get("total_score"));
+                profile.rankedScore = Long.parseLong((String) player.get("ranked_score"));
+                profile.plays = Long.parseLong((String) player.get("playcount"));
+                profile.acc = Double.parseDouble((String) player.get("accuracy"));
+                profile.level = Double.parseDouble((String) player.get("level"));
+                profile.counts = true;
+                profile.ACount = Long.parseLong((String) player.get("count_rank_a"));
+                profile.SCount = Long.parseLong((String) player.get("count_rank_s"));
+                profile.SHCount = Long.parseLong((String) player.get("count_rank_ss"));
+                profile.XCount = Long.parseLong((String) player.get("count_rank_sh"));
+                profile.XHCount = Long.parseLong((String) player.get("count_rank_ssh"));
+
+                profile.playtime = Long.parseLong((String) player.get("total_seconds_played"));
+
+                // no max combo and replay views and total_hits and playtime
+                
+            }
+
+           
+
+            return profile;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new InvalidPlayerException("Invalid player: " + name + " for Server " + serverName);
+        } 
     }
 
 }

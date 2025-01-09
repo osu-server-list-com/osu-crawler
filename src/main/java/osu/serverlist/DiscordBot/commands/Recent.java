@@ -1,5 +1,6 @@
 package osu.serverlist.DiscordBot.commands;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -16,10 +17,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.base.DiscordCommand;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
 import osu.serverlist.DiscordBot.helpers.InformationBase;
+import osu.serverlist.DiscordBot.helpers.LinkService;
+import osu.serverlist.DiscordBot.helpers.LinkService.LinkResponseObject;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
 import osu.serverlist.DiscordBot.helpers.commands.BaseMessage;
@@ -48,9 +53,15 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
     @Override
     public void handleCommand(SlashCommandInteractionEvent event) {
         String userId = event.getUser().getId();
-        String server = event.getOption("server").getAsString().toLowerCase();
-        String mode = event.getOption("mode").getAsString().toLowerCase();
-        String name = event.getOption("name").getAsString().toLowerCase();
+        event.deferReply().queue();
+        LinkService service = new LinkService();
+        LinkResponseObject response = service.getLink(event);
+
+        String server = response.getServer();
+        String name = response.getName();
+        String mode = response.getMode();
+
+        service.close();
         String modeId = ModeHelper.convertMode(mode);
 
         event.deferReply().queue();
@@ -61,7 +72,8 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            EndpointHelper.adjustEndpoints(server, ServerEndpoints.RECENT, EndpointType.BANCHOPY, EndpointType.RIPPLEAPIV1);
+            EndpointHelper.adjustEndpoints(server, ServerEndpoints.RECENT, EndpointType.BANCHOPY,
+                    EndpointType.RIPPLEAPIV1);
         }
 
         if (!endpoints.containsKey(server)) {
@@ -84,26 +96,36 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         RecentHelper recentHelper = new RecentHelper();
         GotRecent gotRecent = null;
         try {
-            switch(endpoints.get(infos.server).getType()) {
+            switch (endpoints.get(infos.server).getType()) {
                 case "BANCHOPY":
                     gotRecent = recentHelper.requestRecentBanchoPy(infos);
                     break;
                 case "RIPPLEAPIV1":
                     gotRecent = recentHelper.requestRecentRippleAPIV1(infos);
                     break;
+                case "BANCHO":
+                    if(Integer.parseInt(infos.modeId) > 3) {
+                        BaseMessage.sendMessageOnSlash(event, Messages.INVALID_MODE_SERVER,
+                                new Placeholder("%server%", infos.server));
+                        return;
+                    }
+
+                    gotRecent = recentHelper.requestRecentBancho(infos);
+                    break;
                 default:
                     Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at requestRecent()", 0);
                     return;
             }
 
-            if(gotRecent == null) {
-                BaseMessage.sendMessageOnSlash(event, Messages.INVALID_MODE_SERVER, new Placeholder("%server%", infos.server));
+            if (gotRecent == null) {
+                BaseMessage.sendMessageOnSlash(event, Messages.INVALID_MODE_SERVER,
+                        new Placeholder("%server%", infos.server));
                 return;
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            BaseMessage.sendMessageOnSlash(event, Messages.USER_SCORES_NOT_FOUND, new Placeholder("%name%", infos.name), new Placeholder("%server%", infos.server));
+            BaseMessage.sendMessageOnSlash(event, Messages.USER_SCORES_NOT_FOUND, new Placeholder("%name%", infos.name),
+                    new Placeholder("%server%", infos.server));
             return;
         }
 
@@ -114,8 +136,11 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
         embed.setDescription(recentHelper.convertDescription(gotRecent, nameW, infos));
 
         embed.addField("Score", String.valueOf(gotRecent.score), true);
-        embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
-        embed.addField("Accuracy", String.format("%.2f", gotRecent.acc) + "%", true);
+        if (gotRecent.pp != 0.0)
+            embed.addField("Performance Points (PP)", String.valueOf(gotRecent.pp), true);
+
+        if (gotRecent.acc != 0.0)
+            embed.addField("Accuracy", String.format("%.2f", gotRecent.acc) + "%", true);
         String[] mods = OsuConverter.convertMods(Integer.parseInt(String.valueOf(gotRecent.mods)));
         if (mods.length == 0) {
             embed.addField("Mods", "-", true);
@@ -123,26 +148,44 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
             embed.addField("Mods", "+" + String.join("", mods), true);
         }
 
-        embed.addField("Submitted", OsuConverter.convertToDiscordTimestamp(gotRecent.playtime), true);
+        if (gotRecent.playtime != null)
+            embed.addField("Submitted", OsuConverter.convertToDiscordTimestamp(gotRecent.playtime), true);
 
         embed.addField("Difficulty", String.format("%.2f*", gotRecent.diff), true);
 
         embed.addField("AR", String.valueOf(gotRecent.ar), true);
 
-        if(gotRecent.bpm != 0) embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
+        if (gotRecent.bpm != 0)
+            embed.addField("BPM", String.valueOf(gotRecent.bpm), true);
 
         embed.addField("OD", String.valueOf(gotRecent.od), true);
-        embed.addField("Actions",
-                "[[View Score]](" + Recent.endpoints.get(infos.server).getUrl() + "/score/" + gotRecent.score
-                        + ")    [[osu.direct]](https://osu.direct/beatmapsets/" + gotRecent.setId + "/"
-                        + gotRecent.mapId + ")",
-                false);
+      
         embed.setImage("https://assets.ppy.sh/beatmaps/" + gotRecent.setId + "/covers/cover.jpg");
 
         embed.setColor(0x5755d9);
         embed.setFooter("Data from " + Recent.endpoints.get(infos.server).getName());
 
-        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.RECENT, EndpointHelper.getPageButtons(infos.offset == 0, gotRecent.size == (infos.offset + 1), "rec"));
+        ItemComponent[] pageButtons = EndpointHelper.getPageButtons(infos.offset == 0, gotRecent.size == (infos.offset + 1), "rec");
+        List<ItemComponent> urlButtons = new ArrayList<>();
+
+        if(endpoints.get(infos.server).getType().equals("BANCHO")) {
+            urlButtons.add(Button.link("https://osu.ppy.sh/beatmapsets/" + gotRecent.setId + "#osu/" + gotRecent.mapId, "View Beatmap!"));
+        }else {
+            urlButtons.add(Button.link(Recent.endpoints.get(infos.server).getUrl() + "/scores/" + gotRecent.score, "View Score"));
+            urlButtons.add(Button.link("https://osu.direct/beatmapsets/" + gotRecent.setId + "/"
+            + gotRecent.mapId, "View Beatmap"));
+        }
+
+        // Combine pageButtons and urlButtons
+        ItemComponent[] buttons = new ItemComponent[pageButtons.length + urlButtons.size()];
+        System.arraycopy(pageButtons, 0, buttons, 0, pageButtons.length);
+        for (int i = 0; i < urlButtons.size(); i++) {
+            buttons[pageButtons.length + i] = urlButtons.get(i);
+        }
+
+
+        GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.RECENT,
+                buttons);
     }
 
     @Override
@@ -157,7 +200,7 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
                 userOffsets.put(userId, infos);
                 requestRecent((RecentInformations) infos, event);
                 scheduleOffsetRemoval(userId);
-            } 
+            }
 
         } else if (event.getComponentId().equals("prev_page_rec")) {
 
@@ -168,8 +211,8 @@ public class Recent extends ListenerAdapter implements DiscordCommand {
                     userOffsets.put(userId, infos);
                     requestRecent((RecentInformations) infos, event);
                     scheduleOffsetRemoval(userId);
-                } 
-            } 
+                }
+            }
         }
     }
 

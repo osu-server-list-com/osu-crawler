@@ -7,10 +7,11 @@ import org.json.simple.parser.JSONParser;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.GetRequest;
-import osu.serverlist.DiscordBot.commands.Best.BestInformations;
 import osu.serverlist.DiscordBot.commands.Best;
+import osu.serverlist.DiscordBot.commands.Best.BestInformations;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
+import osu.serverlist.Main.Crawler;
 import osu.serverlist.Models.ServerInformations;
 
 public class BestHelper {
@@ -157,6 +158,63 @@ public class BestHelper {
         gotBest.ar = Double.parseDouble(beatmap.get("ar").toString());
         gotBest.bpm = 0.0;
         gotBest.od = Double.parseDouble(beatmap.get("od").toString());
+
+        return gotBest;
+    }
+
+    public GotBest requestBestBancho(BestInformations infos) throws Exception {
+        GotBest gotBest = new GotBest();
+        ServerInformations serverInformations = Best.endpoints.get(infos.server);
+        String url = serverInformations.getEndpoint() + "?k=" + Crawler.env.get("OSU_API_KEY") + "&limit=50&type=string&m=" + ModeHelper.convertModeBancho(infos.mode) + "&u="
+                + infos.name.replaceAll(" ", "_");
+        Flogger.instance.log(Prefix.API, "GET: " + url, 0);
+        String response = new GetRequest(url).send("osu!ListBot");
+
+        JSONParser parser = new JSONParser();
+        JSONArray scoreArray = (JSONArray) parser.parse(response);
+        if(scoreArray.size() == 0) {
+            throw new Exception("No scores found");
+        }
+
+        JSONObject scoreObj = (JSONObject) scoreArray.get(infos.offset);
+        gotBest.size = scoreArray.size();
+        gotBest.score = Long.parseLong((String) scoreObj.get("score"));
+        gotBest.grade = (String) scoreObj.get("rank");
+        gotBest.mods = Long.parseLong((String) scoreObj.get("enabled_mods"));
+        gotBest.mapId = Long.parseLong((String) scoreObj.get("beatmap_id"));
+        gotBest.userId = Long.parseLong((String) scoreObj.get("user_id"));
+        if((String) scoreObj.get("score_id") != null) {
+            gotBest.scoreId = Long.parseLong((String) scoreObj.get("score_id"));
+        } else {
+            gotBest.scoreId = 0;
+        }
+        String beatmapUrl = "https://osu.ppy.sh/api/get_beatmaps" + "?k=" + Crawler.env.get("OSU_API_KEY") + "&b=" + gotBest.mapId;
+        Flogger.instance.log(Prefix.API, "GET: " + beatmapUrl, 0);
+        String beatmapResponse = new GetRequest(beatmapUrl).send("osu!ListBot");
+
+        JSONArray beatmapArray = (JSONArray) parser.parse(beatmapResponse);
+        JSONObject beatmapObj = (JSONObject) beatmapArray.get(0);
+        gotBest.mapName = (String) beatmapObj.get("title");
+        gotBest.setId  = Long.parseLong((String) beatmapObj.get("beatmapset_id"));
+        gotBest.mapArtist = (String) beatmapObj.get("artist");
+        gotBest.creator = (String) beatmapObj.get("creator");
+        gotBest.diff = Double.parseDouble(beatmapObj.get("difficultyrating").toString());
+        gotBest.ar = Double.parseDouble(beatmapObj.get("diff_approach").toString());
+        gotBest.bpm = Double.parseDouble(beatmapObj.get("bpm").toString());
+        gotBest.od = Double.parseDouble(beatmapObj.get("diff_overall").toString());
+        gotBest.status = Long.parseLong((String) beatmapObj.get("approved"));
+
+        Object ppObj = scoreObj.get("pp");
+        if(ppObj != null) {
+            gotBest.pp = Double.parseDouble((String) ppObj);
+        } else {
+            gotBest.pp = 0.0;
+        }
+
+        if(((String) scoreObj.get("perfect")).equals("1")) {
+            gotBest.acc = 100.0;
+        }
+
 
         return gotBest;
     }

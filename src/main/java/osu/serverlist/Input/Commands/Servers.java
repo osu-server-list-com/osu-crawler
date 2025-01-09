@@ -8,7 +8,7 @@ public class Servers implements Command{
 
     @Override
     public void executeAction(String[] arg0, Flogger arg1) {
-        DiscordBot.jdaInstance.getGuilds().forEach(guild -> {
+        DiscordBot.getJdaInstance().getGuilds().forEach(guild -> {
             System.out.println("Server: " + guild.getName() + " - " + guild.getMemberCount()  + " players");
         });
     }

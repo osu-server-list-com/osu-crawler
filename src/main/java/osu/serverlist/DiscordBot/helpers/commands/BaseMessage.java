@@ -2,6 +2,7 @@ package osu.serverlist.DiscordBot.helpers.commands;
 
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import osu.serverlist.DiscordBot.base.MessageBuilder;
 
 public class BaseMessage {
 
@@ -42,7 +43,7 @@ public class BaseMessage {
             messageStr = messageStr.replace(placeholder.placeholder , placeholder.value);
         }
 
-        ((SlashCommandInteractionEvent) event).getHook().sendMessage(messageStr).queue();
+        ((SlashCommandInteractionEvent) event).getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError(messageStr).build()).queue();
 
     }
 

@@ -1,5 +1,6 @@
 package osu.serverlist.DiscordBot.commands;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,14 +13,19 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import osu.serverlist.DiscordBot.base.DiscordCommand;
+import osu.serverlist.DiscordBot.base.MessageBuilder;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
+import osu.serverlist.DiscordBot.helpers.LinkService;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
+import osu.serverlist.DiscordBot.helpers.LinkService.LinkResponseObject;
 import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper;
 import osu.serverlist.DiscordBot.helpers.commands.ProfileHelper.GotProfile;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidModeException;
 import osu.serverlist.DiscordBot.helpers.exceptions.InvalidPlayerException;
+import osu.serverlist.DiscordBot.helpers.exceptions.InvalidScorePlayerException;
 import osu.serverlist.Models.ServerInformations;
 import osu.serverlist.Utils.Endpoints.EndpointType;
 import osu.serverlist.Utils.Endpoints.ServerEndpoints;
@@ -32,15 +38,21 @@ public class Profile implements DiscordCommand {
 
     @Override
     public void handleCommand(SlashCommandInteractionEvent event) {
-        String server = event.getOption("server").getAsString().toLowerCase();
-        String name = event.getOption("name").getAsString().toLowerCase();
-        String mode = event.getOption("mode").getAsString().toLowerCase();
         event.deferReply().queue();
+        LinkService service = new LinkService();
+        LinkResponseObject response = service.getLink(event);
+
+        String server = response.getServer();
+        String name = response.getName();
+        String mode = response.getMode();
+
+        service.close();
+     
         String modeSafe = mode;
 
         mode = ModeHelper.convertMode(mode);
         if (mode == null) {
-            event.getHook().sendMessage("Invalid mode").queue();
+            event.getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError("Invalid mode").build()).queue();
             return;
         }
 
@@ -49,8 +61,8 @@ public class Profile implements DiscordCommand {
                     EndpointType.RIPPLEAPIV1);
         }
 
-        if (!endpoints.containsKey(server)) {
-            event.getHook().sendMessage("Server not found").queue();
+        if (!endpoints.containsKey(server) && !(server.equals("bancho"))) {
+            event.getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError("Server not found").build()).queue();
             return;
         }
         ProfileHelper profileHelper = new ProfileHelper();
@@ -64,14 +76,17 @@ public class Profile implements DiscordCommand {
                 case "RIPPLEAPIV1":
                     gotProfile = profileHelper.getProfileRippleAPIV1(name, modeSafe, server);
                     break;
+                case "BANCHO":
+                    gotProfile = profileHelper.getProfileBancho(name, mode, server);
+                    break;
                 default:
                     Flogger.instance.log(Prefix.ERROR, "Issue finding endpoint at handleCommand() /profile", 0);
                     return;
             }
-        } catch (InvalidModeException | InvalidPlayerException e) {
-            event.getHook().sendMessage(e.getMessage()).queue();
+        } catch (InvalidModeException | InvalidPlayerException | InvalidScorePlayerException e) {
+            event.getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError(e.getMessage()).build()).queue();
             return;
-        
+
         } catch (Exception e) {
             Flogger.instance.error(e);
             event.getHook().sendMessage("Internal error").queue();
@@ -79,7 +94,6 @@ public class Profile implements DiscordCommand {
         }
 
         try {
-            double playtimeHr = Math.floor(gotProfile.playtime / 3600 * 100) / 100;
 
             String numberCount = "<:rankingA:1239849498948407366> " + gotProfile.ACount
                     + " <:rankingS:1239849495999807508> "
@@ -88,33 +102,47 @@ public class Profile implements DiscordCommand {
                     + gotProfile.XCount + " <:rankingXH:1239849494393126922> " + gotProfile.XHCount;
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
+            DecimalFormat decimalFormat = new DecimalFormat("#,###");
+            String profileUrl = endpoints.get(server).getUrl() + "/u/" + gotProfile.playerId;
             embedBuilder
                     .setTitle(gotProfile.username + " (" + modeSafe.toUpperCase() + ")",
-                            endpoints.get(server).getUrl() + "/u/" + gotProfile.playerId)
+                            profileUrl)
                     .setDescription("\n\n" + gotProfile.username + " from "
                             + OsuConverter.convertFlag(gotProfile.country) + "\n\n ")
                     .setThumbnail(endpoints.get(server).getAvatarServer() + "/" + gotProfile.playerId)
-                    .addField("Total Score", gotProfile.totalScore.toString(), true)
-                    .addField("Ranked Score", gotProfile.rankedScore.toString(), true)
-                    .addField("Performance Points", gotProfile.pp.toString() + "pp", true)
-                    .addField("Plays", gotProfile.plays.toString(), true)
-                    .addField("Playtime", playtimeHr + "hours", true);
+                    .addField("Total Score", decimalFormat.format(gotProfile.totalScore), true)
+                    .addField("Ranked Score", decimalFormat.format(gotProfile.rankedScore), true)
+                    .addField("Performance Points", decimalFormat.format(gotProfile.pp) + "pp", true)
+                    .addField("Plays", decimalFormat.format(gotProfile.plays), true);
+
+            if (gotProfile.playtime != null) {
+                double playtimeHr = Math.floor(gotProfile.playtime / 3600 * 100) / 100;
+                embedBuilder.addField("Playtime", playtimeHr + " hours", true);
+            }
+
+            if(gotProfile.level != null)
+                embedBuilder.addField("Level", String.format("%.2f", gotProfile.level), true);
+
             embedBuilder.addField("Accuracy", String.format("%.2f", gotProfile.acc) + "%", true);
             // Atoka, redstar fix
             if (gotProfile.maxCombo != null)
-                embedBuilder.addField("Max Combo", gotProfile.maxCombo.toString(), true);
+                embedBuilder.addField("Max Combo", decimalFormat.format(gotProfile.maxCombo), true);
 
-            embedBuilder.addField("Total Hits", gotProfile.totalHits.toString(), true);
-            embedBuilder.addField("Replay Views", gotProfile.replayViews.toString(), true);
+            if (gotProfile.totalHits != null)
+                embedBuilder.addField("Total Hits", decimalFormat.format(gotProfile.totalHits), true);
+
+            if (gotProfile.replayViews != null)
+                embedBuilder.addField("Replay Views", decimalFormat.format(gotProfile.replayViews), true);
+
             if (gotProfile.counts == true)
                 embedBuilder.addField("Rankings", numberCount, false);
             embedBuilder.addField("Rank", "#" + convertRank(gotProfile.rank), true)
                     .addField("Country Rank", "#" + convertRank(gotProfile.countryRank), true)
-                    .setFooter("Pulled from " + endpoints.get(server).getName())
+                    .setFooter("Data from " + endpoints.get(server).getName())
                     .setColor(0x5755d9);
 
             MessageEmbed embed = embedBuilder.build();
-            event.getHook().sendMessageEmbeds(embed).queue();
+            event.getHook().sendMessageEmbeds(embed).addActionRow(Button.link(profileUrl, "View Profile")).queue();
         } catch (Exception e) {
             Flogger.instance.error(e);
             event.getHook().sendMessage("Internal error").queue();
@@ -124,7 +152,7 @@ public class Profile implements DiscordCommand {
     }
 
     private String convertRank(Long rank) {
-        if (rank == null) {
+        if (rank == null || rank == 0) {
             return "-";
         } else {
             return rank.toString();

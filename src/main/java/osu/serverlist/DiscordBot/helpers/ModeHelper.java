@@ -28,6 +28,21 @@ public class ModeHelper {
 
     }
 
+    public static String convertModeBancho(String mode) {
+        switch(mode.toLowerCase()) {
+            case "osu":
+                return "0";
+            case "taiko":
+                return "1";
+            case "catch":
+                return "2";
+            case "mania":
+                return "3";
+            default:
+                return null;
+        }
+    }
+
     public static String convertModeRippleAPI(String mode) {
         switch (mode.toLowerCase()) {
             case "osu":

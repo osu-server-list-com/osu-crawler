@@ -12,11 +12,13 @@ import commons.marcandreher.Commons.Flogger.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import osu.serverlist.DiscordBot.base.DiscordCommand;
+import osu.serverlist.DiscordBot.base.MessageBuilder;
 import osu.serverlist.DiscordBot.helpers.EndpointHelper;
 import osu.serverlist.DiscordBot.helpers.GenericEvent;
 import osu.serverlist.DiscordBot.helpers.InformationBase;
@@ -57,7 +59,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         event.deferReply().queue();
 
         if (modeId == null || sortId == null) {
-            event.getHook().sendMessage("Invalid mode or sort").queue();
+            event.getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError("Invalid mode or sort").build()).queue();
             return;
         }
 
@@ -66,7 +68,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         }
 
         if (!endpoints.containsKey(server)) {
-            event.getHook().sendMessage("Server not found").queue();
+            event.getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError("Server not found").build()).queue();
             return;
         }
 
@@ -100,16 +102,16 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
                     return;
             }
         } catch (Exception e) {
+            ((GenericCommandInteractionEvent) event).getHook().sendMessage("").addEmbeds(MessageBuilder.buildMessageError("Leaderboard not found").build()).queue();
             Flogger.instance.error(e);
             return;
         }
-
+    
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Leaderboard for " + endpoints.get(infos.server).getName() + " | " + infos.mode.toUpperCase() + " | " + infos.sort.toUpperCase() + " | (Page "
                 + (infos.offset + 1) + ")");
-        embed.setDescription(gotLeaderboard.leaderboard);
+        embed.setDescription(gotLeaderboard.leaderboard + "\n-# Data from osuNoLimits | Bot powered by [osu-server-list.com](https://osu-server-list.com)");
         embed.setColor(0x5755d9);
-        embed.setFooter("Data from " + endpoints.get(infos.server).getName());
         embed.build();
 
         GenericEvent.sendEditSendMessage(event, userOffsets, embed, ServerEndpoints.LEADERBOARD, EndpointHelper.getPageButtons(infos.offset == 0, gotLeaderboard.size != 25, "ld"));

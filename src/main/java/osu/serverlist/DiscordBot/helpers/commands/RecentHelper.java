@@ -11,6 +11,7 @@ import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Recent.RecentInformations;
 import osu.serverlist.DiscordBot.helpers.ModeHelper;
 import osu.serverlist.DiscordBot.helpers.OsuConverter;
+import osu.serverlist.Main.Crawler;
 import osu.serverlist.Models.ServerInformations;
 
 public class RecentHelper {
@@ -161,7 +162,66 @@ public class RecentHelper {
         return gotRecent;
     }
 
+    public GotRecent requestRecentBancho(RecentInformations infos) throws Exception {
+        GotRecent gotRecent = new GotRecent();
+        ServerInformations serverInformations = Recent.endpoints.get(infos.server);
+        String url = serverInformations.getEndpoint() + "?k=" + Crawler.env.get("OSU_API_KEY") + "&limit=50&type=string&m=" + ModeHelper.convertModeBancho(infos.mode) + "&u="
+                + infos.name.replaceAll(" ", "_");
+        Flogger.instance.log(Prefix.API, "GET: " + url, 0);
+        String response = new GetRequest(url).send("osu!ListBot");
+
+        JSONParser parser = new JSONParser();
+        JSONArray scoreArray = (JSONArray) parser.parse(response);
+        if(scoreArray.size() == 0) {
+            throw new Exception("No scores found");
+        }
+
+        JSONObject scoreObj = (JSONObject) scoreArray.get(infos.offset);
+        gotRecent.size = scoreArray.size();
+        gotRecent.score = Long.parseLong((String) scoreObj.get("score"));
+        gotRecent.grade = (String) scoreObj.get("rank");
+        gotRecent.mods = Long.parseLong((String) scoreObj.get("enabled_mods"));
+        gotRecent.mapId = Long.parseLong((String) scoreObj.get("beatmap_id"));
+        gotRecent.userId = Long.parseLong((String) scoreObj.get("user_id"));
+        if((String) scoreObj.get("score_id") != null) {
+            gotRecent.scoreId = Long.parseLong((String) scoreObj.get("score_id"));
+        } else {
+            gotRecent.scoreId = 0;
+        }
+        String beatmapUrl = "https://osu.ppy.sh/api/get_beatmaps" + "?k=" + Crawler.env.get("OSU_API_KEY") + "&b=" + gotRecent.mapId;
+        Flogger.instance.log(Prefix.API, "GET: " + beatmapUrl, 0);
+        String beatmapResponse = new GetRequest(beatmapUrl).send("osu!ListBot");
+
+        JSONArray beatmapArray = (JSONArray) parser.parse(beatmapResponse);
+        JSONObject beatmapObj = (JSONObject) beatmapArray.get(0);
+        gotRecent.mapName = (String) beatmapObj.get("title");
+        gotRecent.setId  = Long.parseLong((String) beatmapObj.get("beatmapset_id"));
+        gotRecent.mapArtist = (String) beatmapObj.get("artist");
+        gotRecent.creator = (String) beatmapObj.get("creator");
+        gotRecent.diff = Double.parseDouble(beatmapObj.get("difficultyrating").toString());
+        gotRecent.ar = Double.parseDouble(beatmapObj.get("diff_approach").toString());
+        gotRecent.bpm = Double.parseDouble(beatmapObj.get("bpm").toString());
+        gotRecent.od = Double.parseDouble(beatmapObj.get("diff_overall").toString());
+        gotRecent.status = Long.parseLong((String) beatmapObj.get("approved"));
+
+        Object ppObj = scoreObj.get("pp");
+        if(ppObj != null) {
+            gotRecent.pp = ((Number) ppObj).doubleValue();
+        } else {
+            gotRecent.pp = 0.0;
+        }
+
+        if(((String) scoreObj.get("perfect")).equals("1")) {
+            gotRecent.acc = 100.0;
+        }
+
+
+        return gotRecent;
+    }
+
     public String convertDescription(GotRecent gotRecent, String nameW, RecentInformations infos) {
+
+  
         String description = OsuConverter.convertStatus(String.valueOf(gotRecent.status)) + " ▪ "
                 + OsuConverter.convertGrade(gotRecent.grade) + " ▪ [" + (nameW) + "]";
 

@@ -26,7 +26,7 @@ public class UpdateStatusChannel extends DatabaseAction {
         super.executeAction(logger);
         
         try {
-            TextChannel channel = DiscordBot.jdaInstance.getTextChannelById(channelId);
+            TextChannel channel = DiscordBot.getJdaInstance().getTextChannelById(channelId);
 
             channel.getIterableHistory().takeAsync(1).thenAccept(messages -> {
                 try {

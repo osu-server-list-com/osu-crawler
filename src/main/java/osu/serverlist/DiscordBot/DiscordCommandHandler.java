@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
+import osu.serverlist.DiscordBot.commands.Link;
 import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Stats;
@@ -114,10 +115,17 @@ public class DiscordCommandHandler extends ListenerAdapter {
 
         else if (event.getName().equals("recent")) {
             new Recent().handleAutoComplete(event);
+            return;
         }
 
         else if (event.getName().equals("best")) {
             new Best().handleAutoComplete(event);
+            return;
+        }
+
+        if(event.getName().equals("link")) {
+            new Link().handleAutoComplete(event);
+            return;
         }
 
     }
@@ -273,6 +281,8 @@ public class DiscordCommandHandler extends ListenerAdapter {
             new Recent().handleCommand(event);
         } else if (event.getName().equals("best")) {
             new Best().handleCommand(event);
+        } else if (event.getName().equals("link")) {
+            new Link().handleCommand(event);
         } else {
             String inviteUrl = event.getJDA().getInviteUrl();
             event.reply("Here's the invite link: " + inviteUrl).queue();
