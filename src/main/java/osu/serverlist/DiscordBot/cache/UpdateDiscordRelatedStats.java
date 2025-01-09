@@ -9,10 +9,18 @@ import commons.marcandreher.Commons.Flogger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import osu.serverlist.DiscordBot.DiscordBot;
+import osu.serverlist.Main.Crawler;
 
 public class UpdateDiscordRelatedStats extends DatabaseAction {
     public enum BotType {
         SERVERS, PLAYERS
+    }
+
+    public UpdateDiscordRelatedStats() {
+        if(Crawler.metrics != null) {
+            Crawler.metrics.registerCounter("osl_cr_bot_players", "Servers on osl bot");
+            Crawler.metrics.registerCounter("osl_cr_bot_servers", "Players on osl bot");
+        }
     }
 
     @Override
@@ -29,6 +37,11 @@ public class UpdateDiscordRelatedStats extends DatabaseAction {
             totalUsers += guild.getMemberCount();
         }
         updateBotCount(BotType.PLAYERS, totalUsers);
+
+        if(Crawler.metrics != null) {
+            Crawler.metrics.setCounter("osl_cr_bot_players", totalUsers);
+            Crawler.metrics.setCounter("osl_cr_bot_servers", guilds.size());
+        }
     }
 
      public void updateBotCount(BotType botType, int value) {

@@ -44,6 +44,7 @@ import osu.serverlist.DiscordBot.commands.Profile;
 import osu.serverlist.DiscordBot.commands.Recent;
 import osu.serverlist.DiscordBot.commands.Stats;
 import osu.serverlist.Handlers.AlertHandler;
+import osu.serverlist.Main.Crawler;
 
 public class DiscordCommandHandler extends ListenerAdapter {
 
@@ -194,6 +195,9 @@ public class DiscordCommandHandler extends ListenerAdapter {
                     embed.setColor(0x5755d9);
                     embed.setDescription("-# Panel by [lookatmysco.re](https://lookatmysco.re) | Powered by [osu!ServerList](https://osu-server-list.com)");
                     event.getChannel().sendMessage("").addEmbeds(embed.build()).queue();
+                    if(Crawler.metrics != null) {
+                        Crawler.metrics.incCounter("osl_bot_lams_panels");
+                    }
                 }
 
             } catch (IOException e) {
@@ -271,6 +275,9 @@ public class DiscordCommandHandler extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         Flogger.instance.log(Prefix.API, "Slash Command: " + event.getName(), 0);
+        if(Crawler.metrics != null) {
+            Crawler.metrics.incCounter("osl_bot_cmds_execs");
+        }
         if (event.getName().equals("stats")) {
             new Stats().handleCommand(event);
         } else if (event.getName().equals("profile")) {

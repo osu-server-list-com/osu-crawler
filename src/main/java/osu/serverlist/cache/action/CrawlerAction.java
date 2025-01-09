@@ -41,7 +41,7 @@ public class CrawlerAction extends DatabaseAction {
     private final CrawlerLog crawlerLog = new CrawlerLog();
     private Flogger logger;
     private final Map<Server, Long> incidentCooldownMap = new HashMap<>();
-    private final List<Server> incidentServerList = new ArrayList<>();
+    public static final List<Server> incidentServerList = new ArrayList<>();
 
 
     @Override

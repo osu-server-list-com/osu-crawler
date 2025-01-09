@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import osu.serverlist.DiscordBot.DiscordBot;
+import osu.serverlist.Main.Crawler;
 
 public class UpdateStatusChannel extends DatabaseAction {
 
@@ -19,6 +20,16 @@ public class UpdateStatusChannel extends DatabaseAction {
 
     public UpdateStatusChannel(String channelId) {
         this.channelId = channelId;
+
+        if(Crawler.metrics != null) {
+            Crawler.metrics.registerCounter("osl_web_servers", "Servers on osu-server-list.com");
+            Crawler.metrics.registerCounter("osl_web_players", "Players on osu-server-list.com");
+            Crawler.metrics.registerCounter("osl_web_votes", "Votes on osu-server-list.com");
+            Crawler.metrics.registerCounter("osl_web_users", "Users on osu-server-list.com");
+
+            Crawler.metrics.registerCounter("osl_web_request", "Requests on osu-server-list.com");
+            Crawler.metrics.registerCounter("osl_cr_db_records", "Crawler Records on osu-server-list.com");
+        }
     }
 
     @Override
@@ -71,6 +82,15 @@ public class UpdateStatusChannel extends DatabaseAction {
                 builder.addField("Avg Players on Servers", statResult.getString("tplayersavg"), false);
                 builder.addField("Unique Requests today", statResult.getString("uniqueReqToday"), false);
                 builder.addField("Crawler DB Records", statResult.getString("crawler"), false);
+            
+                if(Crawler.metrics != null) {
+                    Crawler.metrics.setCounter("osl_web_players", statResult.getInt("playersOnline"));
+                    Crawler.metrics.setCounter("osl_web_servers", statResult.getInt("svisible"));
+                    Crawler.metrics.setCounter("osl_web_votes", statResult.getInt("votes"));
+                    Crawler.metrics.setCounter("osl_web_users", statResult.getInt("users"));
+                    Crawler.metrics.setCounter("osl_web_request", statResult.getInt("uniqueReqToday"));
+                    Crawler.metrics.setCounter("osl_cr_db_records", statResult.getInt("crawler"));
+                }
             }
 
         } catch (Exception e) {

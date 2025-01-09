@@ -22,6 +22,7 @@ import osu.serverlist.DiscordBot.cache.UpdateStatusChannel;
 import osu.serverlist.DiscordBot.commands.Best;
 import osu.serverlist.DiscordBot.commands.Leaderboard;
 import osu.serverlist.DiscordBot.commands.Recent;
+import osu.serverlist.Main.Crawler;
 
 public class DiscordBot implements Runnable {
     private static final int AUTOCOMPLETE_UPDATE_INTERVAL = 15;
@@ -93,6 +94,10 @@ public class DiscordBot implements Runnable {
         logger.log("\n");
         logger.log(Prefix.API, "Bot Username: " + jdaInstance.getSelfUser().getName());
         logger.log(Prefix.API, "Bot Discriminator: " + jdaInstance.getSelfUser().getDiscriminator());
+        if(Crawler.metrics != null) {
+            Crawler.metrics.registerCounter("osl_bot_cmds_execs", "Commands executed by the bot");
+            Crawler.metrics.registerCounter("osl_bot_lams_panels", "Panels shown by the bot");
+        }
     }
 
     public static void deleteCommandsForAllServers() {

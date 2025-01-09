@@ -1,11 +1,13 @@
 package osu.serverlist.Main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import commons.marcandreher.Cache.CacheTimer;
 import commons.marcandreher.Commons.Database;
 import commons.marcandreher.Commons.Database.ServerTimezone;
+import commons.marcandreher.Commons.Flogger.Prefix;
 import commons.marcandreher.Commons.Flogger;
 import commons.marcandreher.Commons.MySQL;
 import commons.marcandreher.Input.CommandHandler;
@@ -19,12 +21,14 @@ import osu.serverlist.Input.Commands.ExpireVotes;
 import osu.serverlist.Input.Commands.InitCmds;
 import osu.serverlist.Input.Commands.Servers;
 import osu.serverlist.cache.action.CrawlerAction;
+import osu.serverlist.cache.action.PrometheusAction;
 
 public class Crawler {
     protected static Flogger LOG = null;
+    public static MetricsCollector metrics = null;
     public static Dotenv env;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NumberFormatException, IOException {
         MySQL.LOGLEVEL = 5;
 
         File directory = new File("osr");
@@ -39,8 +43,17 @@ public class Crawler {
         db.setConnectionTimeout(1000);
         db.connectToMySQL(env.get("DBHOST"), env.get("DBUSER"), env.get("DBPASS"), env.get("DBNAME"), ServerTimezone.UTC);
         
+   
         CacheTimer cacheTimer = new CacheTimer(15, 1, TimeUnit.MINUTES);
         cacheTimer.addAction(new CrawlerAction());
+
+        if((Boolean.parseBoolean(env.get("PROMETHEUS")))) {
+            CacheTimer promTimer = new CacheTimer(1, 1, TimeUnit.MINUTES);
+            metrics = new MetricsCollector();
+            promTimer.addAction(new PrometheusAction());
+            LOG.log(Prefix.API, "Prometheus metrics enabled", 0);
+        }
+
 
         Runnable discordBotRunnable = new DiscordBot(LOG);
         Thread discordBotStarter = new Thread(discordBotRunnable);
