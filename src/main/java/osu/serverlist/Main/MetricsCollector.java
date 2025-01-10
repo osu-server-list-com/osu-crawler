@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import commons.marcandreher.Commons.Flogger;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.exporter.HTTPServer;
 
@@ -31,6 +30,10 @@ public class MetricsCollector {
 
     public void decCounter(String name) {
         counters.get(name).dec();
+    }
+
+    public HTTPServer getMetrics() {
+        return metrics;
     }
 
 }

@@ -24,8 +24,13 @@ public class UpdateStatusChannel extends DatabaseAction {
         if(Crawler.metrics != null) {
             Crawler.metrics.registerCounter("osl_web_servers", "Servers on osu-server-list.com");
             Crawler.metrics.registerCounter("osl_web_players", "Players on osu-server-list.com");
+
             Crawler.metrics.registerCounter("osl_web_votes", "Votes on osu-server-list.com");
+            Crawler.metrics.registerCounter("osl_web_this_month_votes", "Votes on this month osu-server-list.com");
+            Crawler.metrics.registerCounter("osl_web_this_year_votes", "Votes on this year osu-server-list.com");
+
             Crawler.metrics.registerCounter("osl_web_users", "Users on osu-server-list.com");
+
 
             Crawler.metrics.registerCounter("osl_web_request", "Requests on osu-server-list.com");
             Crawler.metrics.registerCounter("osl_cr_db_records", "Crawler Records on osu-server-list.com");
@@ -56,7 +61,20 @@ public class UpdateStatusChannel extends DatabaseAction {
         }
     }
 
-    private final String STAT_SQL = "SELECT (SELECT COUNT(`id`) FROM `un_servers`) AS `servers`, (SELECT COUNT(`id`) FROM `un_servers` WHERE `visible` = 1) AS `svisible`, (SELECT SUM(`players`) FROM `un_servers` WHERE `visible` = 1) AS `playersOnline`, (SELECT COUNT(`id`) FROM `un_categories`) AS `categories`, (SELECT COUNT(`id`) FROM `un_votes`) AS `votes`, (SELECT COUNT(`id`) FROM `un_crawler`) AS `crawler`, (SELECT COUNT(`id`) FROM `un_users`) AS `users`, (SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayers`, (SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK' AND `date` = CURDATE()) AS `tplayerstoday`, (SELECT ROUND(AVG(`value`), 2) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayersavg`, (SELECT IFNULL(SUM(`clicks`), 0) FROM `un_analytics` WHERE `date` = CURDATE()) AS `uniqueReqToday`;";
+    private final String STAT_SQL = "SELECT " +
+    "(SELECT COUNT(`id`) FROM `un_servers`) AS `servers`, " +
+    "(SELECT COUNT(`id`) FROM `un_servers` WHERE `visible` = 1) AS `svisible`, " +
+    "(SELECT SUM(`players`) FROM `un_servers` WHERE `visible` = 1) AS `playersOnline`, " +
+    "(SELECT COUNT(`id`) FROM `un_categories`) AS `categories`, " +
+    "(SELECT COUNT(`id`) FROM `un_votes`) AS `votes`, " +
+    "(SELECT COUNT(`id`) FROM `un_crawler`) AS `crawler`, " +
+    "(SELECT COUNT(`id`) FROM `un_users`) AS `users`, " +
+    "(SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayers`, " +
+    "(SELECT SUM(`value`) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK' AND `date` = CURDATE()) AS `tplayerstoday`, " +
+    "(SELECT ROUND(AVG(`value`), 2) FROM `un_crawler` WHERE `type` = 'PLAYERCHECK') AS `tplayersavg`, " +
+    "(SELECT IFNULL(SUM(`clicks`), 0) FROM `un_analytics` WHERE `date` = CURDATE()) AS `uniqueReqToday`, " +
+    "(SELECT COUNT(`id`) FROM `un_votes` WHERE YEAR(`votetime`) = YEAR(CURDATE())) AS `votesThisYear`, " +
+    "(SELECT COUNT(`id`) FROM `un_votes` WHERE YEAR(`votetime`) = YEAR(CURDATE()) AND MONTH(`votetime`) = MONTH(CURDATE())) AS `votesThisMonth`;";
 
     private MessageEmbed buildEmbed() throws SQLException {
         MySQL mysql = Database.getConnection();
@@ -90,6 +108,8 @@ public class UpdateStatusChannel extends DatabaseAction {
                     Crawler.metrics.setCounter("osl_web_users", statResult.getInt("users"));
                     Crawler.metrics.setCounter("osl_web_request", statResult.getInt("uniqueReqToday"));
                     Crawler.metrics.setCounter("osl_cr_db_records", statResult.getInt("crawler"));
+                    Crawler.metrics.setCounter("osl_web_this_month_votes", statResult.getInt("votesThisMonth"));
+                    Crawler.metrics.setCounter("osl_web_this_year_votes", statResult.getInt("votesThisYear"));
                 }
             }
 

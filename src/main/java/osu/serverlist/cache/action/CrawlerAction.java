@@ -84,8 +84,8 @@ public class CrawlerAction extends DatabaseAction {
             }else {
                 mysql.Exec("INSERT INTO `un_incidents`(`message`, `response_code`, `url`) VALUES (?,?,?);", incident.getMessage(), String.valueOf(incident.getResponseCode()), incident.getUrl());
             }
-
-            incidentServerList.add(server);
+            if(!incidentServerList.contains(server))
+                incidentServerList.add(server);
 
             String incidentsWebhook = Crawler.env.get("INCIDENTS_WEBHOOK");
             if (!incidentsWebhook.isEmpty()) {
@@ -204,11 +204,6 @@ public class CrawlerAction extends DatabaseAction {
                 return createIncident("Failed to crawl server: " + server.getName(), response.code(), apiUrl);
             }
 
-            if (incidentCooldownMap.containsKey(server) && incidentServerList.contains(server)) {
-                sendResolutionWebhook(server);
-                incidentServerList.remove(server);
-            }    
-
             String responseBody = response.body().string();
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
             long endCrawlTime = System.currentTimeMillis();
@@ -311,6 +306,11 @@ public class CrawlerAction extends DatabaseAction {
                 default:
                     break;
             }
+
+            if (incidentCooldownMap.containsKey(server) && incidentServerList.contains(server)) {
+                sendResolutionWebhook(server);
+                incidentServerList.remove(server);
+            }    
 
             crawlerLog.success();
             CrawlerDump dump = new CrawlerDump(mysql, server);

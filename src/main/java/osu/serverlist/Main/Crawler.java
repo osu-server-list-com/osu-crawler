@@ -18,6 +18,7 @@ import osu.serverlist.Input.Commands.Crawlerlog;
 import osu.serverlist.Input.Commands.DelCmds;
 import osu.serverlist.Input.Commands.ExceptionManager;
 import osu.serverlist.Input.Commands.ExpireVotes;
+import osu.serverlist.Input.Commands.Incidents;
 import osu.serverlist.Input.Commands.InitCmds;
 import osu.serverlist.Input.Commands.Servers;
 import osu.serverlist.cache.action.CrawlerAction;
@@ -65,6 +66,7 @@ public class Crawler {
         }
 
         CommandHandler cmd = new CommandHandler(LOG);
+        cmd.registerCommand(new Incidents());
         cmd.registerCommand(new ExceptionManager());
         cmd.registerCommand(new DelCmds());
         cmd.registerCommand(new CheckDcCache());
