@@ -110,7 +110,7 @@ public class Leaderboard extends ListenerAdapter implements DiscordCommand {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Leaderboard for " + endpoints.get(infos.server).getName() + " | " + infos.mode.toUpperCase() + " | " + infos.sort.toUpperCase() + " | (Page "
                 + (infos.offset + 1) + ")");
-        embed.setDescription(gotLeaderboard.leaderboard + "\n-# Data from osuNoLimits | Bot powered by [osu-server-list.com](https://osu-server-list.com)");
+        embed.setDescription(gotLeaderboard.leaderboard + "\n-# Data from " + endpoints.get(infos.server).getName() + " | Bot powered by [osu-server-list.com](https://osu-server-list.com)");
         embed.setColor(0x5755d9);
         embed.build();
 
